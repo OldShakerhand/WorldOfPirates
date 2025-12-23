@@ -1,0 +1,2 @@
+src/public/assets/world_map.json filter=lfs diff=lfs merge=lfs -text
+src/server/assets/world_map.json filter=lfs diff=lfs merge=lfs -text
