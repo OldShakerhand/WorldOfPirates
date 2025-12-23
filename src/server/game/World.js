@@ -1,18 +1,41 @@
 const Projectile = require('./Projectile');
+const Wind = require('./Wind');
 
 class World {
     constructor() {
-        this.width = 2000; // Example world size
+        this.width = 2000;
         this.height = 2000;
-        this.entities = {}; // Map of ID -> Entity
-        this.projectiles = []; // Array of active projectiles
+        this.entities = {};
+        this.projectiles = [];
         this.projectileIdCounter = 0;
+
+        // Wind system
+        this.wind = new Wind();
+
+        // Water depth grid (simple: deep water everywhere for now, can add shallow areas later)
+        this.waterDepth = this.generateWaterDepth();
+    }
+
+    generateWaterDepth() {
+        // For now, all deep water. Later can add shallow zones
+        // Return a function that checks if position is deep/shallow
+        return {
+            isDeep: (x, y) => {
+                // Could add islands, coastlines later
+                // For testing: add a shallow zone in center
+                const centerDist = Math.hypot(x - this.width / 2, y - this.height / 2);
+                return centerDist > 200; // Deep if far from center
+            }
+        };
     }
 
     update(deltaTime) {
+        // Update Wind
+        this.wind.update(deltaTime);
+
         // Update Entities
         for (const id in this.entities) {
-            this.entities[id].update(deltaTime);
+            this.entities[id].update(deltaTime, this.wind, this.waterDepth);
         }
 
         // Update Projectiles
@@ -25,9 +48,9 @@ class World {
                 const entity = this.entities[id];
                 if (entity.type === 'PLAYER' && entity.id !== proj.ownerId) {
                     const dist = Math.hypot(entity.x - proj.x, entity.y - proj.y);
-                    if (dist < 20) { // Simple hit radius
+                    if (dist < 20) {
                         entity.takeDamage(proj.damage);
-                        proj.toRemove = true; // Destroy projectile on hit
+                        proj.toRemove = true;
                         break;
                     }
                 }
@@ -58,10 +81,10 @@ class World {
     }
 
     getState() {
-        // Serialize the world state for the client
         const state = {
             players: {},
-            projectiles: this.projectiles.map(p => p.serialize())
+            projectiles: this.projectiles.map(p => p.serialize()),
+            wind: this.wind.serialize()
         };
         for (const id in this.entities) {
             if (this.entities[id].type === 'PLAYER') {
