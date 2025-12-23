@@ -1,25 +1,34 @@
+const { getShipClass } = require('./ShipClass');
+
 class Player {
-    constructor(id) {
+    constructor(id, shipClassName = 'SLOOP') {
         this.id = id;
         this.type = 'PLAYER';
-        this.x = 100;
-        this.y = 100;
-        this.rotation = 0; // in radians
+        this.x = 100 + Math.random() * 200;
+        this.y = 100 + Math.random() * 200;
+        this.rotation = Math.random() * Math.PI * 2;
         this.speed = 0;
-        this.maxSpeed = 100;
-        this.turnSpeed = 1.0; // Slower turn speed for realism
+
+        // Ship class
+        this.shipClass = getShipClass(shipClassName);
+        this.maxSpeed = this.shipClass.maxSpeed;
+        this.turnSpeed = this.shipClass.turnSpeed;
 
         // Movement State
         this.sailState = 0; // 0 = Stop, 1 = Half, 2 = Full
-        this.sailChangeCooldown = 0; // debounce for W/S keys
+        this.sailChangeCooldown = 0;
 
         // Combat stats
-        this.health = 100;
-        this.maxHealth = 100;
+        this.health = this.shipClass.health;
+        this.maxHealth = this.shipClass.health;
 
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
-        this.fireRate = 2.0; // Slow reload for cannons (2 seconds)
+        this.fireRate = 2.0;
+
+        // Speed tracking for display
+        this.speedInKnots = 0;
+        this.isInDeepWater = true;
 
         // Input state
         this.inputs = {
@@ -41,19 +50,17 @@ class Player {
         if (this.health < 0) this.health = 0;
     }
 
-    update(deltaTime) {
+    update(deltaTime, wind, waterDepth) {
+        // Check water depth
+        this.isInDeepWater = waterDepth.isDeep(this.x, this.y);
+
         // Sail Management
-        // Simple debounce: we only change state if key is pressed and we haven't recently?
-        // Actually since we receive stream of "isPressed", we need to detect edges or just use a timer.
-        // Let's use a simple timer for input debounce if holding key, or just check "wasPressed" tracking.
-        // For simplicity: W increases target, S decreases. But we need to ensure one keypress = one step.
-        // We can do this by tracking "prevInputs" or just simple cooldown.
         this.sailChangeCooldown -= deltaTime;
 
         if (this.sailChangeCooldown <= 0) {
             if (this.inputs.sailUp && this.sailState < 2) {
                 this.sailState++;
-                this.sailChangeCooldown = 0.5; // Half second delay before next change
+                this.sailChangeCooldown = 0.5;
             }
             if (this.inputs.sailDown && this.sailState > 0) {
                 this.sailState--;
@@ -61,17 +68,39 @@ class Player {
             }
         }
 
-        // Speed Physics
+        // Speed Physics with Wind
         let targetSpeed = 0;
-        if (this.sailState === 1) targetSpeed = this.maxSpeed * 0.5;
-        if (this.sailState === 2) targetSpeed = this.maxSpeed;
+
+        if (this.sailState > 0) {
+            // Base speed from sail state
+            const sailModifier = this.sailState === 1 ? 0.5 : 1.0;
+
+            if (this.isInDeepWater) {
+                // Wind affects speed in deep water
+                const windStrength = wind.getStrengthModifier();
+                const windAngle = wind.getAngleModifier(this.rotation, this.shipClass.id);
+                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngle;
+            } else {
+                // Shallow water: constant slow speed, no wind effect
+                targetSpeed = this.maxSpeed * sailModifier * 0.3;
+            }
+        }
 
         // Accelerate/Decelerate towards targetSpeed
+        const accel = this.isInDeepWater ? 20 : 10;
+        const decel = this.isInDeepWater ? 10 : 15;
+
         if (this.speed < targetSpeed) {
-            this.speed += 20 * deltaTime; // Acceleration
+            this.speed += accel * deltaTime;
         } else if (this.speed > targetSpeed) {
-            this.speed -= 10 * deltaTime; // Deceleration/Drag
+            this.speed -= decel * deltaTime;
         }
+
+        // Clamp speed
+        this.speed = Math.max(0, Math.min(this.speed, this.maxSpeed));
+
+        // Convert to knots for display (arbitrary conversion)
+        this.speedInKnots = Math.round(this.speed * 0.1);
 
         // Turning
         if (this.inputs.left) {
@@ -84,6 +113,12 @@ class Player {
         // Apply velocity
         this.x += Math.cos(this.rotation) * this.speed * deltaTime;
         this.y += Math.sin(this.rotation) * this.speed * deltaTime;
+
+        // Wrap around world
+        if (this.x < 0) this.x += 2000;
+        if (this.x > 2000) this.x -= 2000;
+        if (this.y < 0) this.y += 2000;
+        if (this.y > 2000) this.y -= 2000;
     }
 
     serialize() {
@@ -95,6 +130,9 @@ class Player {
             health: this.health,
             maxHealth: this.maxHealth,
             sailState: this.sailState,
+            speedInKnots: this.speedInKnots,
+            isInDeepWater: this.isInDeepWater,
+            shipClassName: this.shipClass.name,
             reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
             reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
             maxReload: this.fireRate

@@ -5,10 +5,20 @@ function renderGame(state, myId) {
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw windrose (top left)
+    if (state.wind) {
+        drawWindrose(state.wind);
+    }
+
     // Draw players
     for (const id in state.players) {
         const player = state.players[id];
         drawShip(player, id === myId);
+
+        // Draw speed display for my ship
+        if (id === myId) {
+            drawSpeedDisplay(player);
+        }
     }
 
     // Draw projectiles
@@ -30,6 +40,98 @@ function renderGame(state, myId) {
             ctx.fill();
         }
     }
+}
+
+function drawWindrose(wind) {
+    const x = 60;
+    const y = 60;
+    const radius = 40;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Background circle
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Wind direction arrow(s)
+    ctx.rotate(wind.direction);
+
+    // Determine number of arrows based on strength
+    let arrowColors = [];
+    if (wind.strength === 'LOW') {
+        arrowColors = ['#e74c3c']; // Red only
+    } else if (wind.strength === 'NORMAL') {
+        arrowColors = ['#e74c3c', '#e67e22']; // Red + Orange
+    } else { // FULL
+        arrowColors = ['#e74c3c', '#e67e22', '#f1c40f']; // Red + Orange + Yellow
+    }
+
+    // Draw arrows
+    arrowColors.forEach((color, i) => {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        const offset = (i - (arrowColors.length - 1) / 2) * 8;
+        ctx.moveTo(offset, -radius + 10);
+        ctx.lineTo(offset + 5, -radius + 20);
+        ctx.lineTo(offset - 5, -radius + 20);
+        ctx.closePath();
+        ctx.fill();
+    });
+
+    ctx.restore();
+}
+
+function drawSpeedDisplay(player) {
+    const x = canvas.width - 100;
+    const y = 30;
+
+    ctx.save();
+    ctx.font = '16px Arial';
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 3;
+
+    // Speed text
+    const speedText = `${player.speedInKnots} kn`;
+    ctx.strokeText(speedText, x, y);
+    ctx.fillText(speedText, x, y);
+
+    // Speed indicator light
+    const lightX = x + 60;
+    const lightY = y - 6;
+    const lightRadius = 8;
+
+    ctx.beginPath();
+    ctx.arc(lightX, lightY, lightRadius, 0, Math.PI * 2);
+
+    // Color based on conditions
+    if (!player.isInDeepWater) {
+        ctx.fillStyle = '#e74c3c'; // Red for shallow water
+    } else {
+        // Green to gray based on speed efficiency
+        // This is a simplified version - could be more sophisticated
+        const speedRatio = player.speedInKnots / 12; // Assuming max ~12 knots
+        if (speedRatio > 0.8) {
+            ctx.fillStyle = '#2ecc71'; // Light green
+        } else if (speedRatio > 0.5) {
+            ctx.fillStyle = '#95a5a6'; // Grey
+        } else {
+            ctx.fillStyle = '#7f8c8d'; // Dark grey
+        }
+    }
+
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
 }
 
 function drawShip(player, isMe) {
