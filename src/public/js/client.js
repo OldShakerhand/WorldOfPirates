@@ -2,39 +2,46 @@ const socket = io();
 
 // Input handling
 const keys = {
-    w: false,
-    a: false,
-    s: false, // Optional: reverse/brake
-    d: false,
-    space: false
+    turnLeft: false, // A
+    turnRight: false, // D
+    sailUp: false, // W
+    sailDown: false, // S
+    shootLeft: false, // Q
+    shootRight: false // E
 };
 
 document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') keys.space = true;
     switch (e.key.toLowerCase()) {
-        case 'w': keys.w = true; break;
-        case 'a': keys.a = true; break;
-        case 'd': keys.d = true; break;
+        case 'w': keys.sailUp = true; break;
+        case 's': keys.sailDown = true; break;
+        case 'a': keys.turnLeft = true; break;
+        case 'd': keys.turnRight = true; break;
+        case 'q': keys.shootLeft = true; break;
+        case 'e': keys.shootRight = true; break;
     }
     sendInput();
 });
 
 document.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') keys.space = false;
     switch (e.key.toLowerCase()) {
-        case 'w': keys.w = false; break;
-        case 'a': keys.a = false; break;
-        case 'd': keys.d = false; break;
+        case 'w': keys.sailUp = false; break;
+        case 's': keys.sailDown = false; break;
+        case 'a': keys.turnLeft = false; break;
+        case 'd': keys.turnRight = false; break;
+        case 'q': keys.shootLeft = false; break;
+        case 'e': keys.shootRight = false; break;
     }
     sendInput();
 });
 
 function sendInput() {
     socket.emit('input', {
-        forward: keys.w,
-        left: keys.a,
-        right: keys.d,
-        shoot: keys.space
+        left: keys.turnLeft,
+        right: keys.turnRight,
+        sailUp: keys.sailUp,
+        sailDown: keys.sailDown,
+        shootLeft: keys.shootLeft,
+        shootRight: keys.shootRight
     });
 }
 
