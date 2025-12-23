@@ -45,18 +45,41 @@ class GameLoop {
         if (player) {
             player.handleInput(inputData);
 
-            if (inputData.shoot) {
-                const now = Date.now() / 1000;
-                if (now - player.lastShotTime >= player.fireRate) {
-                    // Fire!
-                    // Broadside canyons? For now, let's just shoot forward or sideways?
-                    // "Pirates!" usually has broadsides. Let's do simple forward for prototype ease, or maybe 1 left 1 right.
-                    // Let's do a simple forward shot for checking mechanism first.
-                    this.world.createProjectile(player.id, player.x, player.y, player.rotation);
-                    player.lastShotTime = now;
+            const now = Date.now() / 1000;
+
+            // Handle Broadside Left (Q)
+            if (inputData.shootLeft) {
+                if (now - player.lastShotTimeLeft >= player.fireRate) {
+                    // Fire 2 cannons left relative to ship
+                    // Left means rotation - 90 degrees (Math.PI/2)
+                    const baseAngle = player.rotation - Math.PI / 2;
+                    this.fireCannons(player.id, player.x, player.y, baseAngle);
+                    player.lastShotTimeLeft = now;
+                }
+            }
+
+            // Handle Broadside Right (E)
+            if (inputData.shootRight) {
+                if (now - player.lastShotTimeRight >= player.fireRate) {
+                    // Fire 2 cannons right relative to ship
+                    // Right means rotation + 90 degrees
+                    const baseAngle = player.rotation + Math.PI / 2;
+                    this.fireCannons(player.id, player.x, player.y, baseAngle);
+                    player.lastShotTimeRight = now;
                 }
             }
         }
+    }
+
+    fireCannons(ownerId, x, y, baseAngle) {
+        // Fire 2 projectiles with slight spread or offset
+        // For simplicity: spread angle
+        const spread = 0.1; // radians
+
+        // Cannon 1
+        this.world.createProjectile(ownerId, x, y, baseAngle - spread / 2);
+        // Cannon 2
+        this.world.createProjectile(ownerId, x, y, baseAngle + spread / 2);
     }
 }
 

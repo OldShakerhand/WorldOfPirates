@@ -1,16 +1,19 @@
 class Projectile {
-    constructor(id, ownerId, x, y, rotation) {
+    constructor(id, ownerId, x, y, rotation, speed) {
         this.id = id;
-        this.ownerId = ownerId; // Who shot this?
+        this.ownerId = ownerId;
         this.x = x;
         this.y = y;
+        this.z = 10; // Start height (e.g. deck height)
+        this.zSpeed = 10; // Initial upward velocity
         this.rotation = rotation;
-        this.speed = 300;
+        this.speed = speed || 300;
         this.radius = 3;
         this.damage = 25;
-        this.lifeTime = 2.0; // Seconds until it disappears
+        this.lifeTime = 3.0;
         this.timeAlive = 0;
         this.toRemove = false;
+        this.gravity = 20; // Gravity pulling down
     }
 
     update(deltaTime) {
@@ -20,15 +23,27 @@ class Projectile {
             return;
         }
 
+        // Move horizontally
         this.x += Math.cos(this.rotation) * this.speed * deltaTime;
         this.y += Math.sin(this.rotation) * this.speed * deltaTime;
+
+        // Move vertically (Gravity)
+        this.zSpeed -= this.gravity * deltaTime;
+        this.z += this.zSpeed * deltaTime;
+
+        // Water impact
+        if (this.z <= 0) {
+            this.toRemove = true; // Splashed into water
+            // TODO: Create splash event/effect?
+        }
     }
 
     serialize() {
         return {
             id: this.id,
             x: this.x,
-            y: this.y
+            y: this.y,
+            z: this.z
         };
     }
 }
