@@ -1,5 +1,7 @@
 const World = require('./World');
 const Player = require('./Player');
+const GameConfig = require('./GameConfig');
+const CombatConfig = require('./CombatConfig');
 
 class GameLoop {
     constructor(io) {
@@ -72,7 +74,7 @@ class GameLoop {
     fireCannons(ownerId, x, y, baseAngle) {
         // Fire 2 projectiles with slight spread or offset
         // For simplicity: spread angle
-        const spread = 0.1; // radians
+        const spread = CombatConfig.CANNON_SPREAD;
 
         // Cannon 1
         this.world.createProjectile(ownerId, x, y, baseAngle - spread / 2);
@@ -147,12 +149,12 @@ class GameLoop {
                     const dist = Math.hypot(dx, dy);
 
                     // Place ship 50 units beyond harbor
-                    const spawnDist = dist + 50;
+                    const spawnDist = dist + GameConfig.HARBOR_SPAWN_DISTANCE;
                     player.x = island.x + (dx / dist) * spawnDist;
                     player.y = island.y + (dy / dist) * spawnDist;
 
                     // Grant 6-second shield when leaving harbor
-                    player.shieldEndTime = Date.now() / 1000 + 6;
+                    player.shieldEndTime = Date.now() / 1000 + CombatConfig.HARBOR_EXIT_SHIELD_DURATION;
 
                     console.log(`Player ${playerId} left ${harbor.name} with 6s shield`);
                 }

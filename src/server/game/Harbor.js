@@ -1,3 +1,5 @@
+const GameConfig = require('./GameConfig');
+
 /**
  * Harbor - represents a port on an island
  */
@@ -5,7 +7,7 @@ class Harbor {
     constructor(id, island) {
         this.id = id;
         this.island = island;
-        this.radius = 30; // Interaction zone radius
+        this.radius = GameConfig.HARBOR_INTERACTION_RADIUS;
 
         // Place harbor on island perimeter (random angle)
         const angle = Math.random() * Math.PI * 2;

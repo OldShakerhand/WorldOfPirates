@@ -22,6 +22,10 @@ const SHIELD_CONFIG = {
     GLOW_ALPHA: 0.5
 };
 
+// World dimensions (must match server GameConfig)
+const WORLD_WIDTH = 2000;
+const WORLD_HEIGHT = 2000;
+
 // Set canvas resolution to 1024x768
 canvas.width = 1024;
 canvas.height = 768;
@@ -48,8 +52,8 @@ function renderGame(state, myId) {
     // Apply camera transform for world objects
     ctx.translate(cameraX, cameraY);
 
-    const worldWidth = 2000;
-    const worldHeight = 2000;
+    const worldWidth = WORLD_WIDTH;
+    const worldHeight = WORLD_HEIGHT;
 
     // Draw islands and shallow water with world wrapping
     if (state.islands) {

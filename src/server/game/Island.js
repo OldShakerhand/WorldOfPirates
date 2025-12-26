@@ -1,3 +1,5 @@
+const GameConfig = require('./GameConfig');
+
 /**
  * Island - represents landmass with surrounding shallow water
  */
@@ -7,7 +9,7 @@ class Island {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.shallowWaterRadius = radius + 80; // Shallow water extends 80 units beyond island
+        this.shallowWaterRadius = radius + GameConfig.ISLAND_SHALLOW_WATER_EXTENSION;
     }
 
     /**
