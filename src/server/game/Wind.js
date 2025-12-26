@@ -48,7 +48,11 @@ class Wind {
      */
     getAngleModifier(shipRotation, sailState) {
         // Calculate angle difference between ship and wind
-        let angleDiff = shipRotation - this.direction;
+        // Wind.direction is where wind comes FROM
+        // We want max speed when ship points AWAY from wind source (with the wind)
+        // Ship rotation and wind.direction are both in radians
+
+        let angleDiff = this.direction - shipRotation; // REVERSED: wind direction minus ship
 
         // Normalize to -π to π
         while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
@@ -59,13 +63,12 @@ class Wind {
         const deg90 = Math.PI / 2; // 90 degrees
 
         // Tailwind: Wind from behind (±25° from 180°)
-        // angleDiff near ±π means wind is behind us
+        // absAngle near π means ship is pointing away from wind source = good
         if (absAngle > Math.PI - deg25) {
             return 1.0; // 100% speed - optimal
         }
 
-        // Wide tailwind zone: 155° to 130° and 205° to 230° from wind direction
-        // Still good speed but not optimal
+        // Wide tailwind zone: 155° to 130°
         else if (absAngle > Math.PI - deg25 - (Math.PI * 25 / 180)) {
             return 0.75; // 75% speed (25% reduction)
         }
@@ -73,18 +76,15 @@ class Wind {
         // Beam reach and approaching headwind: 90° to 130°
         else if (absAngle > deg90) {
             // Sailing against wind (more than 90° off)
-            // Full sails: -50% (so 50% speed)
-            // Half sails: -35% (so 65% speed) - better mitigation
             if (sailState === 2) {
                 return 0.50; // Full sails: 50% speed
             } else {
-                return 0.65; // Half sails: 65% speed (mitigates headwind better)
+                return 0.65; // Half sails: 65% speed
             }
         }
 
         // Close to headwind but not dead zone: 25° to 90°
         else if (absAngle > deg25) {
-            // Progressive reduction from 65% to 50% as we approach beam reach
             const ratio = (absAngle - deg25) / (deg90 - deg25);
             if (sailState === 2) {
                 return 0.30 + (0.20 * ratio); // 30% to 50% for full sails
@@ -95,7 +95,7 @@ class Wind {
 
         // Dead zone: ±25° directly into wind
         else {
-            return 0.10; // Near zero speed (10% to avoid complete stop)
+            return 0.10; // Near zero speed
         }
     }
 
