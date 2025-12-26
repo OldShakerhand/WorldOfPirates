@@ -37,6 +37,8 @@ class Player {
 
         // Speed tracking
         this.speedInKnots = 0;
+        // Raft properties (if all ships lost)
+        this.raftSpeed = 75; // 1.5x Sloop speed (Sloop = 50)
         this.isInDeepWater = true;
 
         // Input state
@@ -56,10 +58,10 @@ class Player {
     }
 
     get maxSpeed() {
-        if (this.isRaft) return 30; // Raft is very slow
-        // Apply fleet penalty: heavier ships slow you down
-        const fleetPenalty = this.getFleetSpeedPenalty();
-        return this.flagship.shipClass.maxSpeed * fleetPenalty;
+        if (this.isRaft) {
+            return this.raftSpeed; // 1.5x Sloop speed
+        }
+        return this.flagship.shipClass.maxSpeed;
     }
 
     get turnSpeed() {

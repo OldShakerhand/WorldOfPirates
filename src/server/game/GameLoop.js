@@ -151,7 +151,10 @@ class GameLoop {
                     player.x = island.x + (dx / dist) * spawnDist;
                     player.y = island.y + (dy / dist) * spawnDist;
 
-                    console.log(`Player ${playerId} left ${harbor.name}`);
+                    // Grant 6-second shield when leaving harbor
+                    player.shieldEndTime = Date.now() / 1000 + 6;
+
+                    console.log(`Player ${playerId} left ${harbor.name} with 6s shield`);
                 }
             }
 
