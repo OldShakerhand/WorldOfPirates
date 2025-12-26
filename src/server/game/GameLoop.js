@@ -50,9 +50,8 @@ class GameLoop {
             // Handle Broadside Left (Q)
             if (inputData.shootLeft) {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
-                    // Fire 2 cannons left relative to ship
-                    // Add PI/2 to rotation to account for visual offset, then subtract PI/2 for left side
-                    const baseAngle = player.rotation; // This is perpendicular left to visual orientation
+                    // Fire left broadside - rotation + PI points left
+                    const baseAngle = player.rotation + Math.PI;
                     this.fireCannons(player.id, player.x, player.y, baseAngle);
                     player.lastShotTimeLeft = now;
                 }
@@ -61,9 +60,8 @@ class GameLoop {
             // Handle Broadside Right (E)
             if (inputData.shootRight) {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
-                    // Fire 2 cannons right relative to ship  
-                    // Add PI/2 to rotation, then add PI for right side (or just add PI here)
-                    const baseAngle = player.rotation + Math.PI;
+                    // Fire right broadside - rotation points right
+                    const baseAngle = player.rotation;
                     this.fireCannons(player.id, player.x, player.y, baseAngle);
                     player.lastShotTimeRight = now;
                 }
