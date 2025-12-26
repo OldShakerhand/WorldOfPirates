@@ -78,7 +78,7 @@ class Player {
             if (this.isInDeepWater) {
                 // Wind affects speed in deep water
                 const windStrength = wind.getStrengthModifier();
-                const windAngle = wind.getAngleModifier(this.rotation, this.shipClass.id);
+                const windAngle = wind.getAngleModifier(this.rotation, this.sailState);
                 targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngle;
             } else {
                 // Shallow water: constant slow speed, no wind effect
