@@ -302,7 +302,7 @@ function drawFleetUI(player) {
 
     // Shield indicator
     if (player.hasShield) {
-        ctx.fillStyle = '#3498db';
+        ctx.fillStyle = '#FFD700'; // Bright gold
         ctx.fillText('🛡️ SHIELD', x - 30, y + 40);
     }
 
