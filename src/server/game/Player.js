@@ -157,7 +157,8 @@ class Player {
                 const windAngle = wind.getAngleModifier(this.rotation, this.sailState);
                 targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngle;
             } else {
-                targetSpeed = this.maxSpeed * sailModifier * 0.3;
+                // Shallow water: 25% speed reduction (move at 75% speed)
+                targetSpeed = this.maxSpeed * sailModifier * 0.75;
             }
         }
 
@@ -185,8 +186,33 @@ class Player {
         // Apply velocity
         // Visual ship is rotated by -PI/2, so movement should also be -PI/2
         const movementAngle = this.rotation - Math.PI / 2;
-        this.x += Math.cos(movementAngle) * this.speed * deltaTime;
-        this.y += Math.sin(movementAngle) * this.speed * deltaTime;
+        const newX = this.x + Math.cos(movementAngle) * this.speed * deltaTime;
+        const newY = this.y + Math.sin(movementAngle) * this.speed * deltaTime;
+
+        // Check island collisions
+        let canMove = true;
+        if (waterDepth.checkIslandCollisions) {
+            const collisionResult = waterDepth.checkIslandCollisions(newX, newY);
+            if (collisionResult.collision) {
+                canMove = false;
+
+                // Apply collision damage based on speed
+                if (this.speed > 20) {
+                    const damage = (this.speed - 20) * 0.5;
+                    this.takeDamage(damage);
+                    console.log(`Ship ${this.id} hit island at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
+                }
+
+                // Stop the ship
+                this.speed = 0;
+            }
+        }
+
+        // Only move if no collision
+        if (canMove) {
+            this.x = newX;
+            this.y = newY;
+        }
 
         // Wrap around world
         if (this.x < 0) this.x += 2000;
