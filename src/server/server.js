@@ -29,6 +29,18 @@ io.on('connection', (socket) => {
     socket.on('input', (data) => {
         gameLoop.handleInput(socket.id, data);
     });
+
+    socket.on('enterHarbor', () => {
+        gameLoop.handleEnterHarbor(socket);
+    });
+
+    socket.on('repairShip', () => {
+        gameLoop.handleRepairShip(socket.id);
+    });
+
+    socket.on('closeHarbor', () => {
+        gameLoop.handleCloseHarbor(socket.id);
+    });
 });
 
 server.listen(PORT, () => {

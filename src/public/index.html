@@ -13,6 +13,21 @@
         <canvas id="gameCanvas"></canvas>
     </div>
 
+    <!-- Harbor UI Overlay -->
+    <div id="harborUI" style="display: none;">
+        <div id="harborContent">
+            <h2 id="harborTitle">🏴‍☠️ Harbor</h2>
+            <div id="harborInfo">
+                <h3>Your Fleet:</h3>
+                <div id="fleetList"></div>
+                <div id="harborActions">
+                    <button id="repairBtn" onclick="repairShip()">Repair Flagship</button>
+                    <button id="closeBtn" onclick="closeHarbor()">Set Sail</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/game.js"></script>
     <script src="js/client.js"></script>

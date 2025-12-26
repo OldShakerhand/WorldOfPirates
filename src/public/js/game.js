@@ -419,3 +419,41 @@ function drawShip(player, isMe) {
         ctx.restore();
     }
 }
+
+// Harbor UI Functions
+function showHarborUI(harborData) {
+    const harborUI = document.getElementById('harborUI');
+    const harborTitle = document.getElementById('harborTitle');
+    const fleetList = document.getElementById('fleetList');
+
+    harborTitle.textContent = `🏴‍☠️ ${harborData.harborName}`;
+
+    // Display fleet
+    let fleetHTML = '';
+    harborData.fleet.forEach((ship, index) => {
+        const isFlagship = index === 0;
+        fleetHTML += `
+            <div style="padding: 5px; ${isFlagship ? 'font-weight: bold;' : ''}">
+                ${isFlagship ? '⚓ ' : '• '}${ship.shipClass} - HP: ${ship.health}/${ship.maxHealth}
+            </div>
+        `;
+    });
+
+    fleetList.innerHTML = fleetHTML;
+
+    // Show/hide repair button based on damage
+    const repairBtn = document.getElementById('repairBtn');
+    if (harborData.fleet[0].health < harborData.fleet[0].maxHealth) {
+        repairBtn.style.display = 'block';
+        const repairCost = harborData.fleet[0].maxHealth - harborData.fleet[0].health;
+        repairBtn.textContent = `Repair Flagship (${repairCost} HP)`;
+    } else {
+        repairBtn.style.display = 'none';
+    }
+
+    harborUI.style.display = 'flex';
+}
+
+function hideHarborUI() {
+    document.getElementById('harborUI').style.display = 'none';
+}
