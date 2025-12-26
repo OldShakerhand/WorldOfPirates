@@ -234,4 +234,17 @@ function drawShip(player, isMe) {
     ctx.stroke();
 
     ctx.restore();
+
+    // Draw shield AFTER restore so it's not rotated
+    if (player.hasShield) {
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.strokeStyle = '#3498db';
+        ctx.lineWidth = 3;
+        ctx.globalAlpha = 0.5;
+        ctx.stroke();
+        ctx.restore();
+    }
 }
