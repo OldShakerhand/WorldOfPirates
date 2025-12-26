@@ -2,7 +2,8 @@
  * Island - represents landmass with surrounding shallow water
  */
 class Island {
-    constructor(x, y, radius) {
+    constructor(id, x, y, radius) {
+        this.id = id;
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -27,6 +28,7 @@ class Island {
 
     serialize() {
         return {
+            id: this.id,
             x: this.x,
             y: this.y,
             radius: this.radius,

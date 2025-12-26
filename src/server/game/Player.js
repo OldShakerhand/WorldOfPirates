@@ -132,6 +132,12 @@ class Player {
         // Check water depth
         this.isInDeepWater = waterDepth.isDeep(this.x, this.y);
 
+        // Check harbor proximity
+        this.nearHarbor = null;
+        if (waterDepth.checkHarborProximity) {
+            this.nearHarbor = waterDepth.checkHarborProximity(this.x, this.y);
+        }
+
         // Sail Management
         this.sailChangeCooldown -= deltaTime;
 
