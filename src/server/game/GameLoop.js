@@ -88,6 +88,12 @@ class GameLoop {
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (!harbor) return;
 
+        // Dock the ship (stop movement)
+        player.inHarbor = true;
+        player.dockedHarborId = harbor.id;
+        player.speed = 0;
+        player.sailState = 0;
+
         // Check if player is on raft - auto-convert to Sloop
         if (player.isRaft) {
             const Ship = require('./Ship');
@@ -125,8 +131,33 @@ class GameLoop {
     }
 
     handleCloseHarbor(playerId) {
-        // Just acknowledge - client already closed UI
-        console.log(`Player ${playerId} left harbor`);
+        const player = this.world.getEntity(playerId);
+        if (!player) return;
+
+        // Undock and respawn ship outside harbor
+        if (player.inHarbor && player.dockedHarborId) {
+            const harbor = this.world.harbors.find(h => h.id === player.dockedHarborId);
+            if (harbor) {
+                // Calculate position outside harbor (opposite side from island)
+                const island = this.world.islands.find(i => i.id === harbor.island.id);
+                if (island) {
+                    // Vector from island to harbor
+                    const dx = harbor.x - island.x;
+                    const dy = harbor.y - island.y;
+                    const dist = Math.hypot(dx, dy);
+
+                    // Place ship 50 units beyond harbor
+                    const spawnDist = dist + 50;
+                    player.x = island.x + (dx / dist) * spawnDist;
+                    player.y = island.y + (dy / dist) * spawnDist;
+
+                    console.log(`Player ${playerId} left ${harbor.name}`);
+                }
+            }
+
+            player.inHarbor = false;
+            player.dockedHarborId = null;
+        }
     }
 }
 

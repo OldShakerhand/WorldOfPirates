@@ -129,6 +129,11 @@ class Player {
     }
 
     update(deltaTime, wind, waterDepth) {
+        // Skip movement if docked in harbor
+        if (this.inHarbor) {
+            return;
+        }
+
         // Check water depth
         this.isInDeepWater = waterDepth.isDeep(this.x, this.y);
 
