@@ -109,6 +109,35 @@ function drawWindrose(wind) {
     ctx.restore();
 }
 
+function drawFleetUI(player) {
+    const x = 60;
+    const y = 130; // Below windrose
+
+    ctx.save();
+    ctx.font = '14px Arial';
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 3;
+
+    // Fleet size
+    const fleetText = `Fleet: ${player.fleetSize}`;
+    ctx.strokeText(fleetText, x - 30, y);
+    ctx.fillText(fleetText, x - 30, y);
+
+    // Ship class
+    const shipText = player.isRaft ? 'RAFT' : player.shipClassName;
+    ctx.strokeText(shipText, x - 30, y + 20);
+    ctx.fillText(shipText, x - 30, y + 20);
+
+    // Shield indicator
+    if (player.hasShield) {
+        ctx.fillStyle = '#3498db';
+        ctx.fillText('🛡️ SHIELD', x - 30, y + 40);
+    }
+
+    ctx.restore();
+}
+
 function drawSpeedDisplay(player) {
     const x = canvas.width - 100;
     const y = 30;
