@@ -2,11 +2,12 @@ const Projectile = require('./Projectile');
 const Wind = require('./Wind');
 const Island = require('./Island');
 const Harbor = require('./Harbor');
+const GameConfig = require('./GameConfig');
 
 class World {
     constructor() {
-        this.width = 2000;
-        this.height = 2000;
+        this.width = GameConfig.WORLD_WIDTH;
+        this.height = GameConfig.WORLD_HEIGHT;
         this.entities = {};
         this.projectiles = [];
         this.projectileIdCounter = 0;
@@ -26,7 +27,7 @@ class World {
 
     generateIslands() {
         const islands = [];
-        const islandCount = 7; // 7 islands
+        const islandCount = GameConfig.ISLAND_COUNT;
 
         for (let i = 0; i < islandCount; i++) {
             let x, y, radius;
@@ -34,16 +35,16 @@ class World {
 
             // Try to find a position that doesn't overlap with existing islands
             let attempts = 0;
-            while (!validPosition && attempts < 50) {
+            while (!validPosition && attempts < GameConfig.ISLAND_GENERATION_ATTEMPTS) {
                 x = 200 + Math.random() * (this.width - 400); // Keep away from edges
                 y = 200 + Math.random() * (this.height - 400);
-                radius = 60 + Math.random() * 90; // 60-150 radius
+                radius = GameConfig.ISLAND_MIN_RADIUS + Math.random() * (GameConfig.ISLAND_MAX_RADIUS - GameConfig.ISLAND_MIN_RADIUS);
 
                 // Check distance from other islands
                 validPosition = true;
                 for (const island of islands) {
                     const dist = Math.hypot(x - island.x, y - island.y);
-                    const minDist = radius + island.radius + 100; // Minimum spacing
+                    const minDist = radius + island.radius + GameConfig.ISLAND_MIN_SPACING; // Minimum spacing
                     if (dist < minDist) {
                         validPosition = false;
                         break;

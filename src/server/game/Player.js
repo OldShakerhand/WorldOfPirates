@@ -1,12 +1,15 @@
 const Ship = require('./Ship');
-const { getMaxFleetSize } = require('./NavigationSkill');
+const NavigationSkill = require('./NavigationSkill');
+const GameConfig = require('./GameConfig');
+const PhysicsConfig = require('./PhysicsConfig');
+const CombatConfig = require('./CombatConfig');
 
 class Player {
     constructor(id, startingShipClass = 'SLOOP') {
         this.id = id;
         this.type = 'PLAYER';
-        this.x = 100 + Math.random() * 200;
-        this.y = 100 + Math.random() * 200;
+        this.x = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
+        this.y = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
         this.rotation = Math.random() * Math.PI * 2;
         this.speed = 0;
 
@@ -33,12 +36,12 @@ class Player {
         // Combat stats from flagship
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
-        this.fireRate = 2.0;
+        this.fireRate = CombatConfig.CANNON_FIRE_RATE;
 
         // Speed tracking
         this.speedInKnots = 0;
         // Raft properties (if all ships lost)
-        this.raftSpeed = 75; // 1.5x Sloop speed (Sloop = 50)
+        this.raftSpeed = PhysicsConfig.RAFT_SPEED;
         this.isInDeepWater = true;
 
         // Input state
@@ -65,7 +68,7 @@ class Player {
     }
 
     get turnSpeed() {
-        if (this.isRaft) return 1.5;
+        if (this.isRaft) return PhysicsConfig.RAFT_TURN_SPEED;
         return this.flagship.shipClass.turnSpeed;
     }
 
@@ -232,10 +235,10 @@ class Player {
         }
 
         // Wrap around world
-        if (this.x < 0) this.x += 2000;
-        if (this.x > 2000) this.x -= 2000;
-        if (this.y < 0) this.y += 2000;
-        if (this.y > 2000) this.y -= 2000;
+        if (this.x < 0) this.x += GameConfig.WORLD_WIDTH;
+        if (this.x > GameConfig.WORLD_WIDTH) this.x -= GameConfig.WORLD_WIDTH;
+        if (this.y < 0) this.y += GameConfig.WORLD_HEIGHT;
+        if (this.y > GameConfig.WORLD_HEIGHT) this.y -= GameConfig.WORLD_HEIGHT;
     }
 
     serialize() {
