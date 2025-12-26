@@ -1,6 +1,27 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Visual Constants - centralized styling
+const COLORS = {
+    OCEAN_DEEP: '#3498db',
+    OCEAN_SHALLOW: '#5dade2',
+    SHIELD_GOLD: '#FFD700',
+    SHIELD_GLOW: '#FFF700',
+    PLAYER_SHIP: '#f1c40f',
+    OTHER_SHIP: '#ecf0f1',
+    HEALTH_BAR_BG: 'red',
+    HEALTH_BAR_FG: '#2ecc71'
+};
+
+const SHIELD_CONFIG = {
+    RADIUS: 25,
+    GLOW_RADIUS: 28,
+    LINE_WIDTH: 4,
+    GLOW_WIDTH: 2,
+    ALPHA: 0.8,
+    GLOW_ALPHA: 0.5
+};
+
 // Set canvas resolution to 1024x768
 canvas.width = 1024;
 canvas.height = 768;
@@ -302,7 +323,7 @@ function drawFleetUI(player) {
 
     // Shield indicator
     if (player.hasShield) {
-        ctx.fillStyle = '#FFD700'; // Bright gold
+        ctx.fillStyle = COLORS.SHIELD_GOLD;
         ctx.fillText('🛡️ SHIELD', x - 30, y + 40);
     }
 
@@ -412,17 +433,17 @@ function drawShip(player, isMe) {
         ctx.save();
         ctx.translate(player.x, player.y);
         ctx.beginPath();
-        ctx.arc(0, 0, 25, 0, Math.PI * 2);
-        ctx.strokeStyle = '#FFD700'; // Bright gold
-        ctx.lineWidth = 4;
-        ctx.globalAlpha = 0.8;
+        ctx.arc(0, 0, SHIELD_CONFIG.RADIUS, 0, Math.PI * 2);
+        ctx.strokeStyle = COLORS.SHIELD_GOLD;
+        ctx.lineWidth = SHIELD_CONFIG.LINE_WIDTH;
+        ctx.globalAlpha = SHIELD_CONFIG.ALPHA;
         ctx.stroke();
         // Add inner glow
-        ctx.strokeStyle = '#FFF700';
-        ctx.lineWidth = 2;
-        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = COLORS.SHIELD_GLOW;
+        ctx.lineWidth = SHIELD_CONFIG.GLOW_WIDTH;
+        ctx.globalAlpha = SHIELD_CONFIG.GLOW_ALPHA;
         ctx.beginPath();
-        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.arc(0, 0, SHIELD_CONFIG.GLOW_RADIUS, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
     }
