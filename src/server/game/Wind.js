@@ -43,10 +43,10 @@ class Wind {
     /**
      * Calculate speed modifier based on angle between ship heading and wind
      * @param {number} shipRotation - Ship's heading in radians
-     * @param {number} shipClass - Ship class (1-10 for Raft to War Galleon)
+     * @param {number} sailState - 0=Stop, 1=Half, 2=Full
      * @returns {number} Speed modifier (0 to 1)
      */
-    getAngleModifier(shipRotation, shipClass) {
+    getAngleModifier(shipRotation, sailState) {
         // Calculate angle difference between ship and wind
         let angleDiff = shipRotation - this.direction;
 
@@ -55,27 +55,47 @@ class Wind {
         while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
         const absAngle = Math.abs(angleDiff);
+        const deg25 = Math.PI * 25 / 180; // 25 degrees in radians
+        const deg90 = Math.PI / 2; // 90 degrees
 
-        // Wind from behind (tailwind): Best speed
-        if (absAngle > Math.PI * 0.85) {
-            return 1.0;
+        // Tailwind: Wind from behind (±25° from 180°)
+        // angleDiff near ±π means wind is behind us
+        if (absAngle > Math.PI - deg25) {
+            return 1.0; // 100% speed - optimal
         }
-        // Beam reach (side wind): Good speed
-        else if (absAngle > Math.PI * 0.6) {
-            return 0.85;
+
+        // Wide tailwind zone: 155° to 130° and 205° to 230° from wind direction
+        // Still good speed but not optimal
+        else if (absAngle > Math.PI - deg25 - (Math.PI * 25 / 180)) {
+            return 0.75; // 75% speed (25% reduction)
         }
-        // Close haul (45-60°): Moderate speed
-        else if (absAngle > Math.PI * 0.4) {
-            // Higher ship classes (4-9) do better here
-            return shipClass >= 4 ? 0.65 : 0.55;
+
+        // Beam reach and approaching headwind: 90° to 130°
+        else if (absAngle > deg90) {
+            // Sailing against wind (more than 90° off)
+            // Full sails: -50% (so 50% speed)
+            // Half sails: -35% (so 65% speed) - better mitigation
+            if (sailState === 2) {
+                return 0.50; // Full sails: 50% speed
+            } else {
+                return 0.65; // Half sails: 65% speed (mitigates headwind better)
+            }
         }
-        // Close to headwind: Poor speed
-        else if (absAngle > Math.PI * 0.2) {
-            return shipClass >= 4 ? 0.4 : 0.3;
+
+        // Close to headwind but not dead zone: 25° to 90°
+        else if (absAngle > deg25) {
+            // Progressive reduction from 65% to 50% as we approach beam reach
+            const ratio = (absAngle - deg25) / (deg90 - deg25);
+            if (sailState === 2) {
+                return 0.30 + (0.20 * ratio); // 30% to 50% for full sails
+            } else {
+                return 0.45 + (0.20 * ratio); // 45% to 65% for half sails
+            }
         }
-        // Dead into wind: Very poor, losing speed
+
+        // Dead zone: ±25° directly into wind
         else {
-            return shipClass >= 4 ? 0.25 : 0.15;
+            return 0.10; // Near zero speed (10% to avoid complete stop)
         }
     }
 
