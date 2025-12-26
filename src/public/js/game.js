@@ -367,14 +367,15 @@ function drawShip(player, isMe) {
     ctx.fillRect(-15, -30, 30 * (player.health / player.maxHealth), 4);
 
     if (isMe) {
-        // Draw Sail State text
+        // Draw Sail State text with shield indicator
         ctx.fillStyle = 'white';
         ctx.font = '10px Arial';
         ctx.textAlign = 'center';
         let sailText = "STOP";
         if (player.sailState === 1) sailText = "HALF";
         if (player.sailState === 2) sailText = "FULL";
-        ctx.fillText(sailText, 0, -35);
+        const shieldIcon = player.hasShield ? ' 🛡️' : '';
+        ctx.fillText(sailText + shieldIcon, 0, -35);
 
         // Draw Reload Bars
         // Left
@@ -412,9 +413,16 @@ function drawShip(player, isMe) {
         ctx.translate(player.x, player.y);
         ctx.beginPath();
         ctx.arc(0, 0, 25, 0, Math.PI * 2);
-        ctx.strokeStyle = '#3498db';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#FFD700'; // Bright gold
+        ctx.lineWidth = 4;
+        ctx.globalAlpha = 0.8;
+        ctx.stroke();
+        // Add inner glow
+        ctx.strokeStyle = '#FFF700';
+        ctx.lineWidth = 2;
         ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
     }
