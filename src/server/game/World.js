@@ -1,6 +1,7 @@
 const Projectile = require('./Projectile');
 const Wind = require('./Wind');
 const Island = require('./Island');
+const Harbor = require('./Harbor');
 
 class World {
     constructor() {
@@ -15,6 +16,9 @@ class World {
 
         // Generate islands
         this.islands = this.generateIslands();
+
+        // Generate harbors
+        this.harbors = this.generateHarbors();
 
         // Water depth based on islands
         this.waterDepth = this.generateWaterDepth();
@@ -49,12 +53,23 @@ class World {
             }
 
             if (validPosition) {
-                islands.push(new Island(x, y, radius));
+                islands.push(new Island(`island_${i}`, x, y, radius));
             }
         }
 
         console.log(`Generated ${islands.length} islands`);
         return islands;
+    }
+
+    generateHarbors() {
+        const harbors = [];
+        for (let i = 0; i < this.islands.length; i++) {
+            const island = this.islands[i];
+            const harbor = new Harbor(`harbor_${i}`, island);
+            harbors.push(harbor);
+        }
+        console.log(`Generated ${harbors.length} harbors`);
+        return harbors;
     }
 
     generateWaterDepth() {
@@ -77,6 +92,16 @@ class World {
                     }
                 }
                 return { collision: false };
+            },
+
+            checkHarborProximity: (x, y) => {
+                // Check if player is near any harbor
+                for (const harbor of this.harbors) {
+                    if (harbor.isPlayerInRange(x, y)) {
+                        return harbor.id;
+                    }
+                }
+                return null;
             }
         };
     }
@@ -137,7 +162,8 @@ class World {
             players: {},
             projectiles: this.projectiles.map(p => p.serialize()),
             wind: this.wind.serialize(),
-            islands: this.islands.map(i => i.serialize())
+            islands: this.islands.map(i => i.serialize()),
+            harbors: this.harbors.map(h => h.serialize())
         };
         for (const id in this.entities) {
             if (this.entities[id].type === 'PLAYER') {
