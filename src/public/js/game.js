@@ -1,6 +1,10 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Set canvas resolution to 1024x768
+canvas.width = 1024;
+canvas.height = 768;
+
 function renderGame(state, myId) {
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -23,10 +27,58 @@ function renderGame(state, myId) {
     // Apply camera transform for world objects
     ctx.translate(cameraX, cameraY);
 
-    // Draw players
+    const worldWidth = 2000;
+    const worldHeight = 2000;
+
+    // Draw players with world wrapping
     for (const id in state.players) {
         const player = state.players[id];
+
+        // Draw ship at its actual position
         drawShip(player, id === myId);
+
+        // Also draw wrapped versions if near world edges
+        // This ensures ships are visible when they wrap around
+        const playerCopy = { ...player };
+
+        // Check if we need to draw wrapped versions
+        // Horizontal wrapping
+        if (player.x < canvas.width / 2) {
+            playerCopy.x = player.x + worldWidth;
+            drawShip(playerCopy, id === myId);
+        } else if (player.x > worldWidth - canvas.width / 2) {
+            playerCopy.x = player.x - worldWidth;
+            drawShip(playerCopy, id === myId);
+        }
+
+        // Vertical wrapping
+        playerCopy.x = player.x; // Reset x
+        if (player.y < canvas.height / 2) {
+            playerCopy.y = player.y + worldHeight;
+            drawShip(playerCopy, id === myId);
+        } else if (player.y > worldHeight - canvas.height / 2) {
+            playerCopy.y = player.y - worldHeight;
+            drawShip(playerCopy, id === myId);
+        }
+
+        // Corner wrapping (diagonal)
+        if ((player.x < canvas.width / 2) && (player.y < canvas.height / 2)) {
+            playerCopy.x = player.x + worldWidth;
+            playerCopy.y = player.y + worldHeight;
+            drawShip(playerCopy, id === myId);
+        } else if ((player.x > worldWidth - canvas.width / 2) && (player.y < canvas.height / 2)) {
+            playerCopy.x = player.x - worldWidth;
+            playerCopy.y = player.y + worldHeight;
+            drawShip(playerCopy, id === myId);
+        } else if ((player.x < canvas.width / 2) && (player.y > worldHeight - canvas.height / 2)) {
+            playerCopy.x = player.x + worldWidth;
+            playerCopy.y = player.y - worldHeight;
+            drawShip(playerCopy, id === myId);
+        } else if ((player.x > worldWidth - canvas.width / 2) && (player.y > worldHeight - canvas.height / 2)) {
+            playerCopy.x = player.x - worldWidth;
+            playerCopy.y = player.y - worldHeight;
+            drawShip(playerCopy, id === myId);
+        }
     }
 
     // Draw projectiles
