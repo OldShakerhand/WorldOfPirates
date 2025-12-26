@@ -6,7 +6,7 @@ class Island {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.shallowWaterRadius = radius + 40; // Shallow water extends 40 units beyond island
+        this.shallowWaterRadius = radius + 80; // Shallow water extends 80 units beyond island
     }
 
     /**
