@@ -188,7 +188,9 @@ function drawShip(player, isMe) {
         ctx.fillRect(21, -5, 4, 10 * (1 - rightPct)); // Vertical bar on right side
     }
 
-    ctx.rotate(player.rotation);
+    // Ship rotation: subtract 90° to align with compass (0 = up/north)
+    // The triangle is drawn pointing right by default, so we offset
+    ctx.rotate(player.rotation - Math.PI / 2);
 
     // Draw simplified ship (triangle)
     ctx.beginPath();
