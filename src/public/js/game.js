@@ -432,9 +432,11 @@ function showHarborUI(harborData) {
     let fleetHTML = '';
     harborData.fleet.forEach((ship, index) => {
         const isFlagship = index === 0;
+        const health = Math.round(ship.health);
+        const maxHealth = Math.round(ship.maxHealth);
         fleetHTML += `
             <div style="padding: 5px; ${isFlagship ? 'font-weight: bold;' : ''}">
-                ${isFlagship ? '⚓ ' : '• '}${ship.shipClass} - HP: ${ship.health}/${ship.maxHealth}
+                ${isFlagship ? '⚓ ' : '• '}${ship.shipClass} - HP: ${health}/${maxHealth}
             </div>
         `;
     });
@@ -445,7 +447,7 @@ function showHarborUI(harborData) {
     const repairBtn = document.getElementById('repairBtn');
     if (harborData.fleet[0].health < harborData.fleet[0].maxHealth) {
         repairBtn.style.display = 'block';
-        const repairCost = harborData.fleet[0].maxHealth - harborData.fleet[0].health;
+        const repairCost = Math.round(harborData.fleet[0].maxHealth - harborData.fleet[0].health);
         repairBtn.textContent = `Repair Flagship (${repairCost} HP)`;
     } else {
         repairBtn.style.display = 'none';
