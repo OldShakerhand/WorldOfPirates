@@ -59,6 +59,7 @@ function renderGame(state, myId) {
 
     if (myShip) {
         drawSpeedDisplay(myShip);
+        drawFleetUI(myShip);
     }
 }
 
