@@ -183,8 +183,8 @@ class Player {
         }
 
         // Apply velocity
-        // Visual ship is rotated by -PI/2, so we need to add +PI/2 to movement
-        const movementAngle = this.rotation + Math.PI / 2;
+        // Visual ship is rotated by -PI/2, so movement should also be -PI/2
+        const movementAngle = this.rotation - Math.PI / 2;
         this.x += Math.cos(movementAngle) * this.speed * deltaTime;
         this.y += Math.sin(movementAngle) * this.speed * deltaTime;
 
