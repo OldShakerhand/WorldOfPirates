@@ -79,6 +79,55 @@ class GameLoop {
         // Cannon 2
         this.world.createProjectile(ownerId, x, y, baseAngle + spread / 2);
     }
+
+    handleEnterHarbor(socket) {
+        const player = this.world.getEntity(socket.id);
+        if (!player || !player.nearHarbor) return;
+
+        // Get harbor data
+        const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
+        if (!harbor) return;
+
+        // Check if player is on raft - auto-convert to Sloop
+        if (player.isRaft) {
+            const Ship = require('./Ship');
+            player.fleet = [new Ship('SLOOP')];
+            player.flagshipIndex = 0;
+            player.isRaft = false;
+            console.log(`Player ${player.id} received a new Sloop at ${harbor.name}`);
+        }
+
+        // Send harbor data to client
+        const harborData = {
+            harborName: harbor.name,
+            fleet: player.fleet.map(ship => ship.serialize())
+        };
+        socket.emit('harborData', harborData);
+    }
+
+    handleRepairShip(playerId) {
+        const player = this.world.getEntity(playerId);
+        if (!player || player.isRaft) return;
+
+        // Repair flagship to full health
+        player.flagship.health = player.flagship.maxHealth;
+        console.log(`Player ${playerId} repaired flagship`);
+
+        // Send updated harbor data
+        const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
+        if (harbor) {
+            const harborData = {
+                harborName: harbor.name,
+                fleet: player.fleet.map(ship => ship.serialize())
+            };
+            this.io.to(playerId).emit('harborData', harborData);
+        }
+    }
+
+    handleCloseHarbor(playerId) {
+        // Just acknowledge - client already closed UI
+        console.log(`Player ${playerId} left harbor`);
+    }
 }
 
 module.exports = GameLoop;

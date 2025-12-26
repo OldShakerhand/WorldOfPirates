@@ -18,6 +18,9 @@ document.addEventListener('keydown', (e) => {
         case 'd': keys.turnRight = true; break;
         case 'q': keys.shootLeft = true; break;
         case 'e': keys.shootRight = true; break;
+        case 'h':
+            socket.emit('enterHarbor');
+            break;
     }
     sendInput();
 });
@@ -50,3 +53,26 @@ socket.on('gamestate_update', (state) => {
     // Pass state to the renderer
     renderGame(state, socket.id);
 });
+
+// Harbor UI events
+socket.on('harborData', (harborData) => {
+    showHarborUI(harborData);
+});
+
+socket.on('harborClosed', () => {
+    hideHarborUI();
+});
+
+// Harbor UI functions (called from HTML buttons)
+function repairShip() {
+    socket.emit('repairShip');
+}
+
+function closeHarbor() {
+    socket.emit('closeHarbor');
+    hideHarborUI();
+}
+
+// Make functions global for HTML onclick
+window.repairShip = repairShip;
+window.closeHarbor = closeHarbor;
