@@ -19,6 +19,10 @@ class Player {
         // Shield (temporary invulnerability after flagship loss)
         this.shieldEndTime = 0; // Timestamp when shield expires
 
+        // Harbor state
+        this.inHarbor = false; // True when docked
+        this.dockedHarborId = null; // Which harbor
+
         // Boarding proximity timer
         this.boardingTarget = null; // { playerId, startTime }
 
