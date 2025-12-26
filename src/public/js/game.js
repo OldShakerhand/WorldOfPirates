@@ -32,6 +32,7 @@ function renderGame(state, myId) {
 
     // Draw islands and shallow water with world wrapping
     if (state.islands) {
+        console.log(`Drawing ${state.islands.length} islands`); // DEBUG
         for (const island of state.islands) {
             // Draw at actual position
             drawIslandWithShallowWater(island);
