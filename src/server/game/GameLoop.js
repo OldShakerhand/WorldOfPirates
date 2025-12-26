@@ -47,11 +47,8 @@ class GameLoop {
 
             const now = Date.now() / 1000;
 
-            // Handle Broadside Left (Q)
-            if (inputData.shootLeft) {
-                // Rafts cannot fire cannons
-                if (player.isRaft) continue;
-
+            // Handle Broadside Left (Q) - Rafts cannot fire
+            if (inputData.shootLeft && !player.isRaft) {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
                     // Fire left broadside - rotation + PI points left
                     const baseAngle = player.rotation + Math.PI;
@@ -60,11 +57,8 @@ class GameLoop {
                 }
             }
 
-            // Handle Broadside Right (E)
-            if (inputData.shootRight) {
-                // Rafts cannot fire cannons
-                if (player.isRaft) continue;
-
+            // Handle Broadside Right (E) - Rafts cannot fire
+            if (inputData.shootRight && !player.isRaft) {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
                     // Fire right broadside - rotation points right
                     const baseAngle = player.rotation;
