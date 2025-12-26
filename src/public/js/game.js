@@ -5,20 +5,28 @@ function renderGame(state, myId) {
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw windrose (top left)
-    if (state.wind) {
-        drawWindrose(state.wind);
+    // Find my ship for camera tracking
+    const myShip = state.players[myId];
+
+    // Camera offset to center on player
+    let cameraX = 0;
+    let cameraY = 0;
+
+    if (myShip) {
+        cameraX = canvas.width / 2 - myShip.x;
+        cameraY = canvas.height / 2 - myShip.y;
     }
+
+    // Save context for UI elements that should stay fixed
+    ctx.save();
+
+    // Apply camera transform for world objects
+    ctx.translate(cameraX, cameraY);
 
     // Draw players
     for (const id in state.players) {
         const player = state.players[id];
         drawShip(player, id === myId);
-
-        // Draw speed display for my ship
-        if (id === myId) {
-            drawSpeedDisplay(player);
-        }
     }
 
     // Draw projectiles
@@ -40,6 +48,18 @@ function renderGame(state, myId) {
             ctx.fill();
         }
     }
+
+    // Restore context to draw UI elements at fixed positions
+    ctx.restore();
+
+    // Draw UI elements (windrose, speed) - these stay fixed on screen
+    if (state.wind) {
+        drawWindrose(state.wind);
+    }
+
+    if (myShip) {
+        drawSpeedDisplay(myShip);
+    }
 }
 
 function drawWindrose(wind) {
@@ -60,7 +80,9 @@ function drawWindrose(wind) {
     ctx.stroke();
 
     // Wind direction arrow(s)
-    ctx.rotate(wind.direction);
+    // wind.direction is where wind comes FROM
+    // We want arrows to point where it's blowing TO (opposite direction)
+    ctx.rotate(wind.direction + Math.PI);
 
     // Determine number of arrows based on strength
     let arrowColors = [];
