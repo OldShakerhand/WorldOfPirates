@@ -30,6 +30,36 @@ function renderGame(state, myId) {
     const worldWidth = 2000;
     const worldHeight = 2000;
 
+    // Draw islands and shallow water with world wrapping
+    if (state.islands) {
+        for (const island of state.islands) {
+            // Draw at actual position
+            drawIslandWithShallowWater(island);
+
+            // Draw wrapped versions
+            const islandCopy = { ...island };
+
+            // Horizontal wrapping
+            if (island.x < canvas.width / 2) {
+                islandCopy.x = island.x + worldWidth;
+                drawIslandWithShallowWater(islandCopy);
+            } else if (island.x > worldWidth - canvas.width / 2) {
+                islandCopy.x = island.x - worldWidth;
+                drawIslandWithShallowWater(islandCopy);
+            }
+
+            // Vertical wrapping
+            islandCopy.x = island.x;
+            if (island.y < canvas.height / 2) {
+                islandCopy.y = island.y + worldHeight;
+                drawIslandWithShallowWater(islandCopy);
+            } else if (island.y > worldHeight - canvas.height / 2) {
+                islandCopy.y = island.y - worldHeight;
+                drawIslandWithShallowWater(islandCopy);
+            }
+        }
+    }
+
     // Draw players with world wrapping
     for (const id in state.players) {
         const player = state.players[id];
@@ -113,6 +143,29 @@ function renderGame(state, myId) {
         drawSpeedDisplay(myShip);
         drawFleetUI(myShip);
     }
+}
+
+function drawIslandWithShallowWater(island) {
+    ctx.save();
+
+    // Draw shallow water zone (warmer blue)
+    ctx.fillStyle = '#5dade2'; // Light/warm blue
+    ctx.beginPath();
+    ctx.arc(island.x, island.y, island.shallowWaterRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw island land (brown/tan)
+    ctx.fillStyle = '#8B7355'; // Sandy brown
+    ctx.beginPath();
+    ctx.arc(island.x, island.y, island.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Add some texture/detail to island
+    ctx.strokeStyle = '#6B5345'; // Darker brown outline
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
 }
 
 function drawWindrose(wind) {
