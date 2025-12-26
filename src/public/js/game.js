@@ -60,6 +60,36 @@ function renderGame(state, myId) {
         }
     }
 
+    // Draw harbors with world wrapping
+    if (state.harbors) {
+        for (const harbor of state.harbors) {
+            // Draw at actual position
+            drawHarbor(harbor);
+
+            // Draw wrapped versions
+            const harborCopy = { ...harbor };
+
+            // Horizontal wrapping
+            if (harbor.x < canvas.width / 2) {
+                harborCopy.x = harbor.x + worldWidth;
+                drawHarbor(harborCopy);
+            } else if (harbor.x > worldWidth - canvas.width / 2) {
+                harborCopy.x = harbor.x - worldWidth;
+                drawHarbor(harborCopy);
+            }
+
+            // Vertical wrapping
+            harborCopy.x = harbor.x;
+            if (harbor.y < canvas.height / 2) {
+                harborCopy.y = harbor.y + worldHeight;
+                drawHarbor(harborCopy);
+            } else if (harbor.y > worldHeight - canvas.height / 2) {
+                harborCopy.y = harbor.y - worldHeight;
+                drawHarbor(harborCopy);
+            }
+        }
+    }
+
     // Draw players with world wrapping
     for (const id in state.players) {
         const player = state.players[id];
@@ -142,6 +172,20 @@ function renderGame(state, myId) {
     if (myShip) {
         drawSpeedDisplay(myShip);
         drawFleetUI(myShip);
+
+        // Show harbor prompt if near a harbor
+        if (myShip.nearHarbor) {
+            ctx.save();
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'yellow';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.textAlign = 'center';
+            const text = 'Press H to enter harbor';
+            ctx.strokeText(text, canvas.width / 2, canvas.height - 50);
+            ctx.fillText(text, canvas.width / 2, canvas.height - 50);
+            ctx.restore();
+        }
     }
 }
 
@@ -164,6 +208,27 @@ function drawIslandWithShallowWater(island) {
     ctx.strokeStyle = '#6B5345'; // Darker brown outline
     ctx.lineWidth = 2;
     ctx.stroke();
+
+    ctx.restore();
+}
+
+function drawHarbor(harbor) {
+    ctx.save();
+
+    // Draw dock/pier (simple rectangle)
+    ctx.fillStyle = '#8B4513'; // Brown/wooden color
+    ctx.fillRect(harbor.x - 10, harbor.y - 20, 20, 40);
+
+    // Draw outline
+    ctx.strokeStyle = '#654321';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(harbor.x - 10, harbor.y - 20, 20, 40);
+
+    // Draw harbor name (small text)
+    ctx.fillStyle = 'white';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(harbor.name, harbor.x, harbor.y - 25);
 
     ctx.restore();
 }
