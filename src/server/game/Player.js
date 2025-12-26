@@ -183,8 +183,10 @@ class Player {
         }
 
         // Apply velocity
-        this.x += Math.cos(this.rotation) * this.speed * deltaTime;
-        this.y += Math.sin(this.rotation) * this.speed * deltaTime;
+        // Visual ship is rotated by -PI/2, so we need to add +PI/2 to movement
+        const movementAngle = this.rotation + Math.PI / 2;
+        this.x += Math.cos(movementAngle) * this.speed * deltaTime;
+        this.y += Math.sin(movementAngle) * this.speed * deltaTime;
 
         // Wrap around world
         if (this.x < 0) this.x += 2000;
