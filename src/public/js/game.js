@@ -56,14 +56,47 @@ function renderGame(state, mapData, myId) {
     const worldWidth = mapData.width;
     const worldHeight = mapData.height;
 
-    // Draw islands and shallow water with world wrapping
+    // Calculate viewport boundaries with buffer for pre-rendering
+    const RENDER_BUFFER = 300; // Render objects 300px before they come into view
+    const viewportLeft = myShip ? myShip.x - canvas.width / 2 - RENDER_BUFFER : -RENDER_BUFFER;
+    const viewportRight = myShip ? myShip.x + canvas.width / 2 + RENDER_BUFFER : canvas.width + RENDER_BUFFER;
+    const viewportTop = myShip ? myShip.y - canvas.height / 2 - RENDER_BUFFER : -RENDER_BUFFER;
+    const viewportBottom = myShip ? myShip.y + canvas.height / 2 + RENDER_BUFFER : canvas.height + RENDER_BUFFER;
+
+    // Helper function to check if an object is near the viewport
+    function isNearViewport(x, y, radius, worldWidth, worldHeight) {
+        // Check if object or its wrapped versions are near viewport
+        const positions = [
+            { x, y }, // Original position
+            { x: x + worldWidth, y }, // Right wrap
+            { x: x - worldWidth, y }, // Left wrap
+            { x, y: y + worldHeight }, // Bottom wrap
+            { x, y: y - worldHeight }, // Top wrap
+            { x: x + worldWidth, y: y + worldHeight }, // Bottom-right corner
+            { x: x - worldWidth, y: y + worldHeight }, // Bottom-left corner
+            { x: x + worldWidth, y: y - worldHeight }, // Top-right corner
+            { x: x - worldWidth, y: y - worldHeight }  // Top-left corner
+        ];
+
+        for (const pos of positions) {
+            const inViewport = (
+                pos.x + radius >= viewportLeft &&
+                pos.x - radius <= viewportRight &&
+                pos.y + radius >= viewportTop &&
+                pos.y - radius <= viewportBottom
+            );
+            if (inViewport) return true;
+        }
+        return false;
+    }
+
+    // Draw islands and shallow water with world wrapping and viewport culling
     if (mapData.islands) {
         for (const island of mapData.islands) {
-            // Calculate viewport boundaries (what's visible on screen)
-            const viewportLeft = myShip ? myShip.x - canvas.width / 2 : 0;
-            const viewportRight = myShip ? myShip.x + canvas.width / 2 : canvas.width;
-            const viewportTop = myShip ? myShip.y - canvas.height / 2 : 0;
-            const viewportBottom = myShip ? myShip.y + canvas.height / 2 : canvas.height;
+            // Only render if island is near viewport
+            if (!isNearViewport(island.x, island.y, island.shallowWaterRadius || island.radius, worldWidth, worldHeight)) {
+                continue;
+            }
 
             // Draw at actual position
             drawIslandWithShallowWater(island);
@@ -118,9 +151,14 @@ function renderGame(state, mapData, myId) {
         }
     }
 
-    // Draw harbors with world wrapping
+    // Draw harbors with world wrapping and viewport culling
     if (mapData.harbors) {
         for (const harbor of mapData.harbors) {
+            // Only render if harbor is near viewport (harbors are small, use 50px radius for culling)
+            if (!isNearViewport(harbor.x, harbor.y, 50, worldWidth, worldHeight)) {
+                continue;
+            }
+
             // Draw at actual position
             drawHarbor(harbor);
 
