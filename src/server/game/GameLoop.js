@@ -10,12 +10,46 @@ class GameLoop {
         this.lastTime = Date.now();
         this.tickRate = 60; // 60 updates per second
         this.interval = null;
+
+        // Performance monitoring
+        this.tickTimes = [];
+        this.monitoringInterval = null;
     }
 
     start() {
         this.interval = setInterval(() => {
             this.update();
         }, 1000 / this.tickRate);
+
+        // Start performance monitoring (log every 10 seconds)
+        this.monitoringInterval = setInterval(() => {
+            this.logPerformance();
+        }, 10000);
+    }
+
+    stop() {
+        clearInterval(this.interval);
+        if (this.monitoringInterval) {
+            clearInterval(this.monitoringInterval);
+        }
+    }
+
+    logPerformance() {
+        if (this.tickTimes.length === 0) return;
+
+        const avgTick = this.tickTimes.reduce((a, b) => a + b, 0) / this.tickTimes.length;
+        const maxTick = Math.max(...this.tickTimes);
+        const playerCount = Object.keys(this.world.entities).length;
+        const projectileCount = this.world.projectiles.length;
+
+        console.log(`[Performance] Avg tick: ${avgTick.toFixed(2)}ms | Max: ${maxTick.toFixed(2)}ms | Players: ${playerCount} | Projectiles: ${projectileCount}`);
+
+        // Warn if performance is degrading
+        if (avgTick > 16.67) {
+            console.warn(`⚠️  WARNING: Average tick time (${avgTick.toFixed(2)}ms) exceeds 60 FPS target (16.67ms)`);
+        }
+
+        this.tickTimes = []; // Reset for next interval
     }
 
     stop() {
@@ -23,7 +57,8 @@ class GameLoop {
     }
 
     update() {
-        const now = Date.now();
+        const tickStart = Date.now();
+        const now = tickStart;
         const deltaTime = (now - this.lastTime) / 1000; // in seconds
         this.lastTime = now;
 
@@ -31,6 +66,10 @@ class GameLoop {
 
         // Send game state to all connected clients
         this.io.emit('gamestate_update', this.world.getState());
+
+        // Track tick performance
+        const tickDuration = Date.now() - tickStart;
+        this.tickTimes.push(tickDuration);
     }
 
     addPlayer(socket) {
