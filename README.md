@@ -141,7 +141,8 @@ Warnings appear when average tick time exceeds the 60 FPS target (16.67ms).
 - Tactical positioning is key to combat advantage
 
 ### Combat
-- **Broadside Cannons**: Fire 2 projectiles per side with slight spread
+- **Broadside Cannons**: Number of cannons varies by ship class (2-10 per side)
+- **Cannon Spread**: Multiple cannons fire with slight spread for realistic volleys
 - **Fire Rate**: 3 seconds between volleys
 - **Damage**: 10 HP per cannonball hit
 - **Collision Damage**: Ramming islands at high speed damages your ship
