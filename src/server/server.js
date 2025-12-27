@@ -58,6 +58,10 @@ io.on('connection', (socket) => {
     socket.on('closeHarbor', () => {
         gameLoop.handleCloseHarbor(socket.id);
     });
+
+    socket.on('switchFlagship', (shipClass) => {
+        gameLoop.handleSwitchFlagship(socket.id, shipClass);
+    });
 });
 
 server.listen(PORT, () => {

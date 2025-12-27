@@ -73,6 +73,13 @@ function closeHarbor() {
     hideHarborUI();
 }
 
+function switchFlagship() {
+    const shipSelector = document.getElementById('shipSelector');
+    const selectedShip = shipSelector.value;
+    socket.emit('switchFlagship', selectedShip);
+}
+
 // Make functions global for HTML onclick
 window.repairShip = repairShip;
 window.closeHarbor = closeHarbor;
+window.switchFlagship = switchFlagship;

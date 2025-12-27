@@ -20,6 +20,21 @@
             <div id="harborInfo">
                 <h3>Your Fleet:</h3>
                 <div id="fleetList"></div>
+
+                <h3>Change Flagship:</h3>
+                <select id="shipSelector">
+                    <option value="SLOOP">Sloop (2 cannons, 120 speed)</option>
+                    <option value="PINNACE">Pinnace (3 cannons, 110 speed)</option>
+                    <option value="BARQUE">Barque (4 cannons, 100 speed)</option>
+                    <option value="FLUYT">Fluyt (3 cannons, 90 speed)</option>
+                    <option value="MERCHANT">Merchant (4 cannons, 95 speed)</option>
+                    <option value="FRIGATE">Frigate (6 cannons, 105 speed)</option>
+                    <option value="FAST_GALLEON">Fast Galleon (7 cannons, 100 speed)</option>
+                    <option value="SPANISH_GALLEON">Spanish Galleon (8 cannons, 85 speed)</option>
+                    <option value="WAR_GALLEON">War Galleon (10 cannons, 80 speed)</option>
+                </select>
+                <button id="switchShipBtn" onclick="switchFlagship()">Switch Flagship</button>
+
                 <div id="harborActions">
                     <button id="repairBtn" onclick="repairShip()">Repair Flagship</button>
                     <button id="closeBtn" onclick="closeHarbor()">Set Sail</button>
@@ -27,6 +42,7 @@
             </div>
         </div>
     </div>
+
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/game.js"></script>
