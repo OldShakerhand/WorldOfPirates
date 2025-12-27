@@ -58,27 +58,59 @@ function renderGame(state, myId) {
     // Draw islands and shallow water with world wrapping
     if (state.islands) {
         for (const island of state.islands) {
+            // Calculate viewport boundaries (what's visible on screen)
+            const viewportLeft = myShip ? myShip.x - canvas.width / 2 : 0;
+            const viewportRight = myShip ? myShip.x + canvas.width / 2 : canvas.width;
+            const viewportTop = myShip ? myShip.y - canvas.height / 2 : 0;
+            const viewportBottom = myShip ? myShip.y + canvas.height / 2 : canvas.height;
+
             // Draw at actual position
             drawIslandWithShallowWater(island);
 
-            // Draw wrapped versions
+            // Draw wrapped versions if island is near world edges
             const islandCopy = { ...island };
 
-            // Horizontal wrapping
-            if (island.x < canvas.width / 2) {
+            // Horizontal wrapping - check if we need to draw wrapped version
+            if (island.x < island.radius + 100) {
+                // Island near left edge, draw copy on right
                 islandCopy.x = island.x + worldWidth;
+                islandCopy.y = island.y;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.x > worldWidth - canvas.width / 2) {
+            } else if (island.x > worldWidth - island.radius - 100) {
+                // Island near right edge, draw copy on left
                 islandCopy.x = island.x - worldWidth;
+                islandCopy.y = island.y;
                 drawIslandWithShallowWater(islandCopy);
             }
 
             // Vertical wrapping
-            islandCopy.x = island.x;
-            if (island.y < canvas.height / 2) {
+            if (island.y < island.radius + 100) {
+                // Island near top edge, draw copy on bottom
+                islandCopy.x = island.x;
                 islandCopy.y = island.y + worldHeight;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.y > worldHeight - canvas.height / 2) {
+            } else if (island.y > worldHeight - island.radius - 100) {
+                // Island near bottom edge, draw copy on top
+                islandCopy.x = island.x;
+                islandCopy.y = island.y - worldHeight;
+                drawIslandWithShallowWater(islandCopy);
+            }
+
+            // Corner wrapping (if island is near both edges)
+            if (island.x < island.radius + 100 && island.y < island.radius + 100) {
+                islandCopy.x = island.x + worldWidth;
+                islandCopy.y = island.y + worldHeight;
+                drawIslandWithShallowWater(islandCopy);
+            } else if (island.x > worldWidth - island.radius - 100 && island.y < island.radius + 100) {
+                islandCopy.x = island.x - worldWidth;
+                islandCopy.y = island.y + worldHeight;
+                drawIslandWithShallowWater(islandCopy);
+            } else if (island.x < island.radius + 100 && island.y > worldHeight - island.radius - 100) {
+                islandCopy.x = island.x + worldWidth;
+                islandCopy.y = island.y - worldHeight;
+                drawIslandWithShallowWater(islandCopy);
+            } else if (island.x > worldWidth - island.radius - 100 && island.y > worldHeight - island.radius - 100) {
+                islandCopy.x = island.x - worldWidth;
                 islandCopy.y = island.y - worldHeight;
                 drawIslandWithShallowWater(islandCopy);
             }

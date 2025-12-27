@@ -74,7 +74,39 @@ class GameLoop {
 
     addPlayer(socket) {
         const player = new Player(socket.id);
+
+        // Find a safe spawn position (not inside islands)
+        const safePosition = this.findSafeSpawnPosition();
+        player.x = safePosition.x;
+        player.y = safePosition.y;
+
         this.world.addEntity(player);
+    }
+
+    findSafeSpawnPosition() {
+        const maxAttempts = 50;
+        const spawnMin = GameConfig.PLAYER_SPAWN_MIN;
+        const spawnRange = GameConfig.PLAYER_SPAWN_RANGE;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const x = spawnMin + Math.random() * spawnRange;
+            const y = spawnMin + Math.random() * spawnRange;
+
+            // Check if position is safe (not in island or shallow water)
+            const collision = this.world.waterDepth.checkIslandCollisions(x, y, 20); // 20 = ship radius buffer
+            const isDeep = this.world.waterDepth.isDeep(x, y);
+
+            if (!collision.collision && isDeep) {
+                return { x, y };
+            }
+        }
+
+        // Fallback: return a position anyway (shouldn't happen with proper spawn area)
+        console.warn('Could not find safe spawn position after 50 attempts, using fallback');
+        return {
+            x: spawnMin + spawnRange / 2,
+            y: spawnMin + spawnRange / 2
+        };
     }
 
     removePlayer(id) {
@@ -93,7 +125,7 @@ class GameLoop {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
                     // Fire left broadside - rotation + PI points left
                     const baseAngle = player.rotation + Math.PI;
-                    this.fireCannons(player.id, player.x, player.y, baseAngle);
+                    this.fireCannons(player, baseAngle);
                     player.lastShotTimeLeft = now;
                 }
             }
@@ -103,22 +135,34 @@ class GameLoop {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
                     // Fire right broadside - rotation points right
                     const baseAngle = player.rotation;
-                    this.fireCannons(player.id, player.x, player.y, baseAngle);
+                    this.fireCannons(player, baseAngle);
                     player.lastShotTimeRight = now;
                 }
             }
         }
     }
 
-    fireCannons(ownerId, x, y, baseAngle) {
-        // Fire 2 projectiles with slight spread or offset
-        // For simplicity: spread angle
+    fireCannons(player, baseAngle) {
+        const cannonCount = player.cannonsPerSide;
+
+        if (cannonCount === 0) return; // No cannons (shouldn't happen, but safety check)
+
         const spread = CombatConfig.CANNON_SPREAD;
 
-        // Cannon 1
-        this.world.createProjectile(ownerId, x, y, baseAngle - spread / 2);
-        // Cannon 2
-        this.world.createProjectile(ownerId, x, y, baseAngle + spread / 2);
+        if (cannonCount === 1) {
+            // Single cannon fires straight
+            this.world.createProjectile(player.id, player.x, player.y, baseAngle);
+        } else {
+            // Multiple cannons spread evenly across the broadside
+            // Total spread angle for all cannons
+            const totalSpread = spread * (cannonCount - 1);
+            const startAngle = baseAngle - totalSpread / 2;
+
+            for (let i = 0; i < cannonCount; i++) {
+                const angle = startAngle + (spread * i);
+                this.world.createProjectile(player.id, player.x, player.y, angle);
+            }
+        }
     }
 
     handleEnterHarbor(socket) {
@@ -159,6 +203,32 @@ class GameLoop {
         // Repair flagship to full health
         player.flagship.health = player.flagship.maxHealth;
         console.log(`Player ${playerId} repaired flagship`);
+
+        // Send updated harbor data
+        const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
+        if (harbor) {
+            const harborData = {
+                harborName: harbor.name,
+                fleet: player.fleet.map(ship => ship.serialize())
+            };
+            this.io.to(playerId).emit('harborData', harborData);
+        }
+    }
+
+    handleSwitchFlagship(playerId, shipClass) {
+        const player = this.world.getEntity(playerId);
+        if (!player || !player.inHarbor) return;
+
+        const Ship = require('./Ship');
+
+        // Create new ship with selected class
+        const newShip = new Ship(shipClass);
+
+        // Replace flagship (index 0) with new ship
+        player.fleet[0] = newShip;
+        player.flagshipIndex = 0;
+
+        console.log(`Player ${playerId} switched flagship to ${shipClass}`);
 
         // Send updated harbor data
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
