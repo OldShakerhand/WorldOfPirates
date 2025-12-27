@@ -17,7 +17,8 @@ This document covers the technical architecture, design decisions, and implement
 │  └────────────┘  └────────────┘  └────────────┘            │
 └─────────────────────────┬───────────────────────────────────┘
                           │ Socket.IO (WebSocket)
-                          │ 60 updates/second
+                          │ Map data: once on connect
+                          │ Game state: 60 updates/second
 ┌─────────────────────────▼───────────────────────────────────┐
 │                      Server (Node.js)                        │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
@@ -118,6 +119,31 @@ requestAnimationFrame(() => {
 
 ## 🌐 Network Architecture
 
+### Two-Tier State System
+
+**Optimization**: Static map data is separated from dynamic game state to reduce bandwidth.
+
+**Static Map Data** (sent once on connection):
+```javascript
+socket.emit('map_data', {
+    width: 2000,
+    height: 2000,
+    islands: [...],  // All island data
+    harbors: [...]   // All harbor data
+});
+```
+
+**Dynamic Game State** (sent 60 times/second):
+```javascript
+socket.emit('gamestate_update', {
+    players: {
+        [id]: { x, y, rotation, health, ... }
+    },
+    projectiles: [...],
+    wind: { direction, strength }
+});
+```
+
 ### Communication Protocol
 
 **Client → Server (Inputs)**
@@ -132,27 +158,18 @@ socket.emit('input', {
 });
 ```
 
-**Server → Client (State)**
-```javascript
-socket.emit('gamestate_update', {
-    players: {
-        [id]: { x, y, rotation, health, ... }
-    },
-    projectiles: [...],
-    wind: { direction, strength },
-    islands: [...],
-    harbors: [...]
-});
-```
+### Bandwidth Optimization
 
-### Current Limitations
-
-> [!WARNING]
-> **Performance Bottleneck**: Full state broadcast
+> [!NOTE]
+> **Network Efficiency Improvements**
 > 
-> The server sends the **entire game state** to **all clients** 60 times per second.
+> By separating static and dynamic data:
+> - **Islands/Harbors**: Sent once (not 60×/second)
+> - **Bandwidth Savings**: 18-30 KB/second per client
+> - **Scalability**: Better support for larger maps
 > 
-> **Bandwidth**: O(N²) where N = player count
+> **Remaining Bottleneck**: Full dynamic state broadcast
+> - **Bandwidth**: O(N²) where N = player count
 > - 5 players: 25 state updates/second
 > - 20 players: 400 state updates/second
 > 
@@ -168,7 +185,9 @@ socket.emit('gamestate_update', {
 | `enterHarbor` | Client → Server | Request harbor docking |
 | `repairShip` | Client → Server | Request ship repair |
 | `closeHarbor` | Client → Server | Leave harbor |
-| `gamestate_update` | Server → Client | Full game state |
+| `switchFlagship` | Client → Server | Change active ship |
+| `map_data` | Server → Client | Static map (once on connect) |
+| `gamestate_update` | Server → Client | Dynamic game state (60×/s) |
 | `harborData` | Server → Client | Harbor UI data |
 | `server_full` | Server → Client | Connection rejected |
 
@@ -438,6 +457,45 @@ npm run dev  # Nodemon auto-restart on file changes
 | `FLEET_SPEED_PENALTY_PER_SHIP` | 0.05 | 5% penalty per ship |
 | `WIND_CHANGE_INTERVAL_MIN` | 30 | Min seconds between wind changes |
 | `WIND_CHANGE_INTERVAL_MAX` | 60 | Max seconds between wind changes |
+
+---
+
+## 🎨 Rendering Optimizations
+
+### World Wrapping System
+
+The game uses a **toroidal world** (wraps horizontally and vertically) to create seamless navigation.
+
+**Challenge**: Islands and harbors must be drawn at wrapped positions when near world edges to prevent pop-in artifacts.
+
+**Solution**: Viewport-based wrapping thresholds
+```javascript
+// Calculate when to draw wrapped versions
+const wrapThreshold = Math.max(canvas.width / 2, canvas.height / 2) + island.shallowWaterRadius;
+
+// Draw wrapped version if island is within threshold of edge
+if (island.x < wrapThreshold) {
+    // Draw copy on opposite side
+    drawIslandWithShallowWater({ ...island, x: island.x + worldWidth });
+}
+```
+
+**Benefits**:
+- Islands, shallow water, and harbors always render together
+- No pop-in/pop-out artifacts
+- Smooth visual experience when crossing world boundaries
+- Threshold adapts to viewport size
+
+### Client-Side Caching
+
+**Static Map Data**: Islands and harbors are cached on the client after initial load
+- Received once via `map_data` event
+- Stored in memory for rendering
+- Only re-downloaded if server changes the map
+
+**Dynamic State**: Players, projectiles, and wind update every frame
+- Received 60 times/second via `gamestate_update`
+- Immediately rendered without caching
 
 ---
 
