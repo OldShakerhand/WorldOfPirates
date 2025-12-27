@@ -81,6 +81,9 @@ class GameLoop {
         player.y = safePosition.y;
 
         this.world.addEntity(player);
+
+        // Send static map data to the new player (only once)
+        socket.emit('map_data', this.world.getMapData());
     }
 
     findSafeSpawnPosition() {

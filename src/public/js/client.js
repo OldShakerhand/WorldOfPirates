@@ -1,5 +1,14 @@
 const socket = io();
 
+// Store static map data (received once on connection)
+let mapData = null;
+
+// Receive initial map data
+socket.on('map_data', (data) => {
+    mapData = data;
+    console.log('Received map data:', data);
+});
+
 // Input handling
 const keys = {
     turnLeft: false, // A
@@ -50,8 +59,10 @@ function sendInput() {
 
 // Game State handling
 socket.on('gamestate_update', (state) => {
-    // Pass state to the renderer
-    renderGame(state, socket.id);
+    // Pass both map data and dynamic state to the renderer
+    if (mapData) {
+        renderGame(state, mapData, socket.id);
+    }
 });
 
 // Harbor UI events

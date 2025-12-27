@@ -162,9 +162,7 @@ class World {
         const state = {
             players: {},
             projectiles: this.projectiles.map(p => p.serialize()),
-            wind: this.wind.serialize(),
-            islands: this.islands.map(i => i.serialize()),
-            harbors: this.harbors.map(h => h.serialize())
+            wind: this.wind.serialize()
         };
         for (const id in this.entities) {
             if (this.entities[id].type === 'PLAYER') {
@@ -172,6 +170,15 @@ class World {
             }
         }
         return state;
+    }
+
+    getMapData() {
+        return {
+            width: this.width,
+            height: this.height,
+            islands: this.islands.map(i => i.serialize()),
+            harbors: this.harbors.map(h => h.serialize())
+        };
     }
 }
 
