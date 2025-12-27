@@ -30,7 +30,7 @@ const WORLD_HEIGHT = 2000;
 canvas.width = 1024;
 canvas.height = 768;
 
-function renderGame(state, myId) {
+function renderGame(state, mapData, myId) {
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -52,12 +52,13 @@ function renderGame(state, myId) {
     // Apply camera transform for world objects
     ctx.translate(cameraX, cameraY);
 
-    const worldWidth = WORLD_WIDTH;
-    const worldHeight = WORLD_HEIGHT;
+    // Use map data for world dimensions
+    const worldWidth = mapData.width;
+    const worldHeight = mapData.height;
 
     // Draw islands and shallow water with world wrapping
-    if (state.islands) {
-        for (const island of state.islands) {
+    if (mapData.islands) {
+        for (const island of mapData.islands) {
             // Calculate viewport boundaries (what's visible on screen)
             const viewportLeft = myShip ? myShip.x - canvas.width / 2 : 0;
             const viewportRight = myShip ? myShip.x + canvas.width / 2 : canvas.width;
@@ -118,8 +119,8 @@ function renderGame(state, myId) {
     }
 
     // Draw harbors with world wrapping
-    if (state.harbors) {
-        for (const harbor of state.harbors) {
+    if (mapData.harbors) {
+        for (const harbor of mapData.harbors) {
             // Draw at actual position
             drawHarbor(harbor);
 
