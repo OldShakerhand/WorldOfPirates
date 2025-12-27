@@ -56,47 +56,12 @@ function renderGame(state, mapData, myId) {
     const worldWidth = mapData.width;
     const worldHeight = mapData.height;
 
-    // Calculate viewport boundaries with buffer for pre-rendering
-    const RENDER_BUFFER = 300; // Render objects 300px before they come into view
-    const viewportLeft = myShip ? myShip.x - canvas.width / 2 - RENDER_BUFFER : -RENDER_BUFFER;
-    const viewportRight = myShip ? myShip.x + canvas.width / 2 + RENDER_BUFFER : canvas.width + RENDER_BUFFER;
-    const viewportTop = myShip ? myShip.y - canvas.height / 2 - RENDER_BUFFER : -RENDER_BUFFER;
-    const viewportBottom = myShip ? myShip.y + canvas.height / 2 + RENDER_BUFFER : canvas.height + RENDER_BUFFER;
-
-    // Helper function to check if an object is near the viewport
-    function isNearViewport(x, y, radius, worldWidth, worldHeight) {
-        // Check if object or its wrapped versions are near viewport
-        const positions = [
-            { x, y }, // Original position
-            { x: x + worldWidth, y }, // Right wrap
-            { x: x - worldWidth, y }, // Left wrap
-            { x, y: y + worldHeight }, // Bottom wrap
-            { x, y: y - worldHeight }, // Top wrap
-            { x: x + worldWidth, y: y + worldHeight }, // Bottom-right corner
-            { x: x - worldWidth, y: y + worldHeight }, // Bottom-left corner
-            { x: x + worldWidth, y: y - worldHeight }, // Top-right corner
-            { x: x - worldWidth, y: y - worldHeight }  // Top-left corner
-        ];
-
-        for (const pos of positions) {
-            const inViewport = (
-                pos.x + radius >= viewportLeft &&
-                pos.x - radius <= viewportRight &&
-                pos.y + radius >= viewportTop &&
-                pos.y - radius <= viewportBottom
-            );
-            if (inViewport) return true;
-        }
-        return false;
-    }
-
-    // Draw islands and shallow water with world wrapping and viewport culling
+    // Draw islands and shallow water with world wrapping
     if (mapData.islands) {
         for (const island of mapData.islands) {
-            // Only render if island is near viewport
-            if (!isNearViewport(island.x, island.y, island.shallowWaterRadius || island.radius, worldWidth, worldHeight)) {
-                continue;
-            }
+            // Calculate wrapping threshold based on viewport size and island size
+            // An island should wrap if it could be visible from the other side
+            const wrapThreshold = Math.max(canvas.width / 2, canvas.height / 2) + island.shallowWaterRadius;
 
             // Draw at actual position
             drawIslandWithShallowWater(island);
@@ -104,13 +69,13 @@ function renderGame(state, mapData, myId) {
             // Draw wrapped versions if island is near world edges
             const islandCopy = { ...island };
 
-            // Horizontal wrapping - check if we need to draw wrapped version
-            if (island.x < island.radius + 100) {
+            // Horizontal wrapping
+            if (island.x < wrapThreshold) {
                 // Island near left edge, draw copy on right
                 islandCopy.x = island.x + worldWidth;
                 islandCopy.y = island.y;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.x > worldWidth - island.radius - 100) {
+            } else if (island.x > worldWidth - wrapThreshold) {
                 // Island near right edge, draw copy on left
                 islandCopy.x = island.x - worldWidth;
                 islandCopy.y = island.y;
@@ -118,12 +83,12 @@ function renderGame(state, mapData, myId) {
             }
 
             // Vertical wrapping
-            if (island.y < island.radius + 100) {
+            if (island.y < wrapThreshold) {
                 // Island near top edge, draw copy on bottom
                 islandCopy.x = island.x;
                 islandCopy.y = island.y + worldHeight;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.y > worldHeight - island.radius - 100) {
+            } else if (island.y > worldHeight - wrapThreshold) {
                 // Island near bottom edge, draw copy on top
                 islandCopy.x = island.x;
                 islandCopy.y = island.y - worldHeight;
@@ -131,19 +96,19 @@ function renderGame(state, mapData, myId) {
             }
 
             // Corner wrapping (if island is near both edges)
-            if (island.x < island.radius + 100 && island.y < island.radius + 100) {
+            if (island.x < wrapThreshold && island.y < wrapThreshold) {
                 islandCopy.x = island.x + worldWidth;
                 islandCopy.y = island.y + worldHeight;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.x > worldWidth - island.radius - 100 && island.y < island.radius + 100) {
+            } else if (island.x > worldWidth - wrapThreshold && island.y < wrapThreshold) {
                 islandCopy.x = island.x - worldWidth;
                 islandCopy.y = island.y + worldHeight;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.x < island.radius + 100 && island.y > worldHeight - island.radius - 100) {
+            } else if (island.x < wrapThreshold && island.y > worldHeight - wrapThreshold) {
                 islandCopy.x = island.x + worldWidth;
                 islandCopy.y = island.y - worldHeight;
                 drawIslandWithShallowWater(islandCopy);
-            } else if (island.x > worldWidth - island.radius - 100 && island.y > worldHeight - island.radius - 100) {
+            } else if (island.x > worldWidth - wrapThreshold && island.y > worldHeight - wrapThreshold) {
                 islandCopy.x = island.x - worldWidth;
                 islandCopy.y = island.y - worldHeight;
                 drawIslandWithShallowWater(islandCopy);
@@ -151,14 +116,9 @@ function renderGame(state, mapData, myId) {
         }
     }
 
-    // Draw harbors with world wrapping and viewport culling
+    // Draw harbors with world wrapping
     if (mapData.harbors) {
         for (const harbor of mapData.harbors) {
-            // Only render if harbor is near viewport (harbors are small, use 50px radius for culling)
-            if (!isNearViewport(harbor.x, harbor.y, 50, worldWidth, worldHeight)) {
-                continue;
-            }
-
             // Draw at actual position
             drawHarbor(harbor);
 
