@@ -100,20 +100,25 @@ setInterval(() => {
 ### Client Render Loop
 
 ```javascript
-// Simplified flow
-requestAnimationFrame(() => {
-    1. Receive game state from server
-    2. Clear canvas
-    3. Render water, islands, harbors
-    4. Render all ships and projectiles
-    5. Render UI elements
-    6. Repeat
+// Event-driven rendering (triggered by server updates)
+socket.on('gamestate_update', (state) => {
+    if (mapData) {
+        1. Receive dynamic game state from server (60×/second)
+        2. Use cached map data (islands, harbors)
+        3. Clear canvas
+        4. Render islands and shallow water (with world wrapping)
+        5. Render harbors (with world wrapping)
+        6. Render all ships and projectiles (with world wrapping)
+        7. Render UI elements (windrose, speed, fleet info)
+    }
 });
 ```
 
-**Frame Rate: Variable (typically 60 FPS)**
-- Client renders as fast as possible
-- Interpolation between server updates (future optimization)
+**Rendering Approach: Event-Driven (Server-Synchronized)**
+- Client renders when server sends `gamestate_update` (60×/second)
+- No `requestAnimationFrame` loop - rendering tied to server tick rate
+- Ensures perfect synchronization with game state
+- Map data cached once, dynamic state updated every frame
 
 ---
 
