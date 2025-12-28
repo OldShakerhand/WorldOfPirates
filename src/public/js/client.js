@@ -1,13 +1,120 @@
-const socket = io();
+// Socket connection (will be initialized after name is set)
+let socket = null;
 
 // Store static map data (received once on connection)
 let mapData = null;
 
-// Receive initial map data
-socket.on('map_data', (data) => {
-    mapData = data;
-    console.log('Received map data:', data);
+// Name input handling
+document.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.getElementById('playerNameInput');
+    const setSailBtn = document.getElementById('setSailBtn');
+    const nameError = document.getElementById('nameError');
+    const nameOverlay = document.getElementById('nameInputOverlay');
+
+    // Try to load saved name from localStorage
+    const savedName = localStorage.getItem('playerName');
+    if (savedName) {
+        nameInput.value = savedName;
+    }
+
+    // Focus on input
+    nameInput.focus();
+
+    // Handle Enter key
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            setSailBtn.click();
+        }
+    });
+
+    // Handle Set Sail button
+    setSailBtn.addEventListener('click', () => {
+        const playerName = nameInput.value.trim();
+
+        // Client-side validation
+        if (playerName.length < 3 || playerName.length > 20) {
+            showError('Name must be 3-20 characters long');
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9 ]+$/.test(playerName)) {
+            showError('Name can only contain letters, numbers, and spaces');
+            return;
+        }
+
+        // Save to localStorage for convenience
+        localStorage.setItem('playerName', playerName);
+
+        // Disable button while connecting
+        setSailBtn.disabled = true;
+        setSailBtn.textContent = 'Connecting...';
+
+        // Initialize socket connection
+        socket = io();
+
+        // Send player name to server
+        socket.emit('setPlayerName', { name: playerName });
+
+        // Handle successful connection
+        socket.on('map_data', (data) => {
+            mapData = data;
+            console.log('Received map data:', data);
+
+            // Hide name overlay and show game
+            nameOverlay.style.display = 'none';
+        });
+
+        // Handle name rejection
+        socket.on('nameRejected', (data) => {
+            showError(data.reason);
+            setSailBtn.disabled = false;
+            setSailBtn.textContent = 'Set Sail! 🏴‍☠️';
+            socket.disconnect();
+            socket = null;
+        });
+
+        // Handle server full
+        socket.on('server_full', (data) => {
+            showError(data.message);
+            setSailBtn.disabled = false;
+            setSailBtn.textContent = 'Set Sail! 🏴‍☠️';
+            socket.disconnect();
+            socket = null;
+        });
+
+        // Setup game event listeners
+        setupGameListeners();
+    });
+
+    function showError(message) {
+        nameError.textContent = message;
+        nameError.style.display = 'block';
+        setTimeout(() => {
+            nameError.style.display = 'none';
+        }, 5000);
+    }
 });
+
+function setupGameListeners() {
+    if (!socket) return;
+
+    // Game State handling
+    socket.on('gamestate_update', (state) => {
+        // Pass both map data and dynamic state to the renderer
+        if (mapData) {
+            renderGame(state, mapData, socket.id);
+        }
+    });
+
+    // Harbor UI events
+    socket.on('harborData', (harborData) => {
+        showHarborUI(harborData);
+    });
+
+    socket.on('harborClosed', () => {
+        hideHarborUI();
+    });
+}
 
 // Input handling
 const keys = {
@@ -47,6 +154,8 @@ document.addEventListener('keyup', (e) => {
 });
 
 function sendInput() {
+    if (!socket) return; // Don't send input before connected
+
     socket.emit('input', {
         left: keys.turnLeft,
         right: keys.turnRight,
@@ -56,23 +165,6 @@ function sendInput() {
         shootRight: keys.shootRight
     });
 }
-
-// Game State handling
-socket.on('gamestate_update', (state) => {
-    // Pass both map data and dynamic state to the renderer
-    if (mapData) {
-        renderGame(state, mapData, socket.id);
-    }
-});
-
-// Harbor UI events
-socket.on('harborData', (harborData) => {
-    showHarborUI(harborData);
-});
-
-socket.on('harborClosed', () => {
-    hideHarborUI();
-});
 
 // Harbor UI functions (called from HTML buttons)
 function repairShip() {

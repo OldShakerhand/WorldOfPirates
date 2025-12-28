@@ -22,25 +22,43 @@ const gameLoop = new GameLoop(io);
 gameLoop.start();
 
 io.on('connection', (socket) => {
-    // Check if server is full
-    if (playerCount >= MAX_PLAYERS) {
-        console.log(`Server full (${MAX_PLAYERS}/${MAX_PLAYERS}). Rejecting connection: ${socket.id}`);
-        socket.emit('server_full', {
-            message: 'Server is full. Please try again later.',
-            maxPlayers: MAX_PLAYERS
-        });
-        socket.disconnect();
-        return;
-    }
+    console.log(`Socket connected: ${socket.id}, waiting for player name...`);
 
-    playerCount++;
-    console.log(`New player connected: ${socket.id} (${playerCount}/${MAX_PLAYERS})`);
-    gameLoop.addPlayer(socket);
+    // Wait for player to set their name before adding to game
+    socket.on('setPlayerName', (data) => {
+        // Check if server is full
+        if (playerCount >= MAX_PLAYERS) {
+            console.log(`Server full (${MAX_PLAYERS}/${MAX_PLAYERS}). Rejecting ${socket.id}`);
+            socket.emit('server_full', {
+                message: 'Server is full. Please try again later.',
+                maxPlayers: MAX_PLAYERS
+            });
+            socket.disconnect();
+            return;
+        }
+
+        const playerName = data.name || 'Anonymous';
+
+        // Try to add player (includes validation)
+        const success = gameLoop.addPlayer(socket, playerName);
+
+        if (success) {
+            playerCount++;
+            console.log(`Player count: ${playerCount}/${MAX_PLAYERS}`);
+        }
+        // If not successful, addPlayer already handled disconnect
+    });
 
     socket.on('disconnect', () => {
-        playerCount--;
-        console.log(`Player disconnected: ${socket.id} (${playerCount}/${MAX_PLAYERS})`);
-        gameLoop.removePlayer(socket.id);
+        // Only decrement if player was actually added to game
+        const player = gameLoop.world.entities[socket.id];
+        if (player) {
+            playerCount--;
+            console.log(`Player disconnected: ${socket.id} (${playerCount}/${MAX_PLAYERS})`);
+            gameLoop.removePlayer(socket.id);
+        } else {
+            console.log(`Socket disconnected before joining: ${socket.id}`);
+        }
     });
 
     socket.on('input', (data) => {

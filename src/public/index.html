@@ -13,6 +13,18 @@
         <canvas id="gameCanvas"></canvas>
     </div>
 
+    <!-- Name Input Overlay -->
+    <div id="nameInputOverlay">
+        <div id="nameInputContent">
+            <h1>⚓ World of Pirates ⚓</h1>
+            <p>Enter your captain's name to set sail!</p>
+            <input type="text" id="playerNameInput" placeholder="Captain Name" maxlength="20" autocomplete="off">
+            <div id="nameError" style="display: none;"></div>
+            <button id="setSailBtn">Set Sail! 🏴‍☠️</button>
+            <p class="hint">3-20 characters (letters, numbers, spaces)</p>
+        </div>
+    </div>
+
     <!-- Harbor UI Overlay -->
     <div id="harborUI" style="display: none;">
         <div id="harborContent">

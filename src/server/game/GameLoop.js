@@ -72,8 +72,24 @@ class GameLoop {
         this.tickTimes.push(tickDuration);
     }
 
-    addPlayer(socket) {
-        const player = new Player(socket.id);
+    addPlayer(socket, playerName = 'Anonymous') {
+        // Validate player name
+        if (!this.isValidPlayerName(playerName)) {
+            console.log(`Rejected invalid name from ${socket.id}: "${playerName}"`);
+            socket.emit('nameRejected', { reason: 'Invalid name. Use 3-20 characters (letters, numbers, spaces only).' });
+            socket.disconnect();
+            return false;
+        }
+
+        // Check for duplicate names
+        if (this.isNameTaken(playerName)) {
+            console.log(`Rejected duplicate name from ${socket.id}: "${playerName}"`);
+            socket.emit('nameRejected', { reason: 'Name already in use. Please choose another name.' });
+            socket.disconnect();
+            return false;
+        }
+
+        const player = new Player(socket.id, playerName);
 
         // Find a safe spawn position (not inside islands)
         const safePosition = this.findSafeSpawnPosition();
@@ -84,6 +100,40 @@ class GameLoop {
 
         // Send static map data to the new player (only once)
         socket.emit('map_data', this.world.getMapData());
+
+        console.log(`Player "${playerName}" (${socket.id}) joined the game`);
+        return true;
+    }
+
+    isValidPlayerName(name) {
+        if (!name || typeof name !== 'string') return false;
+
+        // Trim whitespace for validation
+        const trimmed = name.trim();
+
+        // Check length (3-20 characters)
+        if (trimmed.length < 3 || trimmed.length > 20) return false;
+
+        // Check characters (alphanumeric + spaces only)
+        if (!/^[a-zA-Z0-9 ]+$/.test(trimmed)) return false;
+
+        return true;
+    }
+
+    isNameTaken(name) {
+        const normalizedName = name.toLowerCase().trim();
+
+        for (const id in this.world.entities) {
+            const entity = this.world.entities[id];
+            if (entity.type === 'PLAYER') {
+                const entityName = entity.name.toLowerCase().trim();
+                if (entityName === normalizedName) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     findSafeSpawnPosition() {

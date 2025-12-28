@@ -5,8 +5,16 @@ const PhysicsConfig = require('./PhysicsConfig');
 const CombatConfig = require('./CombatConfig');
 
 class Player {
-    constructor(id, startingShipClass = 'SLOOP') {
-        this.id = id;
+    constructor(id, name = 'Anonymous', startingShipClass = 'SLOOP') {
+        // Identity
+        this.id = id;  // Socket ID (temporary session identifier)
+        this.name = name;  // Display name
+
+        // Future: Add these when implementing persistence
+        // this.accountId = null;     // Database user ID (permanent)
+        // this.sessionToken = null;  // JWT authentication token
+        // this.lastSaveTime = null;  // For auto-save functionality
+
         this.type = 'PLAYER';
         this.x = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
         this.y = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
@@ -244,6 +252,7 @@ class Player {
     serialize() {
         return {
             id: this.id,
+            name: this.name,
             x: this.x,
             y: this.y,
             rotation: this.rotation,
