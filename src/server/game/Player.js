@@ -124,7 +124,7 @@ class Player {
     }
 
     onFlagshipSunk() {
-        console.log(`Player ${this.id} flagship sunk!`);
+        console.log(`Player "${this.name}" (${this.id}) flagship sunk!`);
 
         // Remove sunk ship from fleet
         this.fleet.splice(this.flagshipIndex, 1);
@@ -136,12 +136,12 @@ class Player {
             // Apply 3-second shield
             this.shieldEndTime = (Date.now() / 1000) + 3.0;
 
-            console.log(`Player ${this.id} switching to ${this.flagship.shipClass.name} with shield`);
+            console.log(`Player "${this.name}" (${this.id}) switching to ${this.flagship.shipClass.name} with shield`);
         } else {
             // No ships left - become raft
             this.isRaft = true;
             this.speed = 0; // Reset speed
-            console.log(`Player ${this.id} is now on a raft`);
+            console.log(`Player "${this.name}" (${this.id}) is now on a raft`);
         }
     }
 
@@ -228,7 +228,7 @@ class Player {
                 if (this.speed > 20) {
                     const damage = (this.speed - 20) * 0.5;
                     this.takeDamage(damage);
-                    console.log(`Ship ${this.id} hit island at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
+                    console.log(`Ship "${this.name}" (${this.id}) hit island at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
                 }
 
                 // Stop the ship
