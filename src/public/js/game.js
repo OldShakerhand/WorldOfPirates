@@ -492,10 +492,10 @@ function drawShip(player, isMe) {
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 3;
 
-    // Draw name above health bar
+    // Draw name above sail state text (sail state is at -35, so name goes at -48)
     const nameText = player.name || 'Anonymous';
-    ctx.strokeText(nameText, 0, -40);
-    ctx.fillText(nameText, 0, -40);
+    ctx.strokeText(nameText, 0, -48);
+    ctx.fillText(nameText, 0, -48);
     ctx.restore();
 }
 
