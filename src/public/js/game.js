@@ -482,6 +482,21 @@ function drawShip(player, isMe) {
         ctx.stroke();
         ctx.restore();
     }
+
+    // Draw player name above ship (after shield so it's always visible)
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = isMe ? '#FFD700' : '#FFFFFF'; // Gold for own name, white for others
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 3;
+
+    // Draw name above health bar
+    const nameText = player.name || 'Anonymous';
+    ctx.strokeText(nameText, 0, -40);
+    ctx.fillText(nameText, 0, -40);
+    ctx.restore();
 }
 
 // Harbor UI Functions

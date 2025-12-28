@@ -6,10 +6,10 @@
 const CombatConfig = {
     // Fire rates
     CANNON_FIRE_RATE: 3.0,// Seconds between shots
-    CANNON_SPREAD: 0.1,// Radians between dual cannons
+    CANNON_SPREAD: 0.05,// Radians between dual cannons
 
     // Damage
-    PROJECTILE_DAMAGE: 10,
+    PROJECTILE_DAMAGE: 5,
     COLLISION_DAMAGE_THRESHOLD: 20,// Speed threshold for collision damage
     COLLISION_DAMAGE_MULTIPLIER: 0.2,// Damage = (speed - threshold) * multiplier
 

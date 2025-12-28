@@ -92,3 +92,115 @@ canvas {
 #closeBtn:hover {
     background-color: #c0392b;
 }
+
+/* Name Input Overlay */
+#nameInputOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+#nameInputContent {
+    background-color: #2c3e50;
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    padding: 40px;
+    min-width: 400px;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#nameInputContent h1 {
+    margin-top: 0;
+    color: #f1c40f;
+    font-size: 32px;
+}
+
+#nameInputContent p {
+    color: #ecf0f1;
+    margin: 10px 0;
+}
+
+#nameInputContent .hint {
+    font-size: 12px;
+    color: #95a5a6;
+    margin-top: 10px;
+}
+
+#playerNameInput {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border: 2px solid #8B4513;
+    border-radius: 5px;
+    background-color: #34495e;
+    color: white;
+    text-align: center;
+    margin: 20px 0;
+    box-sizing: border-box;
+}
+
+#playerNameInput:focus {
+    outline: none;
+    border-color: #f1c40f;
+}
+
+#nameError {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+#setSailBtn {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#setSailBtn:hover {
+    background-color: #229954;
+}
+
+#setSailBtn:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+#shipSelector,
+#switchShipBtn {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #8B4513;
+}
+
+#switchShipBtn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#switchShipBtn:hover {
+    background-color: #2980b9;
+}
