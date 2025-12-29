@@ -18,9 +18,9 @@ const CombatConfig = {
     HARBOR_EXIT_SHIELD_DURATION: 10,// Seconds after leaving harbor
 
     // Projectile physics
-    PROJECTILE_SPEED: 200,
+    PROJECTILE_SPEED: 150,
     PROJECTILE_LIFETIME: 2,// Seconds
-    PROJECTILE_GRAVITY: 50,
+    PROJECTILE_GRAVITY: 60,
     PROJECTILE_INITIAL_Z: 20,
 
     // Visual

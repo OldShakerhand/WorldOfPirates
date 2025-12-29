@@ -1,19 +1,21 @@
+const CombatConfig = require('./CombatConfig');
+
 class Projectile {
     constructor(id, ownerId, x, y, rotation, speed) {
         this.id = id;
         this.ownerId = ownerId;
         this.x = x;
         this.y = y;
-        this.z = 10; // Start height (e.g. deck height)
+        this.z = CombatConfig.PROJECTILE_INITIAL_Z;
         this.zSpeed = 10; // Initial upward velocity
         this.rotation = rotation;
-        this.speed = speed || 300;
-        this.radius = 3;
-        this.damage = 25;
-        this.lifeTime = 3.0;
+        this.speed = speed || CombatConfig.PROJECTILE_SPEED;
+        this.radius = CombatConfig.PROJECTILE_RADIUS;
+        this.damage = CombatConfig.PROJECTILE_DAMAGE;
+        this.lifeTime = CombatConfig.PROJECTILE_LIFETIME;
         this.timeAlive = 0;
         this.toRemove = false;
-        this.gravity = 20; // Gravity pulling down
+        this.gravity = CombatConfig.PROJECTILE_GRAVITY;
     }
 
     update(deltaTime) {
