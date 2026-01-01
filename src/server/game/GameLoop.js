@@ -8,7 +8,7 @@ class GameLoop {
         this.io = io;
         this.world = new World();
         this.lastTime = Date.now();
-        this.tickRate = 60; // 60 updates per second
+        this.tickRate = GameConfig.TICK_RATE;
         this.interval = null;
 
         // Performance monitoring
