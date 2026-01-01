@@ -97,9 +97,8 @@ class Player {
 
     getFleetSpeedPenalty() {
         // More ships = slower (simple version)
-        // Each additional ship adds 5% penalty
-        const penalty = 1.0 - ((this.fleet.length - 1) * 0.05);
-        return Math.max(0.5, penalty); // Max 50% penalty
+        const penalty = 1.0 - ((this.fleet.length - 1) * PhysicsConfig.FLEET_SPEED_PENALTY_PER_SHIP);
+        return Math.max(PhysicsConfig.MAX_FLEET_SPEED_PENALTY, penalty);
     }
 
     handleInput(data) {
@@ -133,8 +132,8 @@ class Player {
             // Switch to next ship
             this.flagshipIndex = 0;
 
-            // Apply 3-second shield
-            this.shieldEndTime = (Date.now() / 1000) + 3.0;
+            // Apply shield after flagship switch
+            this.shieldEndTime = (Date.now() / 1000) + CombatConfig.FLAGSHIP_SWITCH_SHIELD_DURATION;
 
             console.log(`Player "${this.name}" (${this.id}) switching to ${this.flagship.shipClass.name} with shield`);
         } else {
@@ -166,33 +165,37 @@ class Player {
         if (this.sailChangeCooldown <= 0) {
             if (this.inputs.sailUp && this.sailState < 2) {
                 this.sailState++;
-                this.sailChangeCooldown = 0.5;
+                this.sailChangeCooldown = PhysicsConfig.SAIL_CHANGE_COOLDOWN;
             }
             if (this.inputs.sailDown && this.sailState > 0) {
                 this.sailState--;
-                this.sailChangeCooldown = 0.5;
+                this.sailChangeCooldown = PhysicsConfig.SAIL_CHANGE_COOLDOWN;
             }
         }
 
         // Speed Physics with Wind
         let targetSpeed = 0;
+        let windAngleModifier = 0; // Track for UI display
 
         if (this.sailState > 0) {
             const sailModifier = this.sailState === 1 ? 0.5 : 1.0;
 
             if (this.isInDeepWater) {
                 const windStrength = wind.getStrengthModifier();
-                const windAngle = wind.getAngleModifier(this.rotation, this.sailState);
-                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngle;
+                windAngleModifier = wind.getAngleModifier(this.rotation, this.sailState);
+                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier;
             } else {
-                // Shallow water: 25% speed reduction (move at 75% speed)
-                targetSpeed = this.maxSpeed * sailModifier * 0.75;
+                // Shallow water: speed reduction based on config
+                targetSpeed = this.maxSpeed * sailModifier * PhysicsConfig.SHALLOW_WATER_SPEED_MULTIPLIER;
             }
         }
 
+        // Store for serialization
+        this.windEfficiency = windAngleModifier;
+
         // Accelerate/Decelerate
-        const accel = this.isInDeepWater ? 20 : 10;
-        const decel = this.isInDeepWater ? 10 : 15;
+        const accel = this.isInDeepWater ? PhysicsConfig.ACCELERATION : PhysicsConfig.ACCELERATION * 0.5;
+        const decel = this.isInDeepWater ? PhysicsConfig.DECELERATION : PhysicsConfig.DECELERATION * 1.5;
 
         if (this.speed < targetSpeed) {
             this.speed += accel * deltaTime;
@@ -201,7 +204,7 @@ class Player {
         }
 
         this.speed = Math.max(0, Math.min(this.speed, this.maxSpeed));
-        this.speedInKnots = Math.round(this.speed * 0.1);
+        this.speedInKnots = Math.round(this.speed * PhysicsConfig.SPEED_TO_KNOTS_MULTIPLIER);
 
         // Turning
         if (this.inputs.left) {
@@ -225,8 +228,8 @@ class Player {
                 canMove = false;
 
                 // Apply collision damage based on speed
-                if (this.speed > 20) {
-                    const damage = (this.speed - 20) * 0.5;
+                if (this.speed > CombatConfig.COLLISION_DAMAGE_THRESHOLD) {
+                    const damage = (this.speed - CombatConfig.COLLISION_DAMAGE_THRESHOLD) * CombatConfig.COLLISION_DAMAGE_MULTIPLIER;
                     this.takeDamage(damage);
                     console.log(`Ship "${this.name}" (${this.id}) hit island at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
                 }
@@ -260,6 +263,8 @@ class Player {
             maxHealth: this.maxHealth,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
+            maxSpeedInKnots: Math.round(this.maxSpeed * PhysicsConfig.SPEED_TO_KNOTS_MULTIPLIER),
+            windEfficiency: this.windEfficiency || 0,
             isInDeepWater: this.isInDeepWater,
             shipClassName: this.isRaft ? 'Raft' : this.flagship.shipClass.name,
             isRaft: this.isRaft,

@@ -388,19 +388,23 @@ function drawSpeedDisplay(player) {
     ctx.beginPath();
     ctx.arc(lightX, lightY, lightRadius, 0, Math.PI * 2);
 
-    // Color based on conditions
+    // Color based on wind efficiency
     if (!player.isInDeepWater) {
         ctx.fillStyle = '#e74c3c'; // Red for shallow water
+    } else if (player.sailState === 0) {
+        ctx.fillStyle = '#7f8c8d'; // Dark grey when stopped
     } else {
-        // Green to gray based on speed efficiency
-        // This is a simplified version - could be more sophisticated
-        const speedRatio = player.speedInKnots / 12; // Assuming max ~12 knots
-        if (speedRatio > 0.8) {
-            ctx.fillStyle = '#2ecc71'; // Light green
-        } else if (speedRatio > 0.5) {
-            ctx.fillStyle = '#95a5a6'; // Grey
-        } else {
-            ctx.fillStyle = '#7f8c8d'; // Dark grey
+        // Wind efficiency indicator (based on wind angle modifier)
+        // NOTE: These thresholds must match PhysicsConfig.WIND_EFFICIENCY_* values
+        const efficiency = player.windEfficiency || 0;
+        if (efficiency >= 1.0) { // WIND_EFFICIENCY_EXCELLENT
+            ctx.fillStyle = '#2ecc71'; // Bright green - excellent (100%)
+        } else if (efficiency >= 0.85) { // WIND_EFFICIENCY_GOOD
+            ctx.fillStyle = '#f1c40f'; // Yellow - good (85%)
+        } else if (efficiency >= 0.65) { // WIND_EFFICIENCY_MODERATE
+            ctx.fillStyle = '#f39c12'; // Orange - moderate (65%)
+        } else { // WIND_EFFICIENCY_POOR (0.40)
+            ctx.fillStyle = '#e74c3c'; // Red - poor (40%)
         }
     }
 
