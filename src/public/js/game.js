@@ -22,6 +22,50 @@ const SHIELD_CONFIG = {
     GLOW_ALPHA: 0.5
 };
 
+// Ship sprite loading
+const shipImages = {};
+const SHIP_SPRITE_MAP = {
+    'Sloop': 'sloop',
+    'Pinnace': 'pinnace',
+    'Barque': 'barque',
+    'Fluyt': 'fluyt',
+    'Merchant': 'merchant',
+    'Frigate': 'frigate',
+    'Fast Galleon': 'fast_galleon',
+    'Spanish Galleon': 'spanish_galleon',
+    'War Galleon': 'war_galleon'
+};
+
+// Preload ship sprites
+function preloadShipSprites() {
+    Object.entries(SHIP_SPRITE_MAP).forEach(([shipName, spriteKey]) => {
+        const img = new Image();
+        img.src = `/assets/ships/${spriteKey}.png`;
+        shipImages[shipName] = img;
+    });
+}
+
+// Call preload immediately
+preloadShipSprites();
+
+// Ship class properties (must match server ShipClass.js)
+const SHIP_PROPERTIES = {
+    'Raft': { spriteWidth: 20, spriteHeight: 30, spriteRotation: 0 },
+    'Sloop': { spriteWidth: 25, spriteHeight: 35, spriteRotation: 0 },
+    'Pinnace': { spriteWidth: 30, spriteHeight: 40, spriteRotation: Math.PI },
+    'Barque': { spriteWidth: 35, spriteHeight: 45, spriteRotation: 0 },
+    'Fluyt': { spriteWidth: 35, spriteHeight: 48, spriteRotation: Math.PI / 2 },
+    'Merchant': { spriteWidth: 40, spriteHeight: 52, spriteRotation: 0 },
+    'Frigate': { spriteWidth: 45, spriteHeight: 60, spriteRotation: Math.PI / 2 },
+    'Fast Galleon': { spriteWidth: 50, spriteHeight: 65, spriteRotation: 0 },
+    'Spanish Galleon': { spriteWidth: 55, spriteHeight: 70, spriteRotation: 0 },
+    'War Galleon': { spriteWidth: 60, spriteHeight: 80, spriteRotation: 0 }
+};
+
+function getShipProperties(shipClassName) {
+    return SHIP_PROPERTIES[shipClassName] || SHIP_PROPERTIES['Sloop'];
+}
+
 // World dimensions (must match server GameConfig)
 const WORLD_WIDTH = 2000;
 const WORLD_HEIGHT = 2000;
@@ -420,50 +464,65 @@ function drawShip(player, isMe) {
     ctx.save();
     ctx.translate(player.x, player.y);
 
-    // Draw Health Bar
+    // FIRST: Draw ship sprite (behind everything)
+    ctx.save();
+    ctx.rotate(player.rotation);
+
+    const sprite = shipImages[player.shipClassName];
+    
+    if (sprite && sprite.complete) {
+        const shipProps = getShipProperties(player.shipClassName);
+        
+        if (shipProps.spriteRotation !== 0) {
+            ctx.rotate(shipProps.spriteRotation);
+        }
+        
+        ctx.drawImage(
+            sprite,
+            -shipProps.spriteWidth / 2,
+            -shipProps.spriteHeight / 2,
+            shipProps.spriteWidth,
+            shipProps.spriteHeight
+        );
+    } else {
+        ctx.rotate(-Math.PI / 2);
+        ctx.beginPath();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(-10, 7);
+        ctx.lineTo(-5, 0);
+        ctx.lineTo(-10, -7);
+        ctx.closePath();
+
+        ctx.fillStyle = isMe ? '#f1c40f' : '#ecf0f1';
+        ctx.fill();
+        ctx.stroke();
+    }
+    ctx.restore();
+
+    // SECOND: Draw UI elements (on top)
     ctx.fillStyle = 'red';
     ctx.fillRect(-15, -30, 30, 4);
     ctx.fillStyle = '#2ecc71';
     ctx.fillRect(-15, -30, 30 * (player.health / player.maxHealth), 4);
 
     if (isMe) {
-        // Draw Sail State text with shield indicator
         ctx.fillStyle = 'white';
         ctx.font = '10px Arial';
         ctx.textAlign = 'center';
         let sailText = "STOP";
         if (player.sailState === 1) sailText = "HALF";
         if (player.sailState === 2) sailText = "FULL";
-        const shieldIcon = player.hasShield ? ' 🛡️' : '';
+        const shieldIcon = player.hasShield ? ' ' : '';
         ctx.fillText(sailText + shieldIcon, 0, -35);
 
-        // Draw Reload Bars
-        // Left
         const leftPct = (player.reloadLeft || 0) / (player.maxReload || 1);
         ctx.fillStyle = 'yellow';
-        ctx.fillRect(-25, -5, 4, 10 * (1 - leftPct)); // Vertical bar on left side
+        ctx.fillRect(-25, -5, 4, 10 * (1 - leftPct));
 
-        // Right
         const rightPct = (player.reloadRight || 0) / (player.maxReload || 1);
         ctx.fillStyle = 'yellow';
-        ctx.fillRect(21, -5, 4, 10 * (1 - rightPct)); // Vertical bar on right side
+        ctx.fillRect(21, -5, 4, 10 * (1 - rightPct));
     }
-
-    // Ship rotation: subtract 90° to align with compass (0 = up/north)
-    // The triangle is drawn pointing right by default, so we offset
-    ctx.rotate(player.rotation - Math.PI / 2);
-
-    // Draw simplified ship (triangle)
-    ctx.beginPath();
-    ctx.moveTo(10, 0);
-    ctx.lineTo(-10, 7);
-    ctx.lineTo(-5, 0);
-    ctx.lineTo(-10, -7);
-    ctx.closePath();
-
-    ctx.fillStyle = isMe ? '#f1c40f' : '#ecf0f1'; // Gold for self, white for others
-    ctx.fill();
-    ctx.stroke();
 
     ctx.restore();
 
