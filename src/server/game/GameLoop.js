@@ -176,9 +176,11 @@ class GameLoop {
             // Handle Broadside Left (Q) - Rafts cannot fire
             if (inputData.shootLeft && !player.isRaft) {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
-                    // Fire left broadside - rotation + PI points left
+                    // Fire left broadside - perpendicular to port side
+                    // Compensate for ship velocity for arcade-style firing
                     const baseAngle = player.rotation + Math.PI;
-                    this.fireCannons(player, baseAngle);
+                    const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
+                    this.fireCannons(player, compensatedAngle);
                     player.lastShotTimeLeft = now;
                 }
             }
@@ -186,9 +188,11 @@ class GameLoop {
             // Handle Broadside Right (E) - Rafts cannot fire
             if (inputData.shootRight && !player.isRaft) {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
-                    // Fire right broadside - rotation points right
+                    // Fire right broadside - perpendicular to starboard side
+                    // Compensate for ship velocity for arcade-style firing
                     const baseAngle = player.rotation;
-                    this.fireCannons(player, baseAngle);
+                    const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
+                    this.fireCannons(player, compensatedAngle);
                     player.lastShotTimeRight = now;
                 }
             }
@@ -200,22 +204,63 @@ class GameLoop {
 
         if (cannonCount === 0) return; // No cannons (shouldn't happen, but safety check)
 
-        const spread = CombatConfig.CANNON_SPREAD;
+        // Get ship class for dimensions
+        const shipClass = player.flagship.shipClass;
+        const shipLength = shipClass.spriteHeight; // Length along ship's axis
+        const shipWidth = shipClass.spriteWidth;
 
-        if (cannonCount === 1) {
-            // Single cannon fires straight
-            this.world.createProjectile(player.id, player.x, player.y, baseAngle);
-        } else {
-            // Multiple cannons spread evenly across the broadside
-            // Total spread angle for all cannons
-            const totalSpread = spread * (cannonCount - 1);
-            const startAngle = baseAngle - totalSpread / 2;
+        // Calculate spacing between cannons along the ship's length
+        const spacing = shipLength / (cannonCount + 1);
 
-            for (let i = 0; i < cannonCount; i++) {
-                const angle = startAngle + (spread * i);
-                this.world.createProjectile(player.id, player.x, player.y, angle);
-            }
+        // Determine if firing left or right based on baseAngle
+        // Left broadside: baseAngle = rotation + PI
+        // Right broadside: baseAngle = rotation
+        const isLeftBroadside = Math.abs(baseAngle - (player.rotation + Math.PI)) < 0.1;
+        const lateralDirection = isLeftBroadside ? 1 : -1; // Left = positive, Right = negative
+
+        for (let i = 0; i < cannonCount; i++) {
+            // Position along ship's longitudinal axis (bow to stern)
+            // Distribute evenly: first cannon at spacing, last at shipLength - spacing
+            const longitudinalOffset = (i + 1) * spacing - (shipLength / 2);
+
+            // Lateral offset (distance from centerline to cannon port)
+            const lateralOffset = (shipWidth / 2) * lateralDirection;
+
+            // Calculate world position using ship rotation
+            // Longitudinal: along ship's forward direction (rotation - PI/2 for north-up)
+            // Lateral: perpendicular to ship's forward direction
+            const cannonX = player.x +
+                Math.cos(player.rotation - Math.PI / 2) * longitudinalOffset +
+                Math.cos(player.rotation) * lateralOffset;
+
+            const cannonY = player.y +
+                Math.sin(player.rotation - Math.PI / 2) * longitudinalOffset +
+                Math.sin(player.rotation) * lateralOffset;
+
+            // Fire projectile straight out from cannon (perpendicular to ship)
+            this.world.createProjectile(player.id, cannonX, cannonY, baseAngle);
         }
+    }
+
+    compensateForShipVelocity(player, desiredAngle) {
+        // Calculate ship's velocity vector
+        const movementAngle = player.rotation - Math.PI / 2;
+        const shipVx = Math.cos(movementAngle) * player.speed;
+        const shipVy = Math.sin(movementAngle) * player.speed;
+
+        // Get projectile speed from config
+        const projSpeed = CombatConfig.PROJECTILE_SPEED;
+
+        // Calculate desired projectile velocity (perpendicular to ship)
+        const desiredVx = Math.cos(desiredAngle) * projSpeed;
+        const desiredVy = Math.sin(desiredAngle) * projSpeed;
+
+        // Add ship velocity to projectile velocity for arcade-style firing
+        const compensatedVx = desiredVx + shipVx;
+        const compensatedVy = desiredVy + shipVy;
+
+        // Calculate the angle for this compensated velocity
+        return Math.atan2(compensatedVy, compensatedVx);
     }
 
     handleEnterHarbor(socket) {
