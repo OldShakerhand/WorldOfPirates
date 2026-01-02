@@ -126,7 +126,9 @@ class World {
                 const entity = this.entities[id];
                 if (entity.type === 'PLAYER' && entity.id !== proj.ownerId) {
                     const dist = Math.hypot(entity.x - proj.x, entity.y - proj.y);
-                    if (dist < 20) {
+                    // Use proper collision radii: projectile radius + ship collision radius
+                    const collisionDistance = (entity.collisionRadius || 15) + proj.radius;
+                    if (dist < collisionDistance) {
                         entity.takeDamage(proj.damage);
                         proj.toRemove = true;
                         break;

@@ -24,8 +24,9 @@ const CombatConfig = {
     PROJECTILE_INITIAL_Z: 20,
 
     // Visual
-    PROJECTILE_RADIUS: 2,
-    PROJECTILE_SHADOW_RADIUS: 1
+    PROJECTILE_BALL_RADIUS: 2, // Visual size of the cannonball
+    PROJECTILE_SHADOW_RADIUS: 1, // Visual size of the shadow
+    PROJECTILE_COLLISION_MULTIPLIER: 1.2 // Collision radius = ball radius * multiplier
 };
 
 module.exports = CombatConfig;

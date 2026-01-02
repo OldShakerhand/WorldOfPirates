@@ -39,22 +39,21 @@ const SHIP_SPRITE_MAP = {
 // Preload ship sprites
 function preloadShipSprites() {
     Object.entries(SHIP_SPRITE_MAP).forEach(([shipName, spriteKey]) => {
-        if (shipName === 'Fluyt') {
-            // Load 3 sail state variants for Fluyt
-            shipImages['Fluyt_0'] = new Image();
-            shipImages['Fluyt_0'].src = `/assets/ships/fluyt_0.png`;
+        // Load 3 sail state variants for all ships (0 = no sails, 1 = half sails, 2 = full sails)
+        // If the variant files don't exist, they'll fail to load but won't break the game
+        shipImages[`${shipName}_0`] = new Image();
+        shipImages[`${shipName}_0`].src = `/assets/ships/${spriteKey}_0.png`;
 
-            shipImages['Fluyt_1'] = new Image();
-            shipImages['Fluyt_1'].src = `/assets/ships/fluyt_1.png`;
+        shipImages[`${shipName}_1`] = new Image();
+        shipImages[`${shipName}_1`].src = `/assets/ships/${spriteKey}_1.png`;
 
-            shipImages['Fluyt_2'] = new Image();
-            shipImages['Fluyt_2'].src = `/assets/ships/fluyt_2.png`;
-        } else {
-            // Load single sprite for other ships
-            const img = new Image();
-            img.src = `/assets/ships/${spriteKey}.png`;
-            shipImages[shipName] = img;
-        }
+        shipImages[`${shipName}_2`] = new Image();
+        shipImages[`${shipName}_2`].src = `/assets/ships/${spriteKey}_2.png`;
+
+        // Also load the base sprite as fallback (for ships without sail variants yet)
+        const img = new Image();
+        img.src = `/assets/ships/${spriteKey}.png`;
+        shipImages[shipName] = img;
     });
 }
 
@@ -248,20 +247,24 @@ function renderGame(state, mapData, myId) {
 
     // Draw projectiles (BEFORE restore so camera transform is applied!)
     if (state.projectiles) {
+        // Get config values with fallbacks
+        const ballRadius = window.COMBAT_CONFIG?.projectileBallRadius || 3;
+        const shadowRadius = window.COMBAT_CONFIG?.projectileShadowRadius || 2;
+
         ctx.fillStyle = 'black';
         for (const proj of state.projectiles) {
             ctx.beginPath();
             // Simple 3D effect: Y position - Z position
             // Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.arc(proj.x, proj.y, 2, 0, Math.PI * 2);
+            ctx.arc(proj.x, proj.y, shadowRadius, 0, Math.PI * 2);
             ctx.fill();
 
             // Ball
             ctx.fillStyle = 'black';
             ctx.beginPath();
             const visualY = proj.y - (proj.z || 0);
-            ctx.arc(proj.x, visualY, 3, 0, Math.PI * 2);
+            ctx.arc(proj.x, visualY, ballRadius, 0, Math.PI * 2);
             ctx.fill();
         }
     }
@@ -475,12 +478,16 @@ function drawShip(player, isMe) {
 
     // Get the appropriate sprite for this ship
     let sprite;
-    if (player.shipClassName === 'Fluyt') {
-        // Select Fluyt sprite based on sail state
-        const sailState = player.sailState || 0;
-        sprite = shipImages[`Fluyt_${sailState}`];
+    const sailState = player.sailState || 0;
+
+    // Try to load sail state variant first
+    const variantSprite = shipImages[`${player.shipClassName}_${sailState}`];
+
+    // Use variant if it exists and is loaded, otherwise fall back to base sprite
+    if (variantSprite && variantSprite.complete && variantSprite.naturalWidth > 0) {
+        sprite = variantSprite;
     } else {
-        // Use single sprite for other ships
+        // Fallback to base sprite (for ships without sail variants yet)
         sprite = shipImages[player.shipClassName];
     }
 
