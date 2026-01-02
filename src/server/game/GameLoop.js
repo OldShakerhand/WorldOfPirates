@@ -123,6 +123,21 @@ class GameLoop {
         }
 
         socket.emit('shipMetadata', shipMetadata);
+
+        // Send combat config for visual rendering
+        this.sendCombatConfig(socket);
+    }
+
+    sendCombatConfig(socket) {
+        const CombatConfig = require('./CombatConfig');
+
+        // Extract only visual properties needed by client
+        const combatVisuals = {
+            projectileBallRadius: CombatConfig.PROJECTILE_BALL_RADIUS,
+            projectileShadowRadius: CombatConfig.PROJECTILE_SHADOW_RADIUS
+        };
+
+        socket.emit('combatConfig', combatVisuals);
     }
 
     isValidPlayerName(name) {

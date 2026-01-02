@@ -12,7 +12,7 @@ class Projectile {
         this.zSpeed = 10; // Initial upward velocity
         this.rotation = rotation;
         this.speed = speed || CombatConfig.PROJECTILE_SPEED;
-        this.radius = CombatConfig.PROJECTILE_RADIUS;
+        this.radius = CombatConfig.PROJECTILE_BALL_RADIUS * CombatConfig.PROJECTILE_COLLISION_MULTIPLIER;
         this.damage = CombatConfig.PROJECTILE_DAMAGE;
         this.maxDistance = CombatConfig.PROJECTILE_MAX_DISTANCE;
         this.toRemove = false;

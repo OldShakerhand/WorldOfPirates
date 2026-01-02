@@ -121,6 +121,13 @@ function setupGameListeners() {
         Object.assign(SHIP_PROPERTIES, metadata);
         console.log('Loaded ship metadata from server:', metadata);
     });
+
+    // Combat config from server (visual settings)
+    socket.on('combatConfig', (config) => {
+        // Store combat visuals globally
+        window.COMBAT_CONFIG = config;
+        console.log('Loaded combat config from server:', config);
+    });
 }
 
 // Input handling

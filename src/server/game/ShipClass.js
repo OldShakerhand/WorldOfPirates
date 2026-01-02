@@ -28,10 +28,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 2,
         // Visual properties
         spriteFile: 'sloop.png',
-        spriteWidth: 25,
-        spriteHeight: 35,
+        spriteWidth: 37.5,
+        spriteHeight: 52.5,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 15
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 22.5
     },
     PINNACE: {
         id: 3,
@@ -42,10 +47,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 3,
         // Visual properties
         spriteFile: 'pinnace.png',
-        spriteWidth: 30,
-        spriteHeight: 40,
+        spriteWidth: 45,
+        spriteHeight: 60,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 17
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 25.5
     },
     BARQUE: {
         id: 4,
@@ -56,10 +66,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 3,
         // Visual properties
         spriteFile: 'barque.png',
-        spriteWidth: 35,
-        spriteHeight: 45,
+        spriteWidth: 52.5,
+        spriteHeight: 67.5,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 19
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 28.5
     },
     FLUYT: {
         id: 5,
@@ -89,10 +104,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 3,
         // Visual properties
         spriteFile: 'merchant.png',
-        spriteWidth: 40,
-        spriteHeight: 52,
+        spriteWidth: 60,
+        spriteHeight: 78,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 22
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 33
     },
     FRIGATE: {
         id: 7,
@@ -103,10 +123,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 5,
         // Visual properties
         spriteFile: 'frigate.png',
-        spriteWidth: 45,
-        spriteHeight: 60,
+        spriteWidth: 67.5,
+        spriteHeight: 90,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 25
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 37.5
     },
     FAST_GALLEON: {
         id: 8,
@@ -117,10 +142,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 6,
         // Visual properties
         spriteFile: 'fast_galleon.png',
-        spriteWidth: 50,
-        spriteHeight: 65,
+        spriteWidth: 75,
+        spriteHeight: 97.5,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 27
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 40.5
     },
     SPANISH_GALLEON: {
         id: 9,
@@ -131,10 +161,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 8,
         // Visual properties
         spriteFile: 'spanish_galleon.png',
-        spriteWidth: 55,
-        spriteHeight: 70,
+        spriteWidth: 82.5,
+        spriteHeight: 105,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 30
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 45
     },
     WAR_GALLEON: {
         id: 10,
@@ -145,10 +180,15 @@ const SHIP_CLASSES = {
         cannonsPerSide: 10,
         // Visual properties
         spriteFile: 'war_galleon.png',
-        spriteWidth: 60,
-        spriteHeight: 80,
+        spriteWidth: 90,
+        spriteHeight: 120,
         spriteRotation: 0, // No correction needed
-        collisionRadius: 35
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 0,
+        cannonLateralOffsetStarboard: 0,
+        cannonLongitudinalOffsetPort: 0,
+        cannonLongitudinalOffsetStarboard: 0,
+        collisionRadius: 52.5
     }
 };
 
