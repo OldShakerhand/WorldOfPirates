@@ -6,21 +6,23 @@ class Projectile {
         this.ownerId = ownerId;
         this.x = x;
         this.y = y;
+        this.startX = x; // Track starting position for distance calculation
+        this.startY = y;
         this.z = CombatConfig.PROJECTILE_INITIAL_Z;
         this.zSpeed = 10; // Initial upward velocity
         this.rotation = rotation;
         this.speed = speed || CombatConfig.PROJECTILE_SPEED;
         this.radius = CombatConfig.PROJECTILE_RADIUS;
         this.damage = CombatConfig.PROJECTILE_DAMAGE;
-        this.lifeTime = CombatConfig.PROJECTILE_LIFETIME;
-        this.timeAlive = 0;
+        this.maxDistance = CombatConfig.PROJECTILE_MAX_DISTANCE;
         this.toRemove = false;
         this.gravity = CombatConfig.PROJECTILE_GRAVITY;
     }
 
     update(deltaTime) {
-        this.timeAlive += deltaTime;
-        if (this.timeAlive >= this.lifeTime) {
+        // Check distance traveled
+        const distanceTraveled = Math.hypot(this.x - this.startX, this.y - this.startY);
+        if (distanceTraveled >= this.maxDistance) {
             this.toRemove = true;
             return;
         }

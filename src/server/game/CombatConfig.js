@@ -5,7 +5,7 @@
 
 const CombatConfig = {
     // Fire rates
-    CANNON_FIRE_RATE: 3.0,// Seconds between shots
+    CANNON_FIRE_RATE: 4.0,// Seconds between shots
     CANNON_SPREAD: 0.05,// Radians between dual cannons
 
     // Damage
@@ -19,13 +19,13 @@ const CombatConfig = {
 
     // Projectile physics
     PROJECTILE_SPEED: 150,
-    PROJECTILE_LIFETIME: 2,// Seconds
-    PROJECTILE_GRAVITY: 60,
+    PROJECTILE_MAX_DISTANCE: 400, // Pixels (explicit range)
+    PROJECTILE_GRAVITY: 50,
     PROJECTILE_INITIAL_Z: 20,
 
     // Visual
-    PROJECTILE_RADIUS: 3,
-    PROJECTILE_SHADOW_RADIUS: 2
+    PROJECTILE_RADIUS: 2,
+    PROJECTILE_SHADOW_RADIUS: 1
 };
 
 module.exports = CombatConfig;
