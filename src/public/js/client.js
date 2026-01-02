@@ -114,6 +114,13 @@ function setupGameListeners() {
     socket.on('harborClosed', () => {
         hideHarborUI();
     });
+
+    // Ship metadata from server (single source of truth)
+    socket.on('shipMetadata', (metadata) => {
+        // Merge server metadata with client SHIP_PROPERTIES
+        Object.assign(SHIP_PROPERTIES, metadata);
+        console.log('Loaded ship metadata from server:', metadata);
+    });
 }
 
 // Input handling

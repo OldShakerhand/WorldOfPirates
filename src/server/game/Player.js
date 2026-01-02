@@ -5,7 +5,7 @@ const PhysicsConfig = require('./PhysicsConfig');
 const CombatConfig = require('./CombatConfig');
 
 class Player {
-    constructor(id, name = 'Anonymous', startingShipClass = 'SLOOP') {
+    constructor(id, name = 'Anonymous', startingShipClass = 'FLUYT') {
         // Identity
         this.id = id;  // Socket ID (temporary session identifier)
         this.name = name;  // Display name

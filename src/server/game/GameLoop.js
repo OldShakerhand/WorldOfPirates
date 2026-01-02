@@ -101,8 +101,28 @@ class GameLoop {
         // Send static map data to the new player (only once)
         socket.emit('map_data', this.world.getMapData());
 
+        // Send ship metadata to the new player (only once)
+        this.sendShipMetadata(socket);
+
         console.log(`Player "${playerName}" (${socket.id}) joined the game`);
         return true;
+    }
+
+    sendShipMetadata(socket) {
+        const { SHIP_CLASSES } = require('./ShipClass');
+
+        // Extract only visual properties needed by client
+        const shipMetadata = {};
+        for (const [key, shipClass] of Object.entries(SHIP_CLASSES)) {
+            shipMetadata[shipClass.name] = {
+                spriteWidth: shipClass.spriteWidth,
+                spriteHeight: shipClass.spriteHeight,
+                spriteRotation: shipClass.spriteRotation,
+                spriteFile: shipClass.spriteFile
+            };
+        }
+
+        socket.emit('shipMetadata', shipMetadata);
     }
 
     isValidPlayerName(name) {
@@ -210,25 +230,56 @@ class GameLoop {
         const shipWidth = shipClass.spriteWidth;
 
         // Calculate spacing between cannons along the ship's length
-        const spacing = shipLength / (cannonCount + 1);
+        const spacing = shipLength / cannonCount;
+        const cannonSpreadFactor = 0.4; // Compress cannons toward middle (0.5 = half the ship length)
 
         // Determine if firing left or right based on baseAngle
-        // Left broadside: baseAngle = rotation + PI
-        // Right broadside: baseAngle = rotation
-        const isLeftBroadside = Math.abs(baseAngle - (player.rotation + Math.PI)) < 0.1;
-        const lateralDirection = isLeftBroadside ? 1 : -1; // Left = positive, Right = negative
+        // Q key (left): baseAngle = rotation + PI
+        // E key (right): baseAngle = rotation
+        // Need to normalize angles to handle wrapping around 2*PI
+        const normalizeAngle = (angle) => {
+            while (angle > Math.PI) angle -= 2 * Math.PI;
+            while (angle < -Math.PI) angle += 2 * Math.PI;
+            return angle;
+        };
+
+        const angleDiff = normalizeAngle(baseAngle - player.rotation);
+
+
+        // If angleDiff is near 0, it's right broadside (E key)
+        // If angleDiff is near PI or -PI, it's left broadside (Q key)
+        // Use larger threshold (1.5 radians) to account for velocity compensation
+        const isRightBroadside = Math.abs(angleDiff) < 1.5;
+        const isLeftBroadside = !isRightBroadside;
 
         for (let i = 0; i < cannonCount; i++) {
             // Position along ship's longitudinal axis (bow to stern)
-            // Distribute evenly: first cannon at spacing, last at shipLength - spacing
-            const longitudinalOffset = (i + 1) * spacing - (shipLength / 2);
+            const cannonIndex = i - (cannonCount - 1) / 2;
+            const baseLongitudinalOffset = cannonIndex * spacing * cannonSpreadFactor;
 
-            // Lateral offset (distance from centerline to cannon port)
-            const lateralOffset = (shipWidth / 2) * lateralDirection;
+            // Apply side-specific longitudinal offset
+            const longitudinalAdjustment = isLeftBroadside
+                ? (shipClass.cannonLongitudinalOffsetStarboard || 0)
+                : (shipClass.cannonLongitudinalOffsetPort || 0);
+
+            const longitudinalOffset = baseLongitudinalOffset + longitudinalAdjustment;
+
+            // Lateral offset - position cannons at actual ship edges
+            // isLeftBroadside is TRUE for RIGHT key, FALSE for LEFT key (due to inverted detection)
+            // So we need to swap: TRUE (RIGHT key) = -shipWidth/2, FALSE (LEFT key) = +shipWidth/2
+            const baseLateralOffset = isLeftBroadside ? -(shipWidth / 2) : (shipWidth / 2);
+
+            // Apply side-specific lateral offset adjustment if defined
+            const lateralAdjustment = isLeftBroadside
+                ? (shipClass.cannonLateralOffsetStarboard || 0)
+                : (shipClass.cannonLateralOffsetPort || 0);
+            const lateralOffset = baseLateralOffset + lateralAdjustment;
+
+
 
             // Calculate world position using ship rotation
-            // Longitudinal: along ship's forward direction (rotation - PI/2 for north-up)
-            // Lateral: perpendicular to ship's forward direction
+            // Longitudinal: along ship's forward direction (rotation - PI/2 for north-up sprite)
+            // Lateral: perpendicular to forward (rotation for left/right)
             const cannonX = player.x +
                 Math.cos(player.rotation - Math.PI / 2) * longitudinalOffset +
                 Math.cos(player.rotation) * lateralOffset;
@@ -236,6 +287,8 @@ class GameLoop {
             const cannonY = player.y +
                 Math.sin(player.rotation - Math.PI / 2) * longitudinalOffset +
                 Math.sin(player.rotation) * lateralOffset;
+
+
 
             // Fire projectile straight out from cannon (perpendicular to ship)
             this.world.createProjectile(player.id, cannonX, cannonY, baseAngle);

@@ -8,11 +8,11 @@ const SHIP_CLASSES = {
     RAFT: {
         id: 1,
         name: 'Raft',
-        maxSpeed: 30,
+        maxSpeed: 130,
         turnSpeed: 1.5,
-        health: 50,
+        health: 500,
         cannonsPerSide: 0,
-        // Visual properties (no sprite for raft, uses triangle)
+        // Visual properties (no sprite for raft, uses triangle for now)
         spriteFile: null,
         spriteWidth: 20,
         spriteHeight: 30,
@@ -44,7 +44,7 @@ const SHIP_CLASSES = {
         spriteFile: 'pinnace.png',
         spriteWidth: 30,
         spriteHeight: 40,
-        spriteRotation: Math.PI, // 180° correction (upside down)
+        spriteRotation: 0, // No correction needed
         collisionRadius: 17
     },
     BARQUE: {
@@ -53,7 +53,7 @@ const SHIP_CLASSES = {
         maxSpeed: 100,
         turnSpeed: 1.2,
         health: 200,
-        cannonsPerSide: 4,
+        cannonsPerSide: 3,
         // Visual properties
         spriteFile: 'barque.png',
         spriteWidth: 35,
@@ -64,15 +64,20 @@ const SHIP_CLASSES = {
     FLUYT: {
         id: 5,
         name: 'Fluyt',
-        maxSpeed: 90,
-        turnSpeed: 1.0,
-        health: 220,
-        cannonsPerSide: 3,
+        maxSpeed: 95,
+        turnSpeed: 1.1,
+        health: 230,
+        cannonsPerSide: 4,
         // Visual properties
         spriteFile: 'fluyt.png',
-        spriteWidth: 35,
-        spriteHeight: 48,
-        spriteRotation: Math.PI / 2, // 90° correction (side view)
+        spriteWidth: 52,
+        spriteHeight: 72,
+        spriteRotation: 0, // No correction needed
+        // Cannon positioning - full control per side
+        cannonLateralOffsetPort: 10, // Port lateral offset (positive = further from centerline)
+        cannonLateralOffsetStarboard: 10, // Starboard lateral offset (positive = further from centerline)
+        cannonLongitudinalOffsetPort: -10, // Port longitudinal offset (negative = toward stern)
+        cannonLongitudinalOffsetStarboard: -10, // Starboard longitudinal offset (negative = toward stern)
         collisionRadius: 20
     },
     MERCHANT: {
@@ -81,7 +86,7 @@ const SHIP_CLASSES = {
         maxSpeed: 95,
         turnSpeed: 1.0,
         health: 250,
-        cannonsPerSide: 4,
+        cannonsPerSide: 3,
         // Visual properties
         spriteFile: 'merchant.png',
         spriteWidth: 40,
@@ -95,12 +100,12 @@ const SHIP_CLASSES = {
         maxSpeed: 105,
         turnSpeed: 1.1,
         health: 300,
-        cannonsPerSide: 6,
+        cannonsPerSide: 5,
         // Visual properties
         spriteFile: 'frigate.png',
         spriteWidth: 45,
         spriteHeight: 60,
-        spriteRotation: Math.PI / 2, // 90° correction (side view)
+        spriteRotation: 0, // No correction needed
         collisionRadius: 25
     },
     FAST_GALLEON: {
@@ -109,7 +114,7 @@ const SHIP_CLASSES = {
         maxSpeed: 100,
         turnSpeed: 0.9,
         health: 350,
-        cannonsPerSide: 7,
+        cannonsPerSide: 6,
         // Visual properties
         spriteFile: 'fast_galleon.png',
         spriteWidth: 50,

@@ -28,7 +28,7 @@ const SHIP_SPRITE_MAP = {
     'Sloop': 'sloop',
     'Pinnace': 'pinnace',
     'Barque': 'barque',
-    'Fluyt': 'fluyt',
+    'Fluyt': 'fluyt', // Base name for Fluyt (will load 3 variants)
     'Merchant': 'merchant',
     'Frigate': 'frigate',
     'Fast Galleon': 'fast_galleon',
@@ -39,31 +39,36 @@ const SHIP_SPRITE_MAP = {
 // Preload ship sprites
 function preloadShipSprites() {
     Object.entries(SHIP_SPRITE_MAP).forEach(([shipName, spriteKey]) => {
-        const img = new Image();
-        img.src = `/assets/ships/${spriteKey}.png`;
-        shipImages[shipName] = img;
+        if (shipName === 'Fluyt') {
+            // Load 3 sail state variants for Fluyt
+            shipImages['Fluyt_0'] = new Image();
+            shipImages['Fluyt_0'].src = `/assets/ships/fluyt_0.png`;
+
+            shipImages['Fluyt_1'] = new Image();
+            shipImages['Fluyt_1'].src = `/assets/ships/fluyt_1.png`;
+
+            shipImages['Fluyt_2'] = new Image();
+            shipImages['Fluyt_2'].src = `/assets/ships/fluyt_2.png`;
+        } else {
+            // Load single sprite for other ships
+            const img = new Image();
+            img.src = `/assets/ships/${spriteKey}.png`;
+            shipImages[shipName] = img;
+        }
     });
 }
 
 // Call preload immediately
 preloadShipSprites();
 
-// Ship class properties (must match server ShipClass.js)
-const SHIP_PROPERTIES = {
-    'Raft': { spriteWidth: 20, spriteHeight: 30, spriteRotation: 0 },
-    'Sloop': { spriteWidth: 25, spriteHeight: 35, spriteRotation: 0 },
-    'Pinnace': { spriteWidth: 30, spriteHeight: 40, spriteRotation: Math.PI },
-    'Barque': { spriteWidth: 35, spriteHeight: 45, spriteRotation: 0 },
-    'Fluyt': { spriteWidth: 35, spriteHeight: 48, spriteRotation: Math.PI / 2 },
-    'Merchant': { spriteWidth: 40, spriteHeight: 52, spriteRotation: 0 },
-    'Frigate': { spriteWidth: 45, spriteHeight: 60, spriteRotation: Math.PI / 2 },
-    'Fast Galleon': { spriteWidth: 50, spriteHeight: 65, spriteRotation: 0 },
-    'Spanish Galleon': { spriteWidth: 55, spriteHeight: 70, spriteRotation: 0 },
-    'War Galleon': { spriteWidth: 60, spriteHeight: 80, spriteRotation: 0 }
+// Ship class properties - loaded from server via shipMetadata event
+let SHIP_PROPERTIES = {
+    // Default fallback for Raft (not in SHIP_CLASSES)
+    'Raft': { spriteWidth: 20, spriteHeight: 30, spriteRotation: 0 }
 };
 
 function getShipProperties(shipClassName) {
-    return SHIP_PROPERTIES[shipClassName] || SHIP_PROPERTIES['Sloop'];
+    return SHIP_PROPERTIES[shipClassName] || SHIP_PROPERTIES['Raft'];
 }
 
 // World dimensions (must match server GameConfig)
@@ -241,7 +246,7 @@ function renderGame(state, mapData, myId) {
         }
     }
 
-    // Draw projectiles
+    // Draw projectiles (BEFORE restore so camera transform is applied!)
     if (state.projectiles) {
         ctx.fillStyle = 'black';
         for (const proj of state.projectiles) {
@@ -468,15 +473,24 @@ function drawShip(player, isMe) {
     ctx.save();
     ctx.rotate(player.rotation);
 
-    const sprite = shipImages[player.shipClassName];
-    
+    // Get the appropriate sprite for this ship
+    let sprite;
+    if (player.shipClassName === 'Fluyt') {
+        // Select Fluyt sprite based on sail state
+        const sailState = player.sailState || 0;
+        sprite = shipImages[`Fluyt_${sailState}`];
+    } else {
+        // Use single sprite for other ships
+        sprite = shipImages[player.shipClassName];
+    }
+
     if (sprite && sprite.complete) {
         const shipProps = getShipProperties(player.shipClassName);
-        
+
         if (shipProps.spriteRotation !== 0) {
             ctx.rotate(shipProps.spriteRotation);
         }
-        
+
         ctx.drawImage(
             sprite,
             -shipProps.spriteWidth / 2,
