@@ -248,10 +248,13 @@ class GameLoop {
         const spacing = shipLength / cannonCount;
         const cannonSpreadFactor = 0.4; // Compress cannons toward middle (0.5 = half the ship length)
 
-        // Determine if firing left or right based on baseAngle
-        // Q key (left): baseAngle = rotation + PI
-        // E key (right): baseAngle = rotation
-        // Need to normalize angles to handle wrapping around 2*PI
+        // BROADSIDE DETECTION: Determine which side is firing based on projectile angle
+        // GAMEPLAY RULE: Q key fires left (port), E key fires right (starboard)
+        // ANGLE MAPPING:
+        //   - Q key (left): baseAngle = rotation + PI (180° from ship's heading)
+        //   - E key (right): baseAngle = rotation (same as ship's heading)
+        // CHALLENGE: Angles wrap around at ±PI, so simple comparison fails
+        // SOLUTION: Normalize angle difference to [-PI, +PI] range
         const normalizeAngle = (angle) => {
             while (angle > Math.PI) angle -= 2 * Math.PI;
             while (angle < -Math.PI) angle += 2 * Math.PI;
@@ -260,20 +263,25 @@ class GameLoop {
 
         const angleDiff = normalizeAngle(baseAngle - player.rotation);
 
-        // Sector-based broadside detection
-        // Right broadside (starboard): firing perpendicular to right side (angleDiff ≈ 0)
-        // Left broadside (port): firing perpendicular to left side (angleDiff ≈ ±π)
-        // Use ±60° sectors to accommodate velocity compensation (max ~32° deviation)
-        const BROADSIDE_SECTOR = Math.PI / 3; // 60° tolerance
+        // SECTOR-BASED BROADSIDE DETECTION
+        // WHY SECTORS: Velocity compensation can shift firing angle by up to ~32°
+        // SECTOR DESIGN:
+        //   - Right broadside (E key): angleDiff near 0 (within ±60°)
+        //   - Left broadside (Q key): angleDiff near ±PI (within ±60° of 180°)
+        // TOLERANCE: ±60° (PI/3) provides 28° safety margin beyond max compensation
+        // See docs/COORDINATE_SYSTEM.md for detailed explanation
+        const BROADSIDE_SECTOR = Math.PI / 3; // 60° tolerance (±1.047 radians)
 
         let isRightBroadside = false;
         let isLeftBroadside = false;
 
         if (Math.abs(angleDiff) < BROADSIDE_SECTOR) {
             // Right broadside (E key) - firing to starboard
+            // angleDiff is close to 0, meaning firing in same direction as ship heading
             isRightBroadside = true;
         } else if (Math.abs(Math.abs(angleDiff) - Math.PI) < BROADSIDE_SECTOR) {
             // Left broadside (Q key) - firing to port
+            // angleDiff is close to ±PI (180°), meaning firing opposite to ship heading
             isLeftBroadside = true;
         } else {
             // Invalid firing angle (shouldn't happen with current controls)
@@ -282,23 +290,34 @@ class GameLoop {
         }
 
         for (let i = 0; i < cannonCount; i++) {
-            // Position along ship's longitudinal axis (bow to stern)
+            // CANNON DISTRIBUTION: Position cannons along ship's length (bow to stern)
+            // CLUSTERING: cannonIndex centers cannons around 0 (midship)
+            //   - For 4 cannons: indices are -1.5, -0.5, +0.5, +1.5
+            //   - Multiplied by spacing and spread factor to cluster at midship
+            // SPREAD FACTOR: 0.4 means cannons occupy 40% of ship length (concentrated)
             const cannonIndex = i - (cannonCount - 1) / 2;
             const baseLongitudinalOffset = cannonIndex * spacing * cannonSpreadFactor;
 
-            // Apply side-specific longitudinal offset
+            // PER-SIDE ADJUSTMENT: Allow different bow/stern positioning for port vs starboard
+            // NAMING QUIRK: isLeftBroadside is TRUE when firing RIGHT (E key) due to detection logic
+            // This swap ensures correct offset is applied to each physical side of the ship
             const longitudinalAdjustment = isLeftBroadside
                 ? (shipClass.cannonLongitudinalOffsetStarboard || 0)
                 : (shipClass.cannonLongitudinalOffsetPort || 0);
 
             const longitudinalOffset = baseLongitudinalOffset + longitudinalAdjustment;
 
-            // Lateral offset - position cannons at actual ship edges
-            // isLeftBroadside is TRUE for RIGHT key, FALSE for LEFT key (due to inverted detection)
-            // So we need to swap: TRUE (RIGHT key) = -shipWidth/2, FALSE (LEFT key) = +shipWidth/2
+            // LATERAL OFFSET: Position cannons on port (left) or starboard (right) side
+            // SHIP-RELATIVE COORDINATES:
+            //   - Positive lateral = outward from ship centerline
+            //   - Negative lateral = inward toward centerline
+            // SIDE SELECTION: isLeftBroadside naming is inverted due to detection logic
+            //   - TRUE (E key/right fire) → starboard side → negative offset
+            //   - FALSE (Q key/left fire) → port side → positive offset
             const baseLateralOffset = isLeftBroadside ? -(shipWidth / 2) : (shipWidth / 2);
 
-            // Apply side-specific lateral offset adjustment if defined
+            // PER-SIDE ADJUSTMENT: Fine-tune lateral position for each side independently
+            // Allows asymmetric cannon placement if needed for specific ship designs
             const lateralAdjustment = isLeftBroadside
                 ? (shipClass.cannonLateralOffsetStarboard || 0)
                 : (shipClass.cannonLateralOffsetPort || 0);
@@ -306,9 +325,20 @@ class GameLoop {
 
 
 
-            // Calculate world position using ship rotation
-            // Longitudinal: along ship's forward direction (rotation - PI/2 for north-up sprite)
-            // Lateral: perpendicular to forward (rotation for left/right)
+            // COORDINATE TRANSFORMATION: Convert ship-relative offsets to world coordinates
+            // SHIP-RELATIVE AXES:
+            //   - Longitudinal: along ship's length (bow to stern)
+            //   - Lateral: across ship's width (port to starboard)
+            // WORLD COORDINATE SYSTEM:
+            //   - 0 radians = north/up, rotation increases clockwise
+            //   - Ship sprite points up at 0 rotation
+            // ROTATION TRANSFORMATIONS:
+            //   - Longitudinal uses (rotation - PI/2) to align with ship's forward direction
+            //     * At rotation=0 (north), forward is -Y (up), so we need -PI/2 offset
+            //     * At rotation=PI/2 (east), forward is +X (right)
+            //   - Lateral uses (rotation) directly for perpendicular direction
+            //     * At rotation=0, perpendicular is +X (right for starboard, left for port)
+            //     * At rotation=PI/2, perpendicular is +Y (down for starboard, up for port)
             const cannonX = player.x +
                 Math.cos(player.rotation - Math.PI / 2) * longitudinalOffset +
                 Math.cos(player.rotation) * lateralOffset;
@@ -325,25 +355,35 @@ class GameLoop {
     }
 
     compensateForShipVelocity(player, desiredAngle) {
-        // Calculate ship's velocity vector
+        // ARCADE-STYLE FIRING: Compensate for ship's movement to keep projectiles firing perpendicular
+        // WHY: Without compensation, projectiles would inherit full ship velocity (realistic but hard to aim)
+        // GAMEPLAY GOAL: Make combat more accessible while maintaining some physics realism
+
+        // Calculate ship's velocity vector in world coordinates
+        // Uses same rotation - PI/2 transform as player movement (see Player.js update method)
         const movementAngle = player.rotation - Math.PI / 2;
         const shipVx = Math.cos(movementAngle) * player.speed;
         const shipVy = Math.sin(movementAngle) * player.speed;
 
         // Get projectile speed and compensation factor from config
         const projSpeed = CombatConfig.PROJECTILE_SPEED;
-        const compensationFactor = CombatConfig.VELOCITY_COMPENSATION_FACTOR;
+        const compensationFactor = CombatConfig.VELOCITY_COMPENSATION_FACTOR; // Default 0.7
 
         // Calculate desired projectile velocity (perpendicular to ship)
         const desiredVx = Math.cos(desiredAngle) * projSpeed;
         const desiredVy = Math.sin(desiredAngle) * projSpeed;
 
-        // Add ship velocity to projectile velocity with compensation factor
-        // Factor of 1.0 = full arcade compensation, 0.0 = no compensation (realistic)
+        // VELOCITY COMPENSATION: Blend ship velocity into projectile trajectory
+        // FACTOR SCALE:
+        //   - 1.0 = Full arcade (projectiles always fire perpendicular, ignoring ship movement)
+        //   - 0.7 = Default (70% compensation, slight lead required for moving targets)
+        //   - 0.0 = Realistic (projectiles inherit full ship velocity, requires significant lead)
+        // MATH: Add scaled ship velocity to desired projectile velocity
         const compensatedVx = desiredVx + (shipVx * compensationFactor);
         const compensatedVy = desiredVy + (shipVy * compensationFactor);
 
-        // Calculate the angle for this compensated velocity
+        // Convert compensated velocity vector back to angle for projectile creation
+        // atan2(y, x) gives angle in standard canvas coordinates (0 = right, increases counterclockwise)
         return Math.atan2(compensatedVy, compensatedVx);
     }
 

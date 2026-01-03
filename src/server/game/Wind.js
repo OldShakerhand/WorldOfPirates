@@ -52,39 +52,56 @@ class Wind {
      * @returns {number} Speed modifier (0 to 1)
      */
     getAngleModifier(shipRotation, sailState) {
-        // Calculate angle difference between ship and wind
-        // Wind.direction is where wind comes FROM
-        // We want max speed when ship points AWAY from wind source (with the wind)
+        // WIND MECHANICS: Calculate speed modifier based on sailing angle relative to wind
+        // COORDINATE SYSTEM ALIGNMENT:
+        //   - wind.direction = angle wind is blowing FROM (in radians, 0 = north)
+        //   - shipRotation = ship's heading (in radians, 0 = north, clockwise positive)
+        // GAMEPLAY GOAL: Reward sailing with the wind, penalize sailing against it
 
+        // Calculate angle difference between wind source and ship heading
+        // POSITIVE angleDiff: Ship is heading clockwise from wind source
+        // NEGATIVE angleDiff: Ship is heading counterclockwise from wind source
+        // OPTIMAL: angleDiff near ±PI (180°) means sailing WITH the wind (tailwind)
+        // WORST: angleDiff near 0 means sailing INTO the wind (headwind)
         let angleDiff = this.direction - shipRotation;
 
-        // Normalize to -π to π
+        // Normalize angle difference to [-PI, +PI] range
+        // WHY: Angles wrap around at ±PI, so we need to handle cases like:
+        //   - Wind at 0° (north), ship at 350° (10° west of north)
+        //   - Raw diff = -350°, normalized = +10° (correct small difference)
         while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
         while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
+        // Use absolute angle for symmetric wind effects (port/starboard tacks are equivalent)
         const absAngle = Math.abs(angleDiff);
 
-        // Angle thresholds from PhysicsConfig (convert degrees to radians)
+        // Convert angle thresholds from config (degrees) to radians for comparison
         const poorMax = PhysicsConfig.WIND_ANGLE_POOR_MAX * Math.PI / 180;
         const moderateMax = PhysicsConfig.WIND_ANGLE_MODERATE_MAX * Math.PI / 180;
         const goodMax = PhysicsConfig.WIND_ANGLE_GOOD_MAX * Math.PI / 180;
 
-        // POOR: Headwind - sailing into the wind
+        // WIND EFFICIENCY ZONES (based on absAngle from wind source):
+        // POOR (0-60°): Headwind - sailing into the wind
+        //   - Historically impossible for square-rigged ships
+        //   - Game allows it with severe penalty for accessibility
         if (absAngle < poorMax) {
             return PhysicsConfig.WIND_EFFICIENCY_POOR;
         }
 
-        // MODERATE: Close reach
+        // MODERATE (60-90°): Close reach - perpendicular to wind
+        //   - Challenging but manageable sailing angle
         else if (absAngle < moderateMax) {
             return PhysicsConfig.WIND_EFFICIENCY_MODERATE;
         }
 
-        // GOOD: Broad reach
+        // GOOD (90-150°): Broad reach - favorable sailing angle
+        //   - Sweet spot for most sailing ships
         else if (absAngle < goodMax) {
             return PhysicsConfig.WIND_EFFICIENCY_GOOD;
         }
 
-        // EXCELLENT: Tailwind
+        // EXCELLENT (150-180°): Tailwind - wind directly behind
+        //   - Maximum speed, easiest sailing
         else {
             return PhysicsConfig.WIND_EFFICIENCY_EXCELLENT;
         }
