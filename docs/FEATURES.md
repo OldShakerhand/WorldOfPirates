@@ -1,6 +1,29 @@
 # Features Overview
 
-This document tracks the current implementation status and planned features for World of Pirates.
+## Purpose
+
+This document tracks the implementation status of all features in World of Pirates. It serves as a roadmap for development, showing what's complete, in progress, and planned. Use this to understand the current state of the game and prioritize future work.
+
+## Key Concepts
+
+- **Implemented Features**: Fully functional and tested features currently in the game
+- **In Progress**: Features actively being developed
+- **Planned Features**: Approved features not yet started, organized by priority
+- **Feature Priority Matrix**: Impact vs Effort analysis for prioritization
+- **Roadmap**: Tentative version-based feature grouping
+
+## Canonical Assumptions
+
+### Feature Status Rules
+- **Implemented** (✅): Feature is complete, tested, and in production
+- **In Progress** (🚧): Feature is actively being developed
+- **Planned** (📋): Feature is approved but not started
+- **Rejected** (❌): Feature explicitly decided against
+
+### Code Reference Standards
+- All implemented features should reference their primary implementation file
+- Breaking changes must be documented in CHANGELOG.md
+- New features require updates to GAME_DESIGN.md if they affect core mechanics
 
 ---
 

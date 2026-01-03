@@ -1,6 +1,36 @@
 # Technical Documentation
 
-This document covers the technical architecture, design decisions, and implementation details of World of Pirates.
+## Purpose
+
+This document provides comprehensive technical architecture, design decisions, and implementation details for World of Pirates. It serves as the authoritative reference for system architecture, performance targets, and technical trade-offs. Use this when understanding how the game works internally or when making architectural decisions.
+
+## Key Concepts
+
+- **Server-Authoritative Architecture**: All game logic runs on server, clients only render
+- **60 Hz Tick Rate**: Server updates game state 60 times per second
+- **Two-Tier State System**: Static map data sent once, dynamic state sent every frame
+- **Socket.IO Communication**: WebSocket-based real-time networking
+- **Modular Design**: Separated concerns (World, Player, Ship, Projectile, etc.)
+
+## Canonical Assumptions
+
+### Architectural Invariants
+- **Server Authority**: Clients NEVER make gameplay decisions, only send inputs
+- **Tick Rate**: Server MUST maintain 60 Hz (16.67ms per tick) for smooth gameplay
+- **Player Cap**: Maximum 20 concurrent players (hard limit for performance)
+- **State Broadcast**: Full game state sent to all clients every tick (no delta updates yet)
+
+### Performance Targets
+- **Average Tick Time**: < 10ms (excellent headroom)
+- **Maximum Tick Time**: < 16.67ms (60 FPS requirement)
+- **Network Latency**: Designed for < 100ms connections
+- **Client Frame Rate**: 60 FPS (tied to server tick rate)
+
+### Code Organization Rules
+- All constants in config files (GameConfig, CombatConfig, PhysicsConfig)
+- No magic numbers in game logic
+- Server code in `src/server/`, client code in `src/public/`
+- Entity classes (Player, Ship, Projectile) are server-side only
 
 ---
 

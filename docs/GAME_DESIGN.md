@@ -1,5 +1,33 @@
 # Game Design Document
 
+## Purpose
+
+This document defines the core vision, design pillars, and gameplay mechanics for World of Pirates. It serves as the authoritative source for design decisions and helps maintain consistency across features. Use this document to understand the "why" behind gameplay choices and to evaluate new feature proposals against established design goals.
+
+## Key Concepts
+
+- **Tactical Depth Over Twitch Skills**: Combat rewards positioning, timing, and prediction rather than reflexes
+- **Wind-Based Tactics**: Dynamic wind system creates strategic decision points every 30-60 seconds
+- **Fleet Management**: Players command multiple ships with risk/reward trade-offs
+- **Forgiving Failure**: Raft fallback system prevents total elimination from matches
+- **Accessible Yet Deep**: Simple WASD+QE controls with emergent complexity
+
+## Canonical Assumptions
+
+### Core Design Pillars (Immutable)
+1. **Tactical Depth Over Twitch Skills** - Never add mechanics that reward pure reflexes over strategy
+2. **Meaningful Progression** - Ship upgrades must provide tangible gameplay differences
+3. **Accessible Yet Deep** - Controls must remain simple (WASD+QE) while allowing mastery
+4. **Dynamic Environment** - Wind and terrain must create tactical opportunities
+
+### Gameplay Invariants
+- **Raft Invulnerability**: Players on rafts are always invulnerable (prevents griefing)
+- **Harbor Safety**: Harbors are always safe zones (prevents spawn camping)
+- **Fleet Speed Penalty**: Additional ships always reduce speed (5% per ship)
+- **Broadside Combat**: Cannons always fire perpendicular to ship (Q=port, E=starboard)
+
+---
+
 ## 🎯 Vision Statement
 
 **World of Pirates** is a tactical multiplayer naval combat game that emphasizes strategic positioning, fleet management, and skillful maneuvering over twitch reflexes. Players command fleets of historically-inspired sailing vessels, engaging in broadside battles while navigating dynamic wind conditions and treacherous waters.
@@ -61,48 +89,49 @@
 
 ### Ship Physics & Movement
 
-**Sail States**
+**Sail States** (See: [`Player.js`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js))
 - **Stop** (0 sails) - Gradual deceleration, maximum maneuverability
 - **Half Sails** - 50% max speed, balanced speed/control
 - **Full Sails** - 100% max speed, reduced turning
 
-**Wind System**
+**Wind System** (See: [`Wind.js`](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js))
 - Wind direction changes every 30-60 seconds
 - **Tailwind** (sailing with wind) - Speed bonus
 - **Headwind** (sailing against wind) - Speed penalty
 - **Crosswind** - Neutral speed
 - Creates tactical positioning opportunities
 
-**Water Depth**
+**Water Depth** (See: [`PhysicsConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/PhysicsConfig.js))
 - **Deep Water** - Full speed, normal acceleration
 - **Shallow Water** - 25% speed reduction, faster deceleration
 - **Islands** - Collision damage based on impact speed
 
 ### Combat System
 
-**Broadside Cannons**
+**Broadside Cannons** (See: [`GameLoop.js:fireCannons`](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js))
 - Left (Q) and Right (E) broadsides fire independently
-- Each broadside fires 2 cannonballs with slight spread
-- 3-second reload time per side
-- Projectiles have realistic arc physics (gravity, lifetime)
+- Cannon count varies by ship class (2-10 per side)
+- 4-second reload time per side
+- Projectiles have physics (gravity, distance-based range)
+- Velocity compensation (70% default) for arcade-style firing
 
-**Damage Model**
-- **Cannonball Hit**: 10 damage
+**Damage Model** (See: [`CombatConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/CombatConfig.js))
+- **Cannonball Hit**: 5 damage
 - **Island Collision**: Scales with impact speed (threshold: 20 speed)
 - **Ship Health**: Varies by class (100-500 HP)
 
-**Fleet Mechanics**
+**Fleet Mechanics** (See: [`Player.js`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js))
 - Players command a fleet of ships
 - Active ship is the "flagship"
 - When flagship sinks:
   - Switch to next ship in fleet
-  - Gain 3-second invulnerability shield
+  - Gain 10-second invulnerability shield
 - Lose all ships → Respawn on invulnerable raft
 - Fleet size affects overall speed (5% penalty per additional ship)
 
 ### Harbor System
 
-**Safe Zones**
+**Safe Zones** (See: [`Harbor.js`](file:///c:/Development/WorldOfPirates/src/server/game/Harbor.js))
 - Harbors located at each island
 - Enter harbor (H key) when in range
 - While docked:
@@ -136,6 +165,8 @@ Ships follow a progression from fast/weak to slow/powerful:
 | 8 | **Spanish Galleon** | Heavy Combat | Tanky with heavy guns |
 | 9 | **War Galleon** | Ultimate | Maximum firepower, slow |
 
+See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js) for detailed stats.
+
 > [!IMPORTANT]
 > **Design Question**: How do players acquire new ships?
 > - Purchase with earned currency?
@@ -164,7 +195,7 @@ Ships follow a progression from fast/weak to slow/powerful:
 ## 🌍 World Design
 
 ### Current Implementation
-- **World Size**: 2000×2000 units
+- **World Size**: 2000×2000 units (See: [`GameConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/GameConfig.js))
 - **Islands**: 7 procedurally generated islands
 - **Harbors**: 1 per island (7 total)
 - **Spawn System**: Random spawn in designated area
@@ -191,9 +222,9 @@ Ships follow a progression from fast/weak to slow/powerful:
 > - Ship visual designs?
 
 ### Current Implementation
-- HTML5 Canvas rendering
+- HTML5 Canvas rendering (See: [`game.js`](file:///c:/Development/WorldOfPirates/src/public/js/game.js))
 - Top-down perspective
-- Simple geometric shapes for ships
+- Sprite-based ship rendering with rotation
 - Color-coded elements (health, shields, water depth)
 
 ---
