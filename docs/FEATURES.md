@@ -17,6 +17,7 @@ This document tracks the current implementation status and planned features for 
 ### Ship Classes
 - [x] **10 Ship Classes** - Raft, Sloop, Pinnace, Barque, Fluyt, Merchant, Frigate, Fast Galleon, Spanish Galleon, War Galleon
 - [x] **Unique Stats** - Each class has distinct speed, health, turn rate, and cannons
+- [x] **Sail State Sprites** - Dynamic sprites for no sails, half sails, and full sails
 - [x] **Fleet Speed Penalty** - Additional ships reduce overall speed (5% per ship)
 
 ### World & Environment
@@ -33,11 +34,16 @@ This document tracks the current implementation status and planned features for 
 - [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
 
 ### Combat Mechanics
-- [x] **Projectile Physics** - Realistic arc with gravity and lifetime (2 seconds)
-- [x] **Dual Cannons** - Each broadside fires 2 cannonballs with spread
-- [x] **Fire Rate** - 3-second cooldown per broadside
-- [x] **Damage System** - 10 damage per cannonball hit
-- [x] **Flagship Switch Shield** - 3-second invulnerability when switching ships
+- [x] **Distance-Based Projectiles** - 400px range with gravity physics
+- [x] **Variable Cannons** - 2-10 cannons per side based on ship class
+- [x] **Cannon Clustering** - Cannons concentrated at midship (40% spread factor)
+- [x] **Per-Side Positioning** - Independent port/starboard cannon placement
+- [x] **Velocity Compensation** - Configurable arcade-style firing (0.0-1.0 factor, default 0.7)
+- [x] **Sector-Based Detection** - Precise ±60° broadside sectors
+- [x] **Fire Rate** - 4-second cooldown per broadside
+- [x] **Damage System** - 5 HP per cannonball hit
+- [x] **Flagship Switch Shield** - 10-second invulnerability when switching ships
+- [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
 - [x] **Shield Visual Indicator** - Shield icon and distinct color for invulnerable ships
 
 ### UI/UX

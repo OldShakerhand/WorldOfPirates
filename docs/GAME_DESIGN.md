@@ -104,7 +104,7 @@
 
 **Safe Zones**
 - Harbors located at each island
-- Enter harbor (F key) when in range
+- Enter harbor (H key) when in range
 - While docked:
   - Ship is stationary and safe
   - Can repair flagship to full health
@@ -148,7 +148,7 @@ Ships follow a progression from fast/weak to slow/powerful:
 ## 🎯 Target Audience
 
 ### Primary Audience
-- **Age**: 16-35
+- **Age**: 16-75
 - **Gaming Experience**: Casual to core gamers
 - **Preferences**: Strategy, tactics, PvP combat
 - **Time Commitment**: 15-60 minute sessions
