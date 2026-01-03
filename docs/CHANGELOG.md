@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Sector-based broadside detection (±60° tolerance)
+- Configurable velocity compensation factor (0.0-1.0)
+- Comprehensive coordinate system documentation
+
+### Changed
+- Improved broadside detection accuracy with explicit sectors
+- Replaced 1.5 radian threshold with precise ±60° zones
+
+## [0.2.0] - 2026-01-02
+
+### Added
+- **Sail State Sprites** - Fluyt now has 3 sprite variants (no sails, half sails, full sails)
+- **Per-Side Cannon Positioning** - 4 independent offset properties for precise cannon placement
+- **Distance-Based Projectile Range** - 400px max distance (replaced time-based lifetime)
+- **Centralized Ship Properties** - Server sends ship metadata to clients on connection
+- **Cannon Clustering** - Configurable spread factor (40%) concentrates cannons at midship
+- **Coordinate System Documentation** - Comprehensive reference for spatial mechanics
+
+### Changed
+- **Projectile Range** - From time-based (2s lifetime) to distance-based (400px)
+- **Cannon Fire Rate** - From 3s to 4s between volleys
+- **Projectile Damage** - From 10 HP to 5 HP per hit
+- **Projectile Speed** - From 200 to 150 pixels/second
+- **Projectile Gravity** - From 60 to 50
+- **Projectile Visual Size** - From 3px to 2px radius
+
+### Fixed
+- **Multiplayer Projectile Visibility** - Projectiles now render correctly for all players
+- **Cannon Lateral Offset** - Fixed perpendicular direction calculation
+- **Broadside Detection** - Fixed angle wrapping issues
+- **Cannon Positioning Asymmetry** - Cannons now fire symmetrically from both sides
+
 ### Planned
 - Player names and identification
 - Kill feed / combat log
@@ -80,8 +113,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **Unreleased** - Sector-based detection and velocity compensation tuning
+- **0.2.0** (2026-01-02) - Combat mechanics overhaul and sail sprites
 - **0.1.0** (2025-12-27) - Initial alpha release with core gameplay
-- **Unreleased** - Future features in development
 
 ---
 

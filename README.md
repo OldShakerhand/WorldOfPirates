@@ -97,6 +97,9 @@ WorldOfPirates/
 - [Game Design](docs/GAME_DESIGN.md) - Vision, gameplay concepts, and design pillars
 - [Features](docs/FEATURES.md) - Current vs planned features
 - [Technical Documentation](docs/TECHNICAL.md) - Architecture and technical decisions
+- [Coordinate System](docs/COORDINATE_SYSTEM.md) - Spatial mechanics and physics reference
+- [Ship Assets](docs/SHIP_ASSETS.md) - Asset creation and sprite guidelines
+- [Changelog](docs/CHANGELOG.md) - Version history and updates
 
 ## 🎨 Ship Classes
 
@@ -141,10 +144,13 @@ Warnings appear when average tick time exceeds the 60 FPS target (16.67ms).
 - Tactical positioning is key to combat advantage
 
 ### Combat
-- **Broadside Cannons**: Number of cannons varies by ship class (2-10 per side)
-- **Cannon Spread**: Multiple cannons fire with slight spread for realistic volleys
-- **Fire Rate**: 3 seconds between volleys
-- **Damage**: 10 HP per cannonball hit
+- **Broadside Cannons**: 2-10 cannons per side (varies by ship class)
+- **Cannon Positioning**: Configurable per-side with clustering at midship
+- **Fire Rate**: 4 seconds between volleys
+- **Damage**: 5 HP per cannonball hit
+- **Projectile Range**: 400 pixels (distance-based)
+- **Velocity Compensation**: Configurable arcade-style firing (default 70%)
+- **Sector-Based Detection**: Precise ±60° broadside firing zones
 - **Collision Damage**: Ramming islands at high speed damages your ship
 
 ### Fleet Management

@@ -354,6 +354,21 @@ socket.emit('input', {
 
 ---
 
+## 🧭 Spatial Mechanics & Physics
+
+For detailed information about coordinate systems, rotation, cannon positioning, and projectile physics, see **[COORDINATE_SYSTEM.md](COORDINATE_SYSTEM.md)**.
+
+This comprehensive reference covers:
+- **World coordinate system** and rotation conventions
+- **Ship orientation** and movement vectors
+- **Cannon positioning system** with per-side control
+- **Broadside detection** using sector-based approach
+- **Velocity compensation** mechanics and tuning
+- **Wind effects** and camera transforms
+- **Common pitfalls** and debugging tips
+
+---
+
 ## 🧪 Testing & Debugging
 
 ### Performance Monitoring
