@@ -260,12 +260,26 @@ class GameLoop {
 
         const angleDiff = normalizeAngle(baseAngle - player.rotation);
 
+        // Sector-based broadside detection
+        // Right broadside (starboard): firing perpendicular to right side (angleDiff ≈ 0)
+        // Left broadside (port): firing perpendicular to left side (angleDiff ≈ ±π)
+        // Use ±60° sectors to accommodate velocity compensation (max ~32° deviation)
+        const BROADSIDE_SECTOR = Math.PI / 3; // 60° tolerance
 
-        // If angleDiff is near 0, it's right broadside (E key)
-        // If angleDiff is near PI or -PI, it's left broadside (Q key)
-        // Use larger threshold (1.5 radians) to account for velocity compensation
-        const isRightBroadside = Math.abs(angleDiff) < 1.5;
-        const isLeftBroadside = !isRightBroadside;
+        let isRightBroadside = false;
+        let isLeftBroadside = false;
+
+        if (Math.abs(angleDiff) < BROADSIDE_SECTOR) {
+            // Right broadside (E key) - firing to starboard
+            isRightBroadside = true;
+        } else if (Math.abs(Math.abs(angleDiff) - Math.PI) < BROADSIDE_SECTOR) {
+            // Left broadside (Q key) - firing to port
+            isLeftBroadside = true;
+        } else {
+            // Invalid firing angle (shouldn't happen with current controls)
+            console.warn(`Invalid broadside angle: ${(angleDiff * 180 / Math.PI).toFixed(1)}°`);
+            return; // Don't fire if angle is invalid
+        }
 
         for (let i = 0; i < cannonCount; i++) {
             // Position along ship's longitudinal axis (bow to stern)
@@ -316,16 +330,18 @@ class GameLoop {
         const shipVx = Math.cos(movementAngle) * player.speed;
         const shipVy = Math.sin(movementAngle) * player.speed;
 
-        // Get projectile speed from config
+        // Get projectile speed and compensation factor from config
         const projSpeed = CombatConfig.PROJECTILE_SPEED;
+        const compensationFactor = CombatConfig.VELOCITY_COMPENSATION_FACTOR;
 
         // Calculate desired projectile velocity (perpendicular to ship)
         const desiredVx = Math.cos(desiredAngle) * projSpeed;
         const desiredVy = Math.sin(desiredAngle) * projSpeed;
 
-        // Add ship velocity to projectile velocity for arcade-style firing
-        const compensatedVx = desiredVx + shipVx;
-        const compensatedVy = desiredVy + shipVy;
+        // Add ship velocity to projectile velocity with compensation factor
+        // Factor of 1.0 = full arcade compensation, 0.0 = no compensation (realistic)
+        const compensatedVx = desiredVx + (shipVx * compensationFactor);
+        const compensatedVy = desiredVy + (shipVy * compensationFactor);
 
         // Calculate the angle for this compensated velocity
         return Math.atan2(compensatedVy, compensatedVx);

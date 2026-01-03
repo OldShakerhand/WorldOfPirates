@@ -23,6 +23,9 @@ const CombatConfig = {
     PROJECTILE_GRAVITY: 50,
     PROJECTILE_INITIAL_Z: 20,
 
+    // Arcade-style firing
+    VELOCITY_COMPENSATION_FACTOR: 0.7, // 0.0 = no compensation, 1.0 = full compensation
+
     // Visual
     PROJECTILE_BALL_RADIUS: 2, // Visual size of the cannonball
     PROJECTILE_SHADOW_RADIUS: 1, // Visual size of the shadow
