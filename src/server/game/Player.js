@@ -215,7 +215,13 @@ class Player {
         }
 
         // Apply velocity
-        // Visual ship is rotated by -PI/2, so movement should also be -PI/2
+        // COORDINATE SYSTEM: 0 radians = north/up, rotation increases clockwise
+        // Ship sprites are drawn pointing up at 0 rotation
+        // To move forward (in the direction the ship faces), we need to convert:
+        //   - rotation 0 (north) should move in -Y direction (up on canvas)
+        //   - rotation PI/2 (east) should move in +X direction (right on canvas)
+        // The -PI/2 offset transforms our north-up rotation into standard canvas angles
+        // where 0 radians points right (+X direction)
         const movementAngle = this.rotation - Math.PI / 2;
         const newX = this.x + Math.cos(movementAngle) * this.speed * deltaTime;
         const newY = this.y + Math.sin(movementAngle) * this.speed * deltaTime;
