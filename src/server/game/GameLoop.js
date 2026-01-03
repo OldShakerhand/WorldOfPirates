@@ -213,6 +213,7 @@ class GameLoop {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
                     // Fire left broadside - perpendicular to port side
                     // Compensate for ship velocity for arcade-style firing
+                    // TODO: Rename baseAngle to broadsideFiringAngleRad for clarity (deferred: used in multiple places)
                     const baseAngle = player.rotation + Math.PI;
                     const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
                     this.fireCannons(player, compensatedAngle);
@@ -225,6 +226,7 @@ class GameLoop {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
                     // Fire right broadside - perpendicular to starboard side
                     // Compensate for ship velocity for arcade-style firing
+                    // TODO: Rename baseAngle to broadsideFiringAngleRad for clarity (deferred: used in multiple places)
                     const baseAngle = player.rotation;
                     const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
                     this.fireCannons(player, compensatedAngle);
@@ -261,6 +263,7 @@ class GameLoop {
             return angle;
         };
 
+        // TODO: Rename angleDiff to relativeBearingRad for clarity (deferred: used extensively below)
         const angleDiff = normalizeAngle(baseAngle - player.rotation);
 
         // SECTOR-BASED BROADSIDE DETECTION
@@ -361,9 +364,9 @@ class GameLoop {
 
         // Calculate ship's velocity vector in world coordinates
         // Uses same rotation - PI/2 transform as player movement (see Player.js update method)
-        const movementAngle = player.rotation - Math.PI / 2;
-        const shipVx = Math.cos(movementAngle) * player.speed;
-        const shipVy = Math.sin(movementAngle) * player.speed;
+        const shipHeadingRad = player.rotation - Math.PI / 2;
+        const shipVx = Math.cos(shipHeadingRad) * player.speed;
+        const shipVy = Math.sin(shipHeadingRad) * player.speed;
 
         // Get projectile speed and compensation factor from config
         const projSpeed = CombatConfig.PROJECTILE_SPEED;

@@ -6,6 +6,7 @@ const PhysicsConfig = require('./PhysicsConfig');
 
 class Wind {
     constructor() {
+        // TODO: Rename 'direction' to 'windSourceAngleRad' for clarity (deferred: public API)
         this.direction = Math.random() * Math.PI * 2; // 0 to 2π radians
         this.strength = this.randomStrength();
         this.changeTimer = 0;
@@ -59,21 +60,21 @@ class Wind {
         // GAMEPLAY GOAL: Reward sailing with the wind, penalize sailing against it
 
         // Calculate angle difference between wind source and ship heading
-        // POSITIVE angleDiff: Ship is heading clockwise from wind source
-        // NEGATIVE angleDiff: Ship is heading counterclockwise from wind source
-        // OPTIMAL: angleDiff near ±PI (180°) means sailing WITH the wind (tailwind)
-        // WORST: angleDiff near 0 means sailing INTO the wind (headwind)
-        let angleDiff = this.direction - shipRotation;
+        // POSITIVE windRelativeBearingRad: Ship is heading clockwise from wind source
+        // NEGATIVE windRelativeBearingRad: Ship is heading counterclockwise from wind source
+        // OPTIMAL: windRelativeBearingRad near ±PI (180°) means sailing WITH the wind (tailwind)
+        // WORST: windRelativeBearingRad near 0 means sailing INTO the wind (headwind)
+        let windRelativeBearingRad = this.direction - shipRotation;
 
         // Normalize angle difference to [-PI, +PI] range
         // WHY: Angles wrap around at ±PI, so we need to handle cases like:
         //   - Wind at 0° (north), ship at 350° (10° west of north)
         //   - Raw diff = -350°, normalized = +10° (correct small difference)
-        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+        while (windRelativeBearingRad > Math.PI) windRelativeBearingRad -= Math.PI * 2;
+        while (windRelativeBearingRad < -Math.PI) windRelativeBearingRad += Math.PI * 2;
 
         // Use absolute angle for symmetric wind effects (port/starboard tacks are equivalent)
-        const absAngle = Math.abs(angleDiff);
+        const absAngle = Math.abs(windRelativeBearingRad);
 
         // Convert angle thresholds from config (degrees) to radians for comparison
         const poorMax = PhysicsConfig.WIND_ANGLE_POOR_MAX * Math.PI / 180;
