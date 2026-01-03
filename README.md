@@ -46,7 +46,7 @@ The game will be available at `http://localhost:3000`
 | **D** | Turn right |
 | **Q** | Fire left broadside |
 | **E** | Fire right broadside |
-| **F** | Enter harbor (when near) |
+| **H** | Enter harbor (when near) |
 
 ## 🏗️ Tech Stack
 
@@ -150,7 +150,7 @@ Warnings appear when average tick time exceeds the 60 FPS target (16.67ms).
 ### Fleet Management
 - Start with a Sloop (or receive one at first harbor if on a raft)
 - Manage multiple ships in your fleet
-- When your flagship sinks, switch to another ship with a 3-second shield
+- When your flagship sinks, switch to another ship (protected by a 10 second shield)
 - Lose all ships? You respawn on an invulnerable raft
 
 ### Harbors
@@ -160,7 +160,7 @@ Warnings appear when average tick time exceeds the 60 FPS target (16.67ms).
 
 ## 📝 License
 
-ISC
+MIT
 
 ## 🤝 Contributing
 
