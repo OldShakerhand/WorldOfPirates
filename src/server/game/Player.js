@@ -182,6 +182,7 @@ class Player {
 
             if (this.isInDeepWater) {
                 const windStrength = wind.getStrengthModifier();
+                // TODO: Consider renaming getAngleModifier to getWindEfficiencyModifier for clarity
                 windAngleModifier = wind.getAngleModifier(this.rotation, this.sailState);
                 targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier;
             } else {
@@ -222,9 +223,10 @@ class Player {
         //   - rotation PI/2 (east) should move in +X direction (right on canvas)
         // The -PI/2 offset transforms our north-up rotation into standard canvas angles
         // where 0 radians points right (+X direction)
-        const movementAngle = this.rotation - Math.PI / 2;
-        const newX = this.x + Math.cos(movementAngle) * this.speed * deltaTime;
-        const newY = this.y + Math.sin(movementAngle) * this.speed * deltaTime;
+        // TODO: Consider renaming 'rotation' to 'shipHeadingRad' for clarity (high-risk: public API)
+        const shipHeadingRad = this.rotation - Math.PI / 2;
+        const newX = this.x + Math.cos(shipHeadingRad) * this.speed * deltaTime;
+        const newY = this.y + Math.sin(shipHeadingRad) * this.speed * deltaTime;
 
         // Check island collisions
         let canMove = true;
