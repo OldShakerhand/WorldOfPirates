@@ -1,6 +1,41 @@
 # Coordinate System & Game Mechanics Reference
 
-This document explains the coordinate systems, rotation conventions, and spatial mechanics used throughout the World of Pirates game.
+## Purpose
+
+This document defines the coordinate systems, rotation conventions, and spatial mechanics used throughout World of Pirates. It serves as the authoritative reference for all mathematical transformations and is essential for understanding how ship movement, cannon positioning, and wind mechanics work. Use this when implementing features involving rotation, positioning, or coordinate transformations.
+
+## Key Concepts
+
+- **North-Up Coordinate System**: 0 radians points UP (north), rotation increases clockwise
+- **Rotation - PI/2 Transform**: Converts north-up rotation to canvas forward direction
+- **Ship-Relative vs World Coordinates**: Cannons positioned in ship space, transformed to world space
+- **Sector-Based Broadside Detection**: ±60° tolerance zones for port/starboard firing
+- **Velocity Compensation**: Configurable arcade-style firing (0.0-1.0 factor)
+
+## Canonical Assumptions
+
+### Coordinate System Invariants
+- **0 Radians = North/Up**: Ship rotation of 0 always points up (negative Y direction)
+- **Clockwise Rotation**: Increasing rotation angle rotates ship clockwise
+- **Angle Range**: All angles normalized to [-PI, +PI] radians
+- **Canvas Coordinates**: X increases right, Y increases down (standard HTML5 canvas)
+
+### Rotation Transform Rules
+- **Forward Movement**: Always use `rotation - PI/2` for ship's forward direction
+- **Lateral Movement**: Always use `rotation` for perpendicular (port/starboard) direction
+- **Sprite Alignment**: All ship sprites point UP at 0 rotation (north-facing)
+
+### Gameplay Mechanics
+- **Broadside Firing**: Q key = port (left), E key = starboard (right)
+- **Wind Direction**: 0 radians = wind from north, same coordinate system as ships
+- **Cannon Clustering**: 40% spread factor concentrates cannons at midship
+- **Velocity Compensation**: Default 70% (0.7) balances arcade vs realistic physics
+
+### Code References
+- **Movement**: [`Player.js:update()`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js)
+- **Cannon Positioning**: [`GameLoop.js:fireCannons()`](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)
+- **Wind Mechanics**: [`Wind.js:getAngleModifier()`](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js)
+- **Velocity Compensation**: [`GameLoop.js:compensateForShipVelocity()`](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)
 
 ---
 
