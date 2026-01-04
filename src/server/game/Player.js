@@ -184,6 +184,10 @@ class Player {
         let windAngleModifier = 0; // Track for UI display
 
         if (this.sailState > 0) {
+            // TODO: Make sail state modifiers configurable (TECH_DEBT_005)
+            // WHY: Hardcoded 0.5 for half sails doesn't allow ship-specific tuning
+            // REFACTOR: Move to ShipClass properties or PhysicsConfig
+            // WHEN: When different ship types need different sail efficiency curves
             const sailModifier = this.sailState === 1 ? 0.5 : 1.0;
 
             if (this.isInDeepWater) {
@@ -201,6 +205,10 @@ class Player {
         this.windEfficiency = windAngleModifier;
 
         // Accelerate/Decelerate
+        // TODO: Make shallow water physics multipliers configurable (TECH_DEBT_006)
+        // WHY: Hardcoded 0.5 accel and 1.5 decel in shallow water are magic numbers
+        // REFACTOR: Move to PhysicsConfig.SHALLOW_WATER_ACCEL_MULTIPLIER
+        // WHEN: When adding different water depth levels or ship draft mechanics
         const accel = this.isInDeepWater ? PhysicsConfig.ACCELERATION : PhysicsConfig.ACCELERATION * 0.5;
         const decel = this.isInDeepWater ? PhysicsConfig.DECELERATION : PhysicsConfig.DECELERATION * 1.5;
 
