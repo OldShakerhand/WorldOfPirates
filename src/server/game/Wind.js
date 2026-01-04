@@ -20,6 +20,10 @@ class Wind {
     }
 
     randomStrength() {
+        // FIXME: Wind strength probabilities are hardcoded (TECH_DEBT_007)
+        // WHY: 20%/40%/40% distribution is arbitrary, not data-driven
+        // REFACTOR: Move to GameConfig with configurable probability weights
+        // WHEN: When adding weather systems or regional wind patterns
         const rand = Math.random();
         if (rand < 0.2) return 'LOW';      // 20% chance
         if (rand < 0.6) return 'NORMAL';   // 40% chance
@@ -27,6 +31,10 @@ class Wind {
     }
 
     getStrengthModifier() {
+        // TODO: Make wind strength modifiers configurable (TECH_DEBT_008)
+        // WHY: 0.6/0.8/1.0 multipliers are magic numbers, not balanced
+        // REFACTOR: Move to PhysicsConfig.WIND_STRENGTH_MULTIPLIERS
+        // WHEN: When balancing wind impact on gameplay
         switch (this.strength) {
             case 'LOW': return 0.6;
             case 'NORMAL': return 0.8;

@@ -22,6 +22,10 @@ class GameLoop {
         }, 1000 / this.tickRate);
 
         // Start performance monitoring (log every 10 seconds)
+        // TODO: Make monitoring interval configurable (TECH_DEBT_001)
+        // WHY: Hardcoded 10s interval may be too frequent for production
+        // REFACTOR: Move to GameConfig.PERFORMANCE_LOG_INTERVAL
+        // WHEN: Before production deployment
         this.monitoringInterval = setInterval(() => {
             this.logPerformance();
         }, 10000);
@@ -45,6 +49,10 @@ class GameLoop {
         console.log(`[Performance] Avg tick: ${avgTick.toFixed(2)}ms | Max: ${maxTick.toFixed(2)}ms | Players: ${playerCount} | Projectiles: ${projectileCount}`);
 
         // Warn if performance is degrading
+        // TODO: Make performance threshold configurable (TECH_DEBT_002)
+        // WHY: Hardcoded 16.67ms threshold assumes 60 FPS requirement
+        // REFACTOR: Move to GameConfig.MAX_TICK_TIME_MS with dynamic adjustment
+        // WHEN: If tick rate becomes configurable or variable
         if (avgTick > 16.67) {
             console.warn(`⚠️  WARNING: Average tick time (${avgTick.toFixed(2)}ms) exceeds 60 FPS target (16.67ms)`);
         }
@@ -253,6 +261,10 @@ class GameLoop {
 
         // Calculate spacing between cannons along the ship's length
         const spacing = shipLength / cannonCount;
+        // TODO: Make cannon spread factor configurable per ship class (TECH_DEBT_004)
+        // WHY: Hardcoded 0.4 doesn't allow per-ship customization
+        // REFACTOR: Move to ShipClass property (cannonSpreadFactor)
+        // WHEN: When balancing different ship classes or adding new ships
         const cannonSpreadFactor = 0.4; // Compress cannons toward middle (0.5 = half the ship length)
 
         // BROADSIDE DETECTION: Determine which side is firing based on projectile angle

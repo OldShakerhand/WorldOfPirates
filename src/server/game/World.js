@@ -36,6 +36,10 @@ class World {
             // Try to find a position that doesn't overlap with existing islands
             let attempts = 0;
             while (!validPosition && attempts < GameConfig.ISLAND_GENERATION_ATTEMPTS) {
+                // FIXME: Hardcoded edge buffer for island generation (TECH_DEBT_009)
+                // WHY: 200px buffer is magic number, not proportional to world size
+                // REFACTOR: Calculate as percentage of world size (e.g., 10%)
+                // WHEN: When supporting different world sizes or procedural generation
                 x = 200 + Math.random() * (this.width - 400); // Keep away from edges
                 y = 200 + Math.random() * (this.height - 400);
                 radius = GameConfig.ISLAND_MIN_RADIUS + Math.random() * (GameConfig.ISLAND_MAX_RADIUS - GameConfig.ISLAND_MIN_RADIUS);
@@ -76,6 +80,10 @@ class World {
     generateWaterDepth() {
         return {
             isDeep: (x, y) => {
+                // FIXME: Linear island collision check doesn't scale (TECH_DEBT_010)
+                // WHY: O(n) check for every ship position update
+                // REFACTOR: Use spatial partitioning (quadtree or grid)
+                // WHEN: >20 islands or >50 players cause performance issues
                 // Check if position is in shallow water around any island
                 for (const island of this.islands) {
                     if (island.isInShallowWater(x, y)) {
