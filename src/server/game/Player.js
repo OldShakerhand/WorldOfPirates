@@ -18,6 +18,12 @@ class Player {
         this.type = 'PLAYER';
         this.x = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
         this.y = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
+
+        // DESIGN CONTRACT: Rotation convention
+        // - 0 radians = north (up, -Y direction)
+        // - Increases clockwise (standard nautical heading)
+        // - Range: [-PI, +PI] after normalization
+        // DO NOT CHANGE: Entire coordinate system depends on this convention
         this.rotation = Math.random() * Math.PI * 2;
         this.speed = 0;
 
@@ -224,6 +230,11 @@ class Player {
         // The -PI/2 offset transforms our north-up rotation into standard canvas angles
         // where 0 radians points right (+X direction)
         // TODO: Consider renaming 'rotation' to 'shipHeadingRad' for clarity (high-risk: public API)
+
+        // DESIGN CONTRACT: Movement calculation
+        // - Forward movement MUST use (rotation - PI/2) transform
+        // - This aligns north-up rotation (0 rad) with canvas -Y direction
+        // DO NOT CHANGE: Changing this breaks all ship movement and sprite alignment
         const shipHeadingRad = this.rotation - Math.PI / 2;
         const newX = this.x + Math.cos(shipHeadingRad) * this.speed * deltaTime;
         const newY = this.y + Math.sin(shipHeadingRad) * this.speed * deltaTime;

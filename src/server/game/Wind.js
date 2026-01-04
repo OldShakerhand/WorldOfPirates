@@ -6,6 +6,11 @@ const PhysicsConfig = require('./PhysicsConfig');
 
 class Wind {
     constructor() {
+        // DESIGN CONTRACT: Wind direction convention
+        // - direction = angle wind is blowing FROM (not TO)
+        // - 0 radians = north, increases clockwise (matches ship rotation)
+        // - Optimal sailing: ship heading ±180° from wind direction (tailwind)
+        // DO NOT CHANGE: Wind efficiency calculations depend on this convention
         // TODO: Rename 'direction' to 'windSourceAngleRad' for clarity (deferred: public API)
         this.direction = Math.random() * Math.PI * 2; // 0 to 2π radians
         this.strength = this.randomStrength();
@@ -70,6 +75,11 @@ class Wind {
         // WHY: Angles wrap around at ±PI, so we need to handle cases like:
         //   - Wind at 0° (north), ship at 350° (10° west of north)
         //   - Raw diff = -350°, normalized = +10° (correct small difference)
+
+        // DESIGN CONTRACT: Angle normalization
+        // - MUST normalize to [-PI, +PI] range for correct wind effect calculation
+        // - Wrapping at ±PI is required by atan2 output range
+        // DO NOT CHANGE: Skipping normalization causes incorrect wind effects near 0/360°
         while (windRelativeBearingRad > Math.PI) windRelativeBearingRad -= Math.PI * 2;
         while (windRelativeBearingRad < -Math.PI) windRelativeBearingRad += Math.PI * 2;
 

@@ -213,6 +213,11 @@ class GameLoop {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
                     // Fire left broadside - perpendicular to port side
                     // Compensate for ship velocity for arcade-style firing
+
+                    // DESIGN CONTRACT: Broadside firing angles
+                    // - Q key (port): fires at rotation + PI (180° from heading)
+                    // - E key (starboard): fires at rotation (same as heading)
+                    // DO NOT CHANGE: Broadside detection sectors depend on these exact angles
                     // TODO: Rename baseAngle to broadsideFiringAngleRad for clarity (deferred: used in multiple places)
                     const baseAngle = player.rotation + Math.PI;
                     const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
@@ -273,6 +278,11 @@ class GameLoop {
         //   - Left broadside (Q key): angleDiff near ±PI (within ±60° of 180°)
         // TOLERANCE: ±60° (PI/3) provides 28° safety margin beyond max compensation
         // See docs/COORDINATE_SYSTEM.md for detailed explanation
+
+        // DESIGN CONTRACT: Broadside sector tolerance
+        // - MUST be ±60° (PI/3) to accommodate velocity compensation
+        // - Maximum compensation deviation is ~32° at default 0.7 factor
+        // DO NOT CHANGE: Smaller tolerance breaks arcade firing, larger allows forward/aft firing
         const BROADSIDE_SECTOR = Math.PI / 3; // 60° tolerance (±1.047 radians)
 
         let isRightBroadside = false;
@@ -342,6 +352,11 @@ class GameLoop {
             //   - Lateral uses (rotation) directly for perpendicular direction
             //     * At rotation=0, perpendicular is +X (right for starboard, left for port)
             //     * At rotation=PI/2, perpendicular is +Y (down for starboard, up for port)
+
+            // DESIGN CONTRACT: Cannon position transforms
+            // - Longitudinal MUST use (rotation - PI/2) for forward/aft
+            // - Lateral MUST use (rotation) for port/starboard
+            // DO NOT CHANGE: These transforms align ship-relative coords with world coords
             const cannonX = player.x +
                 Math.cos(player.rotation - Math.PI / 2) * longitudinalOffset +
                 Math.cos(player.rotation) * lateralOffset;
