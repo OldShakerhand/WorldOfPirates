@@ -4,6 +4,12 @@ const ctx = canvas.getContext('2d');
 // Debug flag for hitbox visualization (set to true to see hitboxes)
 const DEBUG_HITBOXES = true;
 
+// DEBUG ONLY: Collision diagnostics visualization
+// Set to true to see projectile trails (previous → current position)
+// This is temporary instrumentation to diagnose intermittent collision misses
+// NO gameplay behavior is modified when enabled
+const DEBUG_COLLISION_VISUAL = false;
+
 // Visual Constants - centralized styling
 const COLORS = {
     OCEAN_DEEP: '#3498db',

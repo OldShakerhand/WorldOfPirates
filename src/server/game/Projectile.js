@@ -57,6 +57,12 @@ class Projectile {
         this.zSpeed = initialZSpeed;
         this.gravity = (2 * (initialZ + initialZSpeed * timeToMaxDistance)) / (timeToMaxDistance * timeToMaxDistance);
 
+        // DEBUG ONLY: Track previous position for delta logging
+        // Used to diagnose intermittent collision misses
+        // NO gameplay behavior change
+        this.prevX = x;
+        this.prevY = y;
+
         // Log calculated gravity for debugging/tuning
         // console.log(`Projectile gravity calculated: ${this.gravity.toFixed(2)} (maxDist: ${this.maxDistance}, speed: ${this.speed})`);
     }
@@ -68,6 +74,19 @@ class Projectile {
             this.toRemove = true;
             return;
         }
+
+        // DEBUG ONLY: Log projectile movement delta
+        // Helps diagnose if projectiles are "jumping" over hitboxes
+        if (CombatConfig.DEBUG_COLLISION) {
+            const dx = this.x - this.prevX;
+            const dy = this.y - this.prevY;
+            const distancePerTick = Math.sqrt(dx * dx + dy * dy);
+            console.log(`[DEBUG] Projectile Δ=${distancePerTick.toFixed(2)}px | Speed=${this.speed} | DeltaTime=${deltaTime.toFixed(4)}`);
+        }
+
+        // Store previous position before movement
+        this.prevX = this.x;
+        this.prevY = this.y;
 
         // Move horizontally
         this.x += Math.cos(this.rotation) * this.speed * deltaTime;

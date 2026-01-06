@@ -28,7 +28,13 @@ const CombatConfig = {
     // Visual
     PROJECTILE_BALL_RADIUS: 2, // Visual size of the cannonball
     PROJECTILE_SHADOW_RADIUS: 1, // Visual size of the shadow
-    PROJECTILE_COLLISION_MULTIPLIER: 1.2 // Collision radius = ball radius * multiplier
+    PROJECTILE_COLLISION_MULTIPLIER: 1.2, // Collision radius = ball radius * multiplier
+
+    // DEBUG ONLY: Collision diagnostics
+    // Set to true to enable detailed collision logging
+    // This is temporary instrumentation to diagnose intermittent collision misses
+    // NO gameplay behavior is modified when enabled
+    DEBUG_COLLISION: false
 };
 
 module.exports = CombatConfig;
