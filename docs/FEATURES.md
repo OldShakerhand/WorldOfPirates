@@ -51,7 +51,7 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Island Collision** - Collision damage based on impact speed
 
 ### Harbor System
-- [x] **Harbor Docking** - Enter harbors with F key when in range
+- [x] **Harbor Docking** - Enter harbors with H key when in range
 - [x] **Ship Repair** - Repair flagship to full health while docked
 - [x] **Raft Upgrade** - Receive free Sloop when entering harbor on a raft
 - [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
@@ -75,6 +75,7 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Harbor UI** - Overlay showing fleet and repair options
 - [x] **Reload Indicators** - Visual feedback for cannon reload times
 - [x] **Water Depth Indicator** - Shows when in shallow water
+- [x] **Kill Feed** - System chat displaying ship destruction events
 
 ### Server & Performance
 - [x] **Player Cap** - 20 concurrent players maximum
@@ -100,8 +101,7 @@ Currently no features in active development.
 ### High Priority
 
 #### Player Identity & Social
-- [ ] **Player Names** - Display names above ships
-- [ ] **Kill Feed** - Show combat events (X sank Y's ship)
+- [x] **Player Names** - Display names above ships
 - [ ] **Player List** - See all connected players
 - [ ] **Score/Stats** - Track kills, deaths, ships sunk
 
@@ -111,31 +111,22 @@ Currently no features in active development.
 - [ ] **Ship Acquisition** - Define how players get new ships
 - [ ] **Progression System** - Economy, unlocks, or session-based progression
 
-#### UI/UX Enhancements
-- [ ] **Main Menu** - Start screen with game info
-- [ ] **Death Screen** - Show what happened when ship sinks
-- [ ] **Settings Menu** - Control sensitivity, graphics options
-- [ ] **Tutorial** - First-time player guidance
-
 ### Medium Priority
 
 #### Multiplayer Features
 - [ ] **Teams/Clans** - Cooperative gameplay
 - [ ] **Chat System** - Text communication between players
-- [ ] **Friend System** - Play with specific people
-- [ ] **Spectator Mode** - Watch ongoing battles
+- [ ] **Friend System** - Communicate with specific people (get them marked)
 
 #### Gameplay Expansion
-- [ ] **Multiple Game Modes** - Team deathmatch, capture the flag, etc.
 - [ ] **AI Ships** - NPC merchants or enemies
 - [ ] **Treasure System** - Collectibles or objectives
+- [ ] **Quest System** - Define objectives for players
 - [ ] **Boarding Mechanics** - Close-quarters ship capture
 
 #### World Features
-- [ ] **Larger World** - More islands, bigger play area
-- [ ] **Multiple Maps** - Different island configurations
+- [ ] **Larger World** - More islands, bigger play area, no longer generated procedurally
 - [ ] **Weather Effects** - Storms, fog affecting visibility/gameplay
-- [ ] **Day/Night Cycle** - Visual variety and tactical opportunities
 
 #### Polish
 - [ ] **Sound Effects** - Cannon fire, wind, waves, impacts
@@ -145,13 +136,18 @@ Currently no features in active development.
 
 ### Low Priority / Future Ideas
 
+#### UI/UX Enhancements
+- [ ] **Main Menu** - Start screen with game info
+- [ ] **Death Screen** - Show what happened when ship sinks
+- [ ] **Settings Menu** - Control sensitivity, graphics options
+- [ ] **Tutorial** - First-time player guidance
+
 #### Advanced Features
-- [ ] **Replay System** - Record and watch battles
 - [ ] **Leaderboards** - Global rankings
 - [ ] **Achievements** - Unlock challenges
 - [ ] **Port Economy** - Trading system between harbors
 - [ ] **Crew Management** - Hire crew for bonuses
-- [ ] **Ship Upgrades** - Customize cannons, sails, hull
+- [ ] **Ship Upgrades** - Upgrade cannons, sails, hull for money
 
 #### Technical Improvements
 - [ ] **Spatial Partitioning** - Optimize collision detection
@@ -202,7 +198,6 @@ Features we've decided NOT to implement (and why):
 
 | Feature | Impact | Effort | Priority |
 |---------|--------|--------|----------|
-| Player Names | High | Low | **Do First** |
 | Minimap | High | Medium | **Do First** |
 | Ship Acquisition System | High | High | **Plan Carefully** |
 | Kill Feed | Medium | Low | **Quick Win** |
@@ -214,7 +209,6 @@ Features we've decided NOT to implement (and why):
 ## 🎯 Roadmap (Tentative)
 
 ### Version 0.2 (Next Release)
-- Player names and identification
 - Kill feed / combat log
 - Improved spawn system
 - Main menu
@@ -226,7 +220,6 @@ Features we've decided NOT to implement (and why):
 - Teams/clans
 
 ### Version 0.4
-- Multiple game modes
 - Sound effects and music
 - Visual effects polish
 - Chat system

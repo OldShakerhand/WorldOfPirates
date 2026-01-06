@@ -97,7 +97,8 @@ class GameLoop {
             return false;
         }
 
-        const player = new Player(socket.id, playerName);
+        // Pass io and world references for kill message emission
+        const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
 
         // Find a safe spawn position (not inside islands)
         const safePosition = this.findSafeSpawnPosition();

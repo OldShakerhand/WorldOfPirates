@@ -137,7 +137,13 @@ class World {
                     // Use proper collision radii: projectile radius + ship collision radius
                     const collisionDistance = (entity.collisionRadius || 15) + proj.radius;
                     if (dist < collisionDistance) {
-                        entity.takeDamage(proj.damage);
+                        // Pass damage source for kill attribution
+                        const damageSource = {
+                            type: 'player',
+                            playerId: proj.ownerId,
+                            timestamp: Date.now()
+                        };
+                        entity.takeDamage(proj.damage, damageSource);
                         proj.toRemove = true;
                         break;
                     }
