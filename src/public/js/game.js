@@ -1,6 +1,9 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Debug flag for hitbox visualization (set to true to see hitboxes)
+const DEBUG_HITBOXES = false;
+
 // Visual Constants - centralized styling
 const COLORS = {
     OCEAN_DEEP: '#3498db',
@@ -564,6 +567,30 @@ function drawShip(player, isMe) {
         ctx.beginPath();
         ctx.arc(0, 0, SHIELD_CONFIG.GLOW_RADIUS, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.restore();
+    }
+
+    // Debug: Draw hitbox (enable with DEBUG_HITBOXES flag)
+    if (DEBUG_HITBOXES && !player.isRaft) {
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        ctx.rotate(player.rotation);
+
+        // Calculate hitbox dimensions using ship's configured factors
+        const shipProps = getShipProperties(player.shipClassName);
+        const hitboxWidth = shipProps.spriteWidth * (shipProps.hitboxWidthFactor || 0.8);
+        const hitboxHeight = shipProps.spriteHeight * (shipProps.hitboxHeightFactor || 0.8);
+
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.7;
+        ctx.strokeRect(
+            -hitboxWidth / 2,
+            -hitboxHeight / 2,
+            hitboxWidth,
+            hitboxHeight
+        );
+
         ctx.restore();
     }
 

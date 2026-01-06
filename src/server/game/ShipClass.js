@@ -17,7 +17,12 @@ const SHIP_CLASSES = {
         spriteWidth: 20,
         spriteHeight: 30,
         spriteRotation: 0,
-        collisionRadius: 12
+        // DESIGN CONTRACT: Hitbox dimensions derived from sprites
+        // - hitboxWidth = spriteWidth * hitboxWidthFactor
+        // - hitboxHeight = spriteHeight * hitboxHeightFactor
+        // DO NOT store absolute dimensions - always use factors
+        hitboxWidthFactor: 0.8,  // 80% of sprite width
+        hitboxHeightFactor: 0.8  // 80% of sprite height
     },
     SLOOP: {
         id: 2,
@@ -36,7 +41,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 22.5
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     PINNACE: {
         id: 3,
@@ -55,7 +61,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 25.5
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     BARQUE: {
         id: 4,
@@ -74,7 +81,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 28.5
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     FLUYT: {
         id: 5,
@@ -93,7 +101,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 10, // Starboard lateral offset (positive = further from centerline)
         cannonLongitudinalOffsetPort: -10, // Port longitudinal offset (negative = toward stern)
         cannonLongitudinalOffsetStarboard: -10, // Starboard longitudinal offset (negative = toward stern)
-        collisionRadius: 20
+        hitboxWidthFactor: 0.6,
+        hitboxHeightFactor: 0.8
     },
     MERCHANT: {
         id: 6,
@@ -112,7 +121,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 33
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     FRIGATE: {
         id: 7,
@@ -131,7 +141,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 37.5
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     FAST_GALLEON: {
         id: 8,
@@ -150,7 +161,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 40.5
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     SPANISH_GALLEON: {
         id: 9,
@@ -169,7 +181,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 45
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     },
     WAR_GALLEON: {
         id: 10,
@@ -188,7 +201,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        collisionRadius: 52.5
+        hitboxWidthFactor: 0.8,
+        hitboxHeightFactor: 0.8
     }
 };
 

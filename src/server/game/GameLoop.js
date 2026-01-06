@@ -127,7 +127,9 @@ class GameLoop {
                 spriteWidth: shipClass.spriteWidth,
                 spriteHeight: shipClass.spriteHeight,
                 spriteRotation: shipClass.spriteRotation,
-                spriteFile: shipClass.spriteFile
+                spriteFile: shipClass.spriteFile,
+                hitboxWidthFactor: shipClass.hitboxWidthFactor,
+                hitboxHeightFactor: shipClass.hitboxHeightFactor
             };
         }
 

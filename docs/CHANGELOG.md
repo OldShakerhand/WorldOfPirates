@@ -32,6 +32,12 @@ This document tracks all notable changes to World of Pirates across versions. It
 ## [Unreleased]
 
 ### Added
+- **Rotated Rectangular Hitboxes** - Sprite-based collision detection for accurate hit detection
+  - Replaced circular hitboxes with rotated rectangles matching ship sprite dimensions
+  - Hitbox dimensions derived from sprite size using configurable factors (default 0.8)
+  - Ship-local space transformation for rotation-aware collision detection
+  - Debug rendering option to visualize hitboxes (DEBUG_HITBOXES flag)
+  - See: [`World.js:testRotatedRectCollision()`](file:///c:/Development/WorldOfPirates/src/server/game/World.js), [`Ship.js:getHitbox()`](file:///c:/Development/WorldOfPirates/src/server/game/Ship.js)
 - **Kill Feed** - Server-authoritative system chat displaying ship destruction events
   - Event-based socket messages (not in game state)
   - Damage source tracking for accurate kill attribution
@@ -43,6 +49,9 @@ This document tracks all notable changes to World of Pirates across versions. It
 - Explanatory code comments for all mathematical transformations
 
 ### Changed
+- **Collision Detection** - From circular to rotated rectangular hitboxes
+  - More accurate collision detection matching visual sprite boundaries
+  - Per-ship hitbox tuning via width/height factors
 - Improved broadside detection accuracy with explicit sectors
 - Replaced 1.5 radian threshold with precise ±60° zones
 
@@ -158,7 +167,7 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ## Version History
 
-- **Unreleased** - Kill feed system, sector-based detection, and velocity compensation tuning
+- **Unreleased** - Rotated hitboxes, kill feed system, sector-based detection, and velocity compensation tuning
 - **0.2.0** (2026-01-02) - Combat mechanics overhaul and sail sprites
 - **0.1.0** (2025-12-27) - Initial alpha release with core gameplay
 
