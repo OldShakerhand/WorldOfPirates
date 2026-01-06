@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Debug flag for hitbox visualization (set to true to see hitboxes)
-const DEBUG_HITBOXES = false;
+const DEBUG_HITBOXES = true;
 
 // Visual Constants - centralized styling
 const COLORS = {
