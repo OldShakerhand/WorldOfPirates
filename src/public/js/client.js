@@ -4,6 +4,12 @@ let socket = null;
 // Store static map data (received once on connection)
 let mapData = null;
 
+// Chat messages (kill feed)
+// ChatMessage: { type: 'system', timestamp: number, text: string }
+// - Append-only: messages are never edited or deleted
+// - Client stores last 10 messages for display
+let chatMessages = [];
+
 // Name input handling
 document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('playerNameInput');
@@ -127,6 +133,20 @@ function setupGameListeners() {
         // Store combat visuals globally
         window.COMBAT_CONFIG = config;
         console.log('Loaded combat config from server:', config);
+    });
+
+    // Chat messages (kill feed) - event-based, not in game state
+    socket.on('chatMessage', (message) => {
+        // Add new message to array
+        chatMessages.push(message);
+
+        // Keep only last 10 messages
+        if (chatMessages.length > 10) {
+            chatMessages.shift(); // Remove oldest
+        }
+
+        // Render updated chat feed
+        renderChatFeed(chatMessages);
     });
 }
 

@@ -32,6 +32,11 @@ This document tracks all notable changes to World of Pirates across versions. It
 ## [Unreleased]
 
 ### Added
+- **Kill Feed** - Server-authoritative system chat displaying ship destruction events
+  - Event-based socket messages (not in game state)
+  - Damage source tracking for accurate kill attribution
+  - Bottom-right chat panel showing last 10 messages
+  - See: [`Player.js:onFlagshipSunk()`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js)
 - Sector-based broadside detection (±60° tolerance)
 - Configurable velocity compensation factor (0.0-1.0)
 - Comprehensive coordinate system documentation
@@ -153,7 +158,7 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ## Version History
 
-- **Unreleased** - Sector-based detection and velocity compensation tuning
+- **Unreleased** - Kill feed system, sector-based detection, and velocity compensation tuning
 - **0.2.0** (2026-01-02) - Combat mechanics overhaul and sail sprites
 - **0.1.0** (2025-12-27) - Initial alpha release with core gameplay
 

@@ -622,3 +622,29 @@ function showHarborUI(harborData) {
 function hideHarborUI() {
     document.getElementById('harborUI').style.display = 'none';
 }
+
+// Chat Feed Rendering
+function renderChatFeed(messages) {
+    const chatMessagesDiv = document.getElementById('chatMessages');
+
+    // Clear existing messages
+    chatMessagesDiv.innerHTML = '';
+
+    // Render each message
+    messages.forEach(message => {
+        const messageDiv = document.createElement('div');
+
+        // Apply styling based on message type
+        if (message.type === 'system') {
+            messageDiv.className = 'chat-message-system';
+        }
+        // Future: add 'chat-message-player' class for player messages
+
+        messageDiv.textContent = message.text;
+        chatMessagesDiv.appendChild(messageDiv);
+    });
+
+    // Auto-scroll to bottom (show latest messages)
+    chatMessagesDiv.parentElement.scrollTop = chatMessagesDiv.parentElement.scrollHeight;
+}
+

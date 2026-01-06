@@ -5,7 +5,7 @@ const PhysicsConfig = require('./PhysicsConfig');
 const CombatConfig = require('./CombatConfig');
 
 class Player {
-    constructor(id, name = 'Anonymous', startingShipClass = 'FLUYT') {
+    constructor(id, name = 'Anonymous', startingShipClass = 'FLUYT', io = null, world = null) {
         // Identity
         this.id = id;  // Socket ID (temporary session identifier)
         this.name = name;  // Display name
@@ -35,6 +35,13 @@ class Player {
 
         // Shield (temporary invulnerability after flagship loss)
         this.shieldEndTime = 0; // Timestamp when shield expires
+
+        // Damage tracking for kill attribution
+        // lastDamageSource: { type: 'player', playerId: string, timestamp: number }
+        // - type: Source of damage ('player' for combat, future: 'environment', 'npc')
+        // - playerId: ID of the player who dealt damage
+        // - timestamp: When damage was dealt (for timeout/expiry logic)
+        this.lastDamageSource = null;
 
         // Harbor state
         this.inHarbor = false; // True when docked
@@ -67,6 +74,10 @@ class Player {
             shootLeft: false,
             shootRight: false
         };
+
+        // References for kill message emission (passed from GameLoop)
+        this.io = io;
+        this.world = world;
     }
 
     get flagship() {
@@ -111,9 +122,15 @@ class Player {
         this.inputs = data;
     }
 
-    takeDamage(amount) {
+    takeDamage(amount, damageSource = null) {
         if (this.isRaft || this.hasActiveShield()) {
             return; // Invulnerable
+        }
+
+        // Track damage source for kill attribution
+        // damageSource: { type, playerId, timestamp }
+        if (damageSource) {
+            this.lastDamageSource = damageSource;
         }
 
         this.flagship.takeDamage(amount);
@@ -130,6 +147,26 @@ class Player {
 
     onFlagshipSunk() {
         console.log(`Player "${this.name}" (${this.id}) flagship sunk!`);
+
+        // Emit kill message if damage source is known
+        if (this.lastDamageSource && this.lastDamageSource.type === 'player' && this.io && this.world) {
+            const killer = this.world.getEntity(this.lastDamageSource.playerId);
+            if (killer && killer.name) {
+                // ChatMessage structure (plain object, no classes)
+                const chatMessage = {
+                    type: 'system',           // Server-only message type
+                    timestamp: Date.now(),    // Server-authoritative timestamp
+                    text: `☠️ ${killer.name} sank ${this.name}`
+                };
+
+                // Emit to all clients immediately (event-based, not in game state)
+                this.io.emit('chatMessage', chatMessage);
+                console.log(`Kill feed: ${chatMessage.text}`);
+            }
+        }
+
+        // Clear damage source after processing
+        this.lastDamageSource = null;
 
         // Remove sunk ship from fleet
         this.fleet.splice(this.flagshipIndex, 1);
