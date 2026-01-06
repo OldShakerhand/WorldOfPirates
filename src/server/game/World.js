@@ -129,14 +129,15 @@ class World {
             const proj = this.projectiles[i];
             proj.update(deltaTime);
 
-            // Collision Detection
+            // Collision Detection with Rotated Rectangles
             for (const id in this.entities) {
                 const entity = this.entities[id];
                 if (entity.type === 'PLAYER' && entity.id !== proj.ownerId) {
-                    const dist = Math.hypot(entity.x - proj.x, entity.y - proj.y);
-                    // Use proper collision radii: projectile radius + ship collision radius
-                    const collisionDistance = (entity.collisionRadius || 15) + proj.radius;
-                    if (dist < collisionDistance) {
+                    // Skip rafts (invulnerable)
+                    if (entity.isRaft) continue;
+
+                    // Test rotated rectangle collision
+                    if (this.testRotatedRectCollision(entity, proj)) {
                         // Pass damage source for kill attribution
                         const damageSource = {
                             type: 'player',
@@ -154,6 +155,48 @@ class World {
                 this.projectiles.splice(i, 1);
             }
         }
+    }
+
+    /**
+     * Test collision between projectile and ship using rotated rectangle
+     * 
+     * DESIGN CONTRACT: Rotation coordinate system
+     * - 0 radians = ship facing north (up, -Y direction)
+     * - Rotation increases clockwise
+     * - Transform projectile to ship-local space by rotating by -ship.rotation
+     * 
+     * Algorithm:
+     * 1. Translate projectile position relative to ship center
+     * 2. Rotate projectile by -ship.rotation to align with ship's axes
+     * 3. Test if rotated point is inside axis-aligned rectangle
+     * 
+     * @param {Player} ship - The ship entity
+     * @param {Projectile} projectile - The projectile to test
+     * @returns {boolean} - True if collision detected
+     */
+    testRotatedRectCollision(ship, projectile) {
+        // Get hitbox dimensions from ship
+        const hitbox = ship.flagship.getHitbox();
+        const halfWidth = hitbox.width / 2;
+        const halfHeight = hitbox.height / 2;
+
+        // Step 1: Translate projectile to ship-relative coordinates
+        const dx = projectile.x - ship.x;
+        const dy = projectile.y - ship.y;
+
+        // Step 2: Rotate projectile into ship's local coordinate system
+        // Rotate by -ship.rotation to counter the ship's rotation
+        // This makes the ship appear axis-aligned in local space
+        const cosAngle = Math.cos(-ship.rotation);
+        const sinAngle = Math.sin(-ship.rotation);
+
+        const localX = dx * cosAngle - dy * sinAngle;
+        const localY = dx * sinAngle + dy * cosAngle;
+
+        // Step 3: Test against axis-aligned rectangle
+        // In local space, ship is centered at (0,0) and axis-aligned
+        // Simple rectangle containment test
+        return Math.abs(localX) <= halfWidth && Math.abs(localY) <= halfHeight;
     }
 
     createProjectile(ownerId, x, y, rotation) {
