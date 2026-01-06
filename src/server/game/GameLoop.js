@@ -222,17 +222,13 @@ class GameLoop {
             // Handle Broadside Left (Q) - Rafts cannot fire
             if (inputData.shootLeft && !player.isRaft) {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
-                    // Fire left broadside - perpendicular to port side
-                    // Compensate for ship velocity for arcade-style firing
-
-                    // DESIGN CONTRACT: Broadside firing angles
-                    // - Q key (port): fires at rotation + PI (180° from heading)
-                    // - E key (starboard): fires at rotation (same as heading)
-                    // DO NOT CHANGE: Broadside detection sectors depend on these exact angles
-                    // TODO: Rename baseAngle to broadsideFiringAngleRad for clarity (deferred: used in multiple places)
+                    // DESIGN CONTRACT: Arcade cannon firing
+                    // - Projectiles fire exactly perpendicular to ship heading
+                    // - NO velocity compensation or physics inheritance
+                    // - Direction determined ONCE at fire time, never modified
+                    // - Port broadside fires at rotation + PI (180° from heading)
                     const baseAngle = player.rotation + Math.PI;
-                    const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
-                    this.fireCannons(player, compensatedAngle);
+                    this.fireCannons(player, baseAngle);
                     player.lastShotTimeLeft = now;
                 }
             }
@@ -240,12 +236,13 @@ class GameLoop {
             // Handle Broadside Right (E) - Rafts cannot fire
             if (inputData.shootRight && !player.isRaft) {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
-                    // Fire right broadside - perpendicular to starboard side
-                    // Compensate for ship velocity for arcade-style firing
-                    // TODO: Rename baseAngle to broadsideFiringAngleRad for clarity (deferred: used in multiple places)
+                    // DESIGN CONTRACT: Arcade cannon firing
+                    // - Projectiles fire exactly perpendicular to ship heading
+                    // - NO velocity compensation or physics inheritance
+                    // - Direction determined ONCE at fire time, never modified
+                    // - Starboard broadside fires at rotation (same as heading)
                     const baseAngle = player.rotation;
-                    const compensatedAngle = this.compensateForShipVelocity(player, baseAngle);
-                    this.fireCannons(player, compensatedAngle);
+                    this.fireCannons(player, baseAngle);
                     player.lastShotTimeRight = now;
                 }
             }
@@ -287,18 +284,18 @@ class GameLoop {
         const angleDiff = normalizeAngle(baseAngle - player.rotation);
 
         // SECTOR-BASED BROADSIDE DETECTION
-        // WHY SECTORS: Velocity compensation can shift firing angle by up to ~32°
+        // ARCADE FIRING MODEL: Projectiles fire exactly perpendicular to ship
         // SECTOR DESIGN:
-        //   - Right broadside (E key): angleDiff near 0 (within ±60°)
-        //   - Left broadside (Q key): angleDiff near ±PI (within ±60° of 180°)
-        // TOLERANCE: ±60° (PI/3) provides 28° safety margin beyond max compensation
-        // See docs/COORDINATE_SYSTEM.md for detailed explanation
+        //   - Right broadside (E key): angleDiff near 0 (within ±45°)
+        //   - Left broadside (Q key): angleDiff near ±PI (within ±45° of 180°)
+        // TOLERANCE: ±45° (PI/4) prevents forward/aft firing
+        // See docs/COORDINATE_SYSTEM.md for coordinate system details
 
         // DESIGN CONTRACT: Broadside sector tolerance
-        // - MUST be ±60° (PI/3) to accommodate velocity compensation
-        // - Maximum compensation deviation is ~32° at default 0.7 factor
-        // DO NOT CHANGE: Smaller tolerance breaks arcade firing, larger allows forward/aft firing
-        const BROADSIDE_SECTOR = Math.PI / 3; // 60° tolerance (±1.047 radians)
+        // - MUST be ±45° (PI/4) for arcade firing model
+        // - Prevents accidental forward/backward firing
+        // DO NOT CHANGE: Smaller tolerance may reject valid perpendicular shots
+        const BROADSIDE_SECTOR = Math.PI / 4; // 45° tolerance (±0.785 radians)
 
         let isRightBroadside = false;
         let isLeftBroadside = false;
@@ -385,39 +382,6 @@ class GameLoop {
             // Fire projectile straight out from cannon (perpendicular to ship)
             this.world.createProjectile(player.id, cannonX, cannonY, baseAngle);
         }
-    }
-
-    compensateForShipVelocity(player, desiredAngle) {
-        // ARCADE-STYLE FIRING: Compensate for ship's movement to keep projectiles firing perpendicular
-        // WHY: Without compensation, projectiles would inherit full ship velocity (realistic but hard to aim)
-        // GAMEPLAY GOAL: Make combat more accessible while maintaining some physics realism
-
-        // Calculate ship's velocity vector in world coordinates
-        // Uses same rotation - PI/2 transform as player movement (see Player.js update method)
-        const shipHeadingRad = player.rotation - Math.PI / 2;
-        const shipVx = Math.cos(shipHeadingRad) * player.speed;
-        const shipVy = Math.sin(shipHeadingRad) * player.speed;
-
-        // Get projectile speed and compensation factor from config
-        const projSpeed = CombatConfig.PROJECTILE_SPEED;
-        const compensationFactor = CombatConfig.VELOCITY_COMPENSATION_FACTOR; // Default 0.7
-
-        // Calculate desired projectile velocity (perpendicular to ship)
-        const desiredVx = Math.cos(desiredAngle) * projSpeed;
-        const desiredVy = Math.sin(desiredAngle) * projSpeed;
-
-        // VELOCITY COMPENSATION: Blend ship velocity into projectile trajectory
-        // FACTOR SCALE:
-        //   - 1.0 = Full arcade (projectiles always fire perpendicular, ignoring ship movement)
-        //   - 0.7 = Default (70% compensation, slight lead required for moving targets)
-        //   - 0.0 = Realistic (projectiles inherit full ship velocity, requires significant lead)
-        // MATH: Add scaled ship velocity to desired projectile velocity
-        const compensatedVx = desiredVx + (shipVx * compensationFactor);
-        const compensatedVy = desiredVy + (shipVy * compensationFactor);
-
-        // Convert compensated velocity vector back to angle for projectile creation
-        // atan2(y, x) gives angle in standard canvas coordinates (0 = right, increases counterclockwise)
-        return Math.atan2(compensatedVy, compensatedVx);
     }
 
     handleEnterHarbor(socket) {

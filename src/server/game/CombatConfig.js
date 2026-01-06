@@ -9,7 +9,7 @@ const CombatConfig = {
     CANNON_SPREAD: 0.05,// Radians between dual cannons
 
     // Damage
-    PROJECTILE_DAMAGE: 5,
+    PROJECTILE_DAMAGE: 10,
     COLLISION_DAMAGE_THRESHOLD: 20,// Speed threshold for collision damage
     COLLISION_DAMAGE_MULTIPLIER: 0.2,// Damage = (speed - threshold) * multiplier
 
@@ -18,13 +18,12 @@ const CombatConfig = {
     HARBOR_EXIT_SHIELD_DURATION: 10,// Seconds after leaving harbor
 
     // Projectile physics
-    PROJECTILE_SPEED: 150,
-    PROJECTILE_MAX_DISTANCE: 400, // Pixels (explicit range)
-    PROJECTILE_GRAVITY: 50,
-    PROJECTILE_INITIAL_Z: 20,
-
-    // Arcade-style firing
-    VELOCITY_COMPENSATION_FACTOR: 0.7, // 0.0 = no compensation, 1.0 = full compensation
+    PROJECTILE_SPEED: 120,
+    PROJECTILE_MAX_DISTANCE: 250, // Pixels (explicit range)
+    PROJECTILE_INITIAL_Z: 15,      // Starting height above water
+    PROJECTILE_INITIAL_Z_SPEED: 10, // Initial upward velocity
+    // NOTE: Gravity is calculated dynamically in Projectile.js to ensure
+    // projectile reaches water exactly at PROJECTILE_MAX_DISTANCE
 
     // Visual
     PROJECTILE_BALL_RADIUS: 2, // Visual size of the cannonball
