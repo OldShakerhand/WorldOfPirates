@@ -123,7 +123,10 @@ class Player {
     }
 
     takeDamage(amount, damageSource = null) {
+        console.log(`[DAMAGE] ${this.name} takeDamage called: amount=${amount}, isRaft=${this.isRaft}, hasShield=${this.hasActiveShield()}, shieldEndTime=${this.shieldEndTime}, now=${Date.now() / 1000}`);
+
         if (this.isRaft || this.hasActiveShield()) {
+            console.log(`[DAMAGE] ${this.name} is invulnerable (raft or shield)`);
             return; // Invulnerable
         }
 
@@ -134,6 +137,7 @@ class Player {
         }
 
         this.flagship.takeDamage(amount);
+        console.log(`[DAMAGE] ${this.name} flagship health: ${this.flagship.health}/${this.flagship.maxHealth}`);
 
         // Check if flagship sunk
         if (this.flagship.isSunk) {
@@ -145,24 +149,60 @@ class Player {
         return Date.now() / 1000 < this.shieldEndTime;
     }
 
+    /**
+     * Handle flagship destruction
+     * 
+     * GAMEPLAY SEMANTICS: Game Events vs UI Messages
+     * 
+     * Game events are semantic gameplay facts (what happened)
+     * ChatMessages are UI presentations (how to display it)
+     * 
+     * Events defined here:
+     * - ship_sunk: A vessel was destroyed (tactical event)
+     * - player_rafted: Player lost last ship, now recoverable (strategic event)
+     * 
+     * DESIGN CONTRACT: Players are never permanently eliminated
+     * - Rafted state is recoverable (reach harbor for new ship)
+     * - This is NOT death, just a temporary setback
+     * 
+     * ⚠️ DO NOT introduce event buses, observers, or architectural layers
+     * These are simple data objects, not an "event system"
+     * Events are ephemeral by design - they exist momentarily to express
+     * what happened before being interpreted by UI systems
+     */
     onFlagshipSunk() {
         console.log(`Player "${this.name}" (${this.id}) flagship sunk!`);
 
-        // Emit kill message if damage source is known
-        if (this.lastDamageSource && this.lastDamageSource.type === 'player' && this.io && this.world) {
+        const sunkShipClass = this.flagship ? this.flagship.shipClass.name : 'ship';
+
+        // Create ship_sunk event (semantic gameplay event)
+        const shipSunkEvent = {
+            type: 'ship_sunk',
+            timestamp: Date.now(),
+            victimId: this.id,
+            victimName: this.name,
+            shipClass: sunkShipClass,
+            killerId: this.lastDamageSource?.playerId || null,
+            killerName: null // Will be populated if killer exists
+        };
+
+        // Populate killer name if damage source is known
+        if (this.lastDamageSource && this.lastDamageSource.type === 'player' && this.world) {
             const killer = this.world.getEntity(this.lastDamageSource.playerId);
             if (killer && killer.name) {
-                // ChatMessage structure (plain object, no classes)
-                const chatMessage = {
-                    type: 'system',           // Server-only message type
-                    timestamp: Date.now(),    // Server-authoritative timestamp
-                    text: `☠️ ${killer.name} sank ${this.name}`
-                };
-
-                // Emit to all clients immediately (event-based, not in game state)
-                this.io.emit('chatMessage', chatMessage);
-                console.log(`Kill feed: ${chatMessage.text}`);
+                shipSunkEvent.killerName = killer.name;
             }
+        }
+
+        // Derive ChatMessage from ship_sunk event
+        if (this.io && shipSunkEvent.killerName) {
+            const killMessage = {
+                type: 'system',
+                timestamp: shipSunkEvent.timestamp,
+                text: `☠️ ${shipSunkEvent.killerName} sank ${shipSunkEvent.victimName}'s ${shipSunkEvent.shipClass}`
+            };
+            this.io.emit('chatMessage', killMessage);
+            console.log(`Ship sunk: ${killMessage.text}`);
         }
 
         // Clear damage source after processing
@@ -172,20 +212,53 @@ class Player {
         this.fleet.splice(this.flagshipIndex, 1);
 
         if (this.fleet.length > 0) {
-            // Switch to next ship
+            // SHIP SWITCHING: Player has other ships available
+            // This is a state transition, NOT a ship_sunk event
+            const newShipClass = this.fleet[0].shipClass.name;
             this.flagshipIndex = 0;
 
-            // Apply shield after flagship switch
-            this.shieldEndTime = (Date.now() / 1000) + CombatConfig.FLAGSHIP_SWITCH_SHIELD_DURATION;
+            // Optional: Emit ship switch message (secondary, informational)
+            if (this.io) {
+                const switchMessage = {
+                    type: 'system',
+                    timestamp: Date.now(),
+                    text: `⚓ ${this.name} now commands a ${newShipClass}`
+                };
+                this.io.emit('chatMessage', switchMessage);
+            }
 
-            console.log(`Player "${this.name}" (${this.id}) switching to ${this.flagship.shipClass.name} with shield`);
+            // Grant shield when switching flagship
+            this.shieldEndTime = Date.now() / 1000 + CombatConfig.FLAGSHIP_SWITCH_SHIELD_DURATION;
+            console.log(`Player ${this.id} switched to ${newShipClass} with ${CombatConfig.FLAGSHIP_SWITCH_SHIELD_DURATION}s shield`);
         } else {
-            // No ships left - become raft
+            // PLAYER_RAFTED EVENT: Player lost their last active ship
+            // Create player_rafted event (semantic gameplay event)
+            const raftedEvent = {
+                type: 'player_rafted',
+                timestamp: Date.now(),
+                playerId: this.id,
+                playerName: this.name,
+                isRecoverable: true // Emphasizes this is NOT elimination
+            };
+
+            // Transition to rafted state
             this.isRaft = true;
-            this.speed = 0; // Reset speed
-            console.log(`Player "${this.name}" (${this.id}) is now on a raft`);
+            this.speed = 0;
+
+            // Derive ChatMessage from player_rafted event
+            if (this.io) {
+                const raftedMessage = {
+                    type: 'system',
+                    timestamp: raftedEvent.timestamp,
+                    text: `🌊 ${raftedEvent.playerName} is adrift on a raft (reach harbor to recover)`
+                };
+                this.io.emit('chatMessage', raftedMessage);
+            }
+
+            console.log(`Player ${this.id} rafted (all ships lost, recoverable)`);
         }
     }
+
 
     update(deltaTime, wind, waterDepth) {
         // Skip movement if docked in harbor
