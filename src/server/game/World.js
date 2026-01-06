@@ -136,6 +136,24 @@ class World {
                     // Skip rafts (invulnerable)
                     if (entity.isRaft) continue;
 
+                    // DEBUG ONLY: Bounding circle precheck for proximity detection
+                    // Used to detect near-misses and log hitbox dimensions
+                    // NO gameplay behavior change - this is observation only
+                    const CombatConfig = require('./CombatConfig');
+                    const dx = proj.x - entity.x;
+                    const dy = proj.y - entity.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Rough bounding circle (conservative estimate)
+                    const boundingRadius = Math.max(entity.flagship.shipClass.spriteWidth, entity.flagship.shipClass.spriteHeight);
+                    const isNearShip = distance < boundingRadius;
+
+                    // DEBUG ONLY: Log hitbox dimensions when projectile is near
+                    if (CombatConfig.DEBUG_COLLISION && isNearShip) {
+                        const hitbox = entity.flagship.getHitbox();
+                        console.log(`[DEBUG] Near ship: dist=${distance.toFixed(2)}px | Hitbox: ${hitbox.width.toFixed(1)}x${hitbox.height.toFixed(1)} | Rotation=${entity.rotation.toFixed(2)} | Ship pos=(${entity.x.toFixed(1)}, ${entity.y.toFixed(1)}) | Proj prev=(${proj.prevX.toFixed(1)}, ${proj.prevY.toFixed(1)}) curr=(${proj.x.toFixed(1)}, ${proj.y.toFixed(1)})`);
+                    }
+
                     // Test rotated rectangle collision
                     if (this.testRotatedRectCollision(entity, proj)) {
                         // Pass damage source for kill attribution
@@ -147,6 +165,11 @@ class World {
                         entity.takeDamage(proj.damage, damageSource);
                         proj.toRemove = true;
                         break;
+                    }
+
+                    // DEBUG ONLY: Log near-miss if projectile passed through bounding area
+                    if (CombatConfig.DEBUG_COLLISION && isNearShip) {
+                        console.log(`[DEBUG] Near-miss: projectile crossed ship bounding area but no hit registered`);
                     }
                 }
             }
