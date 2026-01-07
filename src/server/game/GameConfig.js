@@ -15,13 +15,15 @@ const GameConfig = {
     // Game loop
     TICK_RATE: 60, // Updates per second
 
-    // Island generation
-    ISLAND_COUNT: 7,
-    ISLAND_MIN_RADIUS: 60,
-    ISLAND_MAX_RADIUS: 150,
-    ISLAND_MIN_SPACING: 100,
-    ISLAND_GENERATION_ATTEMPTS: 50,
-    ISLAND_SHALLOW_WATER_EXTENSION: 80, // Units beyond island radius
+    // World Map (tile-based, replaces procedural generation)
+    WORLD_MAP_PATH: './src/server/assets/world_map.json',
+
+    // Terrain types (must match WorldMap.js and convert_map.js)
+    TERRAIN: {
+        WATER: 0,    // Deep water, full speed
+        SHALLOW: 1,  // Shallow water, reduced speed
+        LAND: 2      // Impassable, collision damage
+    },
 
     // Harbor
     HARBOR_INTERACTION_RADIUS: 30,

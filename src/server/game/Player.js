@@ -260,19 +260,23 @@ class Player {
     }
 
 
-    update(deltaTime, wind, waterDepth) {
+    update(deltaTime, wind, worldMap) {
         // Skip movement if docked in harbor
         if (this.inHarbor) {
             return;
         }
 
-        // Check water depth
-        this.isInDeepWater = waterDepth.isDeep(this.x, this.y);
+        // Check terrain (tile-based, replaces waterDepth.isDeep)
+        this.isInDeepWater = worldMap.isWater(this.x, this.y);
 
         // Check harbor proximity
+        // TODO: Replace with tile-based harbor detection
         this.nearHarbor = null;
-        if (waterDepth.checkHarborProximity) {
-            this.nearHarbor = waterDepth.checkHarborProximity(this.x, this.y);
+        for (const harbor of this.world.harbors) {
+            if (harbor.isPlayerInRange(this.x, this.y)) {
+                this.nearHarbor = harbor.id;
+                break;
+            }
         }
 
         // Sail Management
@@ -357,23 +361,20 @@ class Player {
         const newX = this.x + Math.cos(shipHeadingRad) * this.speed * deltaTime;
         const newY = this.y + Math.sin(shipHeadingRad) * this.speed * deltaTime;
 
-        // Check island collisions
+        // Check land collision (tile-based, replaces island collision)
         let canMove = true;
-        if (waterDepth.checkIslandCollisions) {
-            const collisionResult = waterDepth.checkIslandCollisions(newX, newY);
-            if (collisionResult.collision) {
-                canMove = false;
+        if (worldMap.isLand(newX, newY)) {
+            canMove = false;
 
-                // Apply collision damage based on speed
-                if (this.speed > CombatConfig.COLLISION_DAMAGE_THRESHOLD) {
-                    const damage = (this.speed - CombatConfig.COLLISION_DAMAGE_THRESHOLD) * CombatConfig.COLLISION_DAMAGE_MULTIPLIER;
-                    this.takeDamage(damage);
-                    console.log(`Ship "${this.name}" (${this.id}) hit island at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
-                }
-
-                // Stop the ship
-                this.speed = 0;
+            // Apply collision damage based on speed
+            if (this.speed > CombatConfig.COLLISION_DAMAGE_THRESHOLD) {
+                const damage = (this.speed - CombatConfig.COLLISION_DAMAGE_THRESHOLD) * CombatConfig.COLLISION_DAMAGE_MULTIPLIER;
+                this.takeDamage(damage);
+                console.log(`Ship "${this.name}" (${this.id}) hit land at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
             }
+
+            // Stop the ship
+            this.speed = 0;
         }
 
         // Only move if no collision

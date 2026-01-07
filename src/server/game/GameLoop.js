@@ -214,11 +214,10 @@ class GameLoop {
             const x = spawnMin + Math.random() * spawnRange;
             const y = spawnMin + Math.random() * spawnRange;
 
-            // Check if position is safe (not in island or shallow water)
-            const collision = this.world.waterDepth.checkIslandCollisions(x, y, 20); // 20 = ship radius buffer
-            const isDeep = this.world.waterDepth.isDeep(x, y);
+            // Check if position is safe (tile-based: must be water, not land or shallow)
+            const isWater = this.world.worldMap.isWater(x, y);
 
-            if (!collision.collision && isDeep) {
+            if (isWater) {
                 return { x, y };
             }
         }

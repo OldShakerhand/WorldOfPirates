@@ -10,6 +10,13 @@ const DEBUG_HITBOXES = true;
 // NO gameplay behavior is modified when enabled
 const DEBUG_COLLISION_VISUAL = false;
 
+// DEBUG ONLY: Tilemap visualization
+// Set to true to render server-authoritative tilemap for testing/debugging
+// This is TEMPORARY and NOT a gameplay feature - purely for visual feedback during development
+// Server remains 100% authoritative, this is informational only
+// IMPORTANT: Easy to disable - set to false when not needed
+const DEBUG_RENDER_TILEMAP = true;
+
 // Visual Constants - centralized styling
 const COLORS = {
     OCEAN_DEEP: '#3498db',
@@ -87,6 +94,20 @@ const WORLD_HEIGHT = 2000;
 canvas.width = 1024;
 canvas.height = 768;
 
+// DEBUG ONLY: Load tilemap for visualization
+// This is TEMPORARY and does NOT affect server authority
+// Server remains 100% authoritative for all gameplay logic
+let worldTilemap = null;
+if (typeof DEBUG_RENDER_TILEMAP !== 'undefined' && DEBUG_RENDER_TILEMAP) {
+    fetch('/assets/world_map.json')
+        .then(response => response.json())
+        .then(data => {
+            worldTilemap = data;
+            console.log('[DEBUG] Tilemap loaded for visualization:', data.width, 'x', data.height, 'tiles');
+        })
+        .catch(err => console.warn('[DEBUG] Could not load tilemap for visualization:', err));
+}
+
 function renderGame(state, mapData, myId) {
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -112,6 +133,13 @@ function renderGame(state, mapData, myId) {
     // Use map data for world dimensions
     const worldWidth = mapData.width;
     const worldHeight = mapData.height;
+
+    // DEBUG ONLY: Render tilemap visualization
+    // This is TEMPORARY - purely for testing server-authoritative terrain
+    // NO gameplay logic depends on this rendering
+    if (DEBUG_RENDER_TILEMAP && worldTilemap && typeof drawTilemapDebug !== 'undefined') {
+        drawTilemapDebug(worldTilemap, ctx, canvas);
+    }
 
     // Draw islands and shallow water with world wrapping
     if (mapData.islands) {
@@ -281,6 +309,21 @@ function renderGame(state, mapData, myId) {
     // Restore context to draw UI elements at fixed positions
     ctx.restore();
 
+    // DEBUG: Draw ship coordinates in upper right corner
+    if (myShip && DEBUG_RENDER_TILEMAP) {
+        ctx.save();
+        ctx.font = '14px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#FFD700';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 3;
+
+        const coordText = `X: ${Math.round(myShip.x)} Y: ${Math.round(myShip.y)}`;
+        ctx.strokeText(coordText, canvas.width - 10, 50);
+        ctx.fillText(coordText, canvas.width - 10, 50);
+        ctx.restore();
+    }
+
     // Draw UI elements (windrose, speed) - these stay fixed on screen
     if (state.wind) {
         drawWindrose(state.wind);
@@ -333,7 +376,7 @@ function drawHarbor(harbor) {
     ctx.save();
 
     // Draw dock/pier (simple rectangle)
-    ctx.fillStyle = '#8B4513'; // Brown/wooden color
+    ctx.fillStyle = '#808080'; // TEMPORARY: Grey for better visualization during testing
     ctx.fillRect(harbor.x - 10, harbor.y - 20, 20, 40);
 
     // Draw outline
