@@ -1,13 +1,19 @@
 const Projectile = require('./Projectile');
 const Wind = require('./Wind');
-const Island = require('./Island');
 const Harbor = require('./Harbor');
 const GameConfig = require('./GameConfig');
+const WorldMap = require('./WorldMap');
 
 class World {
     constructor() {
-        this.width = GameConfig.WORLD_WIDTH;
-        this.height = GameConfig.WORLD_HEIGHT;
+        // Load tile-based world map (replaces procedural generation)
+        this.worldMap = new WorldMap(GameConfig.WORLD_MAP_PATH);
+
+        // Get world dimensions from tilemap
+        const dimensions = this.worldMap.getWorldDimensions();
+        this.width = dimensions.width;
+        this.height = dimensions.height;
+
         this.entities = {};
         this.projectiles = [];
         this.projectileIdCounter = 0;
@@ -15,111 +21,58 @@ class World {
         // Wind system
         this.wind = new Wind();
 
-        // Generate islands
-        this.islands = this.generateIslands();
-
-        // Generate harbors
+        // Generate harbors (TODO: will be replaced with tile-based placement)
         this.harbors = this.generateHarbors();
-
-        // Water depth based on islands
-        this.waterDepth = this.generateWaterDepth();
 
         // DEBUG ONLY: Track World creation for early-session collision diagnosis
         // NO gameplay behavior change
         const CombatConfig = require('./CombatConfig');
         if (CombatConfig.DEBUG_INITIALIZATION) {
-            console.log(`[INIT] World created | Islands: ${this.islands.length} | Harbors: ${this.harbors.length} | Timestamp: ${Date.now()}`);
+            console.log(`[INIT] World created | Islands: 0 (tile-based) | Harbors: ${this.harbors.length} | Timestamp: ${Date.now()}`);
         }
-    }
-
-    generateIslands() {
-        const islands = [];
-        const islandCount = GameConfig.ISLAND_COUNT;
-
-        for (let i = 0; i < islandCount; i++) {
-            let x, y, radius;
-            let validPosition = false;
-
-            // Try to find a position that doesn't overlap with existing islands
-            let attempts = 0;
-            while (!validPosition && attempts < GameConfig.ISLAND_GENERATION_ATTEMPTS) {
-                // FIXME: Hardcoded edge buffer for island generation (TECH_DEBT_009)
-                // WHY: 200px buffer is magic number, not proportional to world size
-                // REFACTOR: Calculate as percentage of world size (e.g., 10%)
-                // WHEN: When supporting different world sizes or procedural generation
-                x = 200 + Math.random() * (this.width - 400); // Keep away from edges
-                y = 200 + Math.random() * (this.height - 400);
-                radius = GameConfig.ISLAND_MIN_RADIUS + Math.random() * (GameConfig.ISLAND_MAX_RADIUS - GameConfig.ISLAND_MIN_RADIUS);
-
-                // Check distance from other islands
-                validPosition = true;
-                for (const island of islands) {
-                    const dist = Math.hypot(x - island.x, y - island.y);
-                    const minDist = radius + island.radius + GameConfig.ISLAND_MIN_SPACING; // Minimum spacing
-                    if (dist < minDist) {
-                        validPosition = false;
-                        break;
-                    }
-                }
-                attempts++;
-            }
-
-            if (validPosition) {
-                islands.push(new Island(`island_${i}`, x, y, radius));
-            }
-        }
-
-        console.log(`Generated ${islands.length} islands`);
-        return islands;
     }
 
     generateHarbors() {
+        // TODO: Replace with harbor data from world_map.json (coordinates + names)
+        // TEMPORARY: Hardcoded positions on land for testing
+        // These positions are manually placed on islands in the 100x100 test map
+
         const harbors = [];
-        for (let i = 0; i < this.islands.length; i++) {
-            const island = this.islands[i];
-            const harbor = new Harbor(`harbor_${i}`, island);
+
+        // Hardcoded harbor positions (world coordinates) on shallow water
+        // Format: {x, y} in world coordinates (tile * tileSize)
+        // Positioned on shallow water (cyan) so ships can dock
+        // Based on visual coordinates from test map
+        const harborPositions = [
+            { x: 115, y: 75 },    // Santiago - top-left island
+            { x: 195, y: 645 },   // Martinique - bottom-left island
+            { x: 305, y: 490 },   // Cartagena - left side of center island
+            { x: 755, y: 195 },   // Porto Bello - top-right island
+            { x: 755, y: 685 },   // San Juan - bottom-right island
+        ];
+
+        for (let i = 0; i < harborPositions.length; i++) {
+            const pos = harborPositions[i];
+
+            // Verify position is valid (not deep water is fine, harbors can be on shallow/land edge)
+            const terrain = this.worldMap.getTile(pos.x, pos.y);
+            const TERRAIN = require('./GameConfig').TERRAIN;
+
+            console.log(`Harbor ${i} at (${pos.x}, ${pos.y}): terrain = ${terrain} (0=WATER, 1=SHALLOW, 2=LAND)`);
+
+            // Accept any terrain - harbors work anywhere for now (will be refined later)
+            const islandStub = {
+                id: `island_${i}`,
+                x: pos.x,
+                y: pos.y,
+                radius: 50
+            };
+            const harbor = new Harbor(`harbor_${i}`, islandStub);
             harbors.push(harbor);
         }
-        console.log(`Generated ${harbors.length} harbors`);
+
+        console.log(`Generated ${harbors.length} harbors (hardcoded positions, temporary)`);
         return harbors;
-    }
-
-    generateWaterDepth() {
-        return {
-            isDeep: (x, y) => {
-                // FIXME: Linear island collision check doesn't scale (TECH_DEBT_010)
-                // WHY: O(n) check for every ship position update
-                // REFACTOR: Use spatial partitioning (quadtree or grid)
-                // WHEN: >20 islands or >50 players cause performance issues
-                // Check if position is in shallow water around any island
-                for (const island of this.islands) {
-                    if (island.isInShallowWater(x, y)) {
-                        return false; // In shallow water
-                    }
-                }
-                return true; // Deep water
-            },
-
-            checkIslandCollisions: (x, y, shipRadius = 15) => {
-                // Check collision with any island
-                for (const island of this.islands) {
-                    if (island.isColliding(x, y, shipRadius)) {
-                        return { collision: true, island };
-                    }
-                }
-                return { collision: false };
-            },
-
-            checkHarborProximity: (x, y) => {
-                // Check if player is near any harbor
-                for (const harbor of this.harbors) {
-                    if (harbor.isPlayerInRange(x, y)) {
-                        return harbor.id;
-                    }
-                }
-                return null;
-            }
-        };
     }
 
     update(deltaTime) {
@@ -128,7 +81,7 @@ class World {
 
         // Update Entities
         for (const id in this.entities) {
-            this.entities[id].update(deltaTime, this.wind, this.waterDepth);
+            this.entities[id].update(deltaTime, this.wind, this.worldMap);
         }
 
         // Update Projectiles
@@ -273,7 +226,7 @@ class World {
         return {
             width: this.width,
             height: this.height,
-            islands: this.islands.map(i => i.serialize()),
+            // Islands removed - now using tile-based world map
             harbors: this.harbors.map(h => h.serialize())
         };
     }
