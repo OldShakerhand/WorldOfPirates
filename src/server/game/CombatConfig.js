@@ -34,7 +34,13 @@ const CombatConfig = {
     // Set to true to enable detailed collision logging
     // This is temporary instrumentation to diagnose intermittent collision misses
     // NO gameplay behavior is modified when enabled
-    DEBUG_COLLISION: false
+    DEBUG_COLLISION: false,
+
+    // DEBUG ONLY: Initialization & lifecycle diagnostics
+    // Set to true to track World creation, player joins, entity registration, first ticks
+    // Used to diagnose rare early-session collision failures
+    // NO gameplay behavior is modified when enabled
+    DEBUG_INITIALIZATION: false
 };
 
 module.exports = CombatConfig;

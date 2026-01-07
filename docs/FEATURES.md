@@ -57,14 +57,16 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
 
 ### Combat Mechanics
-- [x] **Distance-Based Projectiles** - 400px range with gravity physics
+- [x] **Arcade Cannon Firing** - Projectiles fire exactly perpendicular to ship heading (no velocity compensation)
+- [x] **Dynamic Gravity** - Gravity auto-calculated to ensure projectiles reach water at max distance
+- [x] **Distance-Based Projectiles** - 250px range with parabolic arc physics
 - [x] **Variable Cannons** - 2-10 cannons per side based on ship class
 - [x] **Cannon Clustering** - Cannons concentrated at midship (40% spread factor)
 - [x] **Per-Side Positioning** - Independent port/starboard cannon placement
-- [x] **Velocity Compensation** - Configurable arcade-style firing (0.0-1.0 factor, default 0.7)
-- [x] **Sector-Based Detection** - Precise ±60° broadside sectors
+- [x] **Sector-Based Detection** - Precise ±45° broadside sectors
 - [x] **Fire Rate** - 4-second cooldown per broadside
-- [x] **Damage System** - 5 HP per cannonball hit
+- [x] **Damage System** - 10 HP per cannonball hit
+- [x] **Rotated Rectangular Hitboxes** - Accurate collision detection matching ship sprite dimensions
 - [x] **Flagship Switch Shield** - 10-second invulnerability when switching ships
 - [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
 - [x] **Shield Visual Indicator** - Shield icon and distinct color for invulnerable ships
@@ -75,7 +77,9 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Harbor UI** - Overlay showing fleet and repair options
 - [x] **Reload Indicators** - Visual feedback for cannon reload times
 - [x] **Water Depth Indicator** - Shows when in shallow water
-- [x] **Kill Feed** - System chat displaying ship destruction events
+- [x] **Kill Feed** - System chat displaying ship destruction events with ship class
+- [x] **Player Rafted Messages** - Emphasizes recoverability (not death/elimination)
+- [x] **Ship Switching Messages** - Informational messages when switching flagships
 
 ### Server & Performance
 - [x] **Player Cap** - 20 concurrent players maximum
@@ -87,6 +91,8 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Centralized Config** - GameConfig, CombatConfig, PhysicsConfig modules
 - [x] **No Magic Numbers** - All constants defined in config files
 - [x] **Modular Architecture** - Separated concerns (World, Player, Ship, etc.)
+- [x] **Design Contracts** - Documented gameplay semantics and physics models
+- [x] **Debug Instrumentation** - Collision debug logging (disabled by default)
 
 ---
 
@@ -101,7 +107,9 @@ Currently no features in active development.
 ### High Priority
 
 #### Player Identity & Social
-- [x] **Player Names** - Display names above ships
+- [x] **Player Names** - Display names above ships (entered on game start)
+- [x] **Kill Attribution** - Server tracks damage sources for accurate kill credit
+- [x] **Game Events System** - Semantic events (ship_sunk, player_rafted) separate from UI messages
 - [ ] **Player List** - See all connected players
 - [ ] **Score/Stats** - Track kills, deaths, ships sunk
 
@@ -114,18 +122,20 @@ Currently no features in active development.
 ### Medium Priority
 
 #### Multiplayer Features
-- [ ] **Teams/Clans** - Cooperative gameplay
-- [ ] **Chat System** - Text communication between players
-- [ ] **Friend System** - Communicate with specific people (get them marked)
+- [ ] **Chat System** - Text communication with multiple channels (global, team, local)
+- [ ] **Teams/Clans** - Cooperative gameplay with in-game recognition
+- [ ] **Friend System** - Mark specific players as friends for easier coordination
 
 #### Gameplay Expansion
-- [ ] **AI Ships** - NPC merchants or enemies
+- [ ] **Faction System** - 4 nations (like original Pirates!), harbors/ships belong to factions
+- [ ] **Boarding Mechanics** - Capture enemy ships without sinking them
+- [ ] **Fencing Mini-Game** - Optional enhancement for boarding (low priority)
+- [ ] **AI Ships** - NPC merchants and enemies
 - [ ] **Treasure System** - Collectibles or objectives
 - [ ] **Quest System** - Define objectives for players
-- [ ] **Boarding Mechanics** - Close-quarters ship capture
 
 #### World Features
-- [ ] **Larger World** - More islands, bigger play area, no longer generated procedurally
+- [ ] **Larger Non-Procedural Map** - Hand-crafted world (required before persistent spawns)
 - [ ] **Weather Effects** - Storms, fog affecting visibility/gameplay
 
 #### Polish
@@ -165,6 +175,218 @@ Currently no features in active development.
 
 ---
 
+## 🎮 Extended Game-Loop Vision
+
+This section outlines the planned extended gameplay loop beyond core combat mechanics. These features will transform the game from a combat sandbox into a full pirate adventure experience.
+
+### 1. Player Persistence & Authentication
+
+**Goal:** Ensure player progress is saved and restored across sessions.
+
+**Required Systems:**
+- [ ] **Database Integration** - PostgreSQL or MongoDB for player data storage
+- [ ] **Authentication System** - User accounts with login/registration
+- [ ] **Session Management** - JWT tokens or similar for secure sessions
+
+**Persistent Data:**
+- Player account (username, password hash, email)
+- Owned ships (fleet composition, ship classes)
+- Fleet size and capacity
+- Ship upgrades (cannons, sails, hull, etc.)
+- Inventory (cargo, resources, quest items)
+- Skill points and player level
+- Last known position (spawn location on login) - **Benefits from non-procedural map first**
+- Last known status (at sea, in harbor) - **Benefits from non-procedural map first**
+- Discovered harbors and map areas
+
+### 2. Spawn System & Tutorial
+
+**Goal:** Provide a smooth onboarding experience for new players and consistent spawn locations for returning players.
+
+**Features:**
+- [ ] **Persistent Spawn Location** - Players spawn where they logged out
+- [ ] **New Player Harbor** - Dedicated starting harbor for first-time players
+- [ ] **Tutorial System** - Skippable tutorial covering:
+  - Basic movement and sailing
+  - Combat mechanics (broadside firing)
+  - Harbor docking and repair
+  - Mission system introduction
+- [ ] **Safe Zone** - New player harbor has no PvP combat allowed
+
+### 3. Mission System
+
+Missions provide structured PvE content and progression. Players select missions from harbors.
+
+#### Mission Types:
+
+**a) Pirate Hunting Missions**
+- [ ] **Objective:** Sink specific pirate ships or a certain number of pirates
+- [ ] **Spawning:** AI pirate ships spawn in designated area near harbor
+- [ ] **AI Behavior Required:**
+  - Basic ship movement and navigation
+  - Aggressive combat behavior (attack player on sight)
+  - Flee behavior when heavily damaged
+- [ ] **Rewards:** Gold, experience, reputation
+
+**b) Cargo Transport Missions**
+- [ ] **Objective:** Transport cargo from one harbor to another
+- [ ] **Requirements:**
+  - Ship inventory system (cargo hold capacity)
+  - Harbor inventory/trading interface
+- [ ] **Challenges:**
+  - AI ambush ships spawn en route (proximity-based)
+  - Player must defend cargo or flee
+- [ ] **Rewards:** Gold based on cargo value and distance
+
+**c) Escort Missions**
+- [ ] **Objective:** Protect friendly AI vessel traveling to another harbor
+- [ ] **AI Behavior Required:**
+  - Friendly AI ship navigation (follows route)
+  - Distress signals when under attack
+  - Enemy AI spawns when player is near friendly vessel
+- [ ] **Fail-Safe Mechanics:**
+  - Mission timer (must stay near friendly vessel)
+  - Friendly vessel takes damage if player too far away
+  - Mission fails if friendly vessel sinks OR player abandons (too far for too long)
+- [ ] **Rewards:** High gold reward, reputation bonus
+
+**d) Additional Mission Ideas**
+- [ ] **Treasure Hunting** - Find and retrieve treasure from specific coordinates
+- [ ] **Reconnaissance** - Scout enemy territory and return with intel
+- [ ] **Blockade Running** - Deliver supplies through hostile waters
+- [ ] **Bounty Hunting** - Hunt specific named pirate captains
+
+### 4. Free Roam & Exploration
+
+**Goal:** Allow players to explore the world freely, discover new locations, and engage in emergent gameplay.
+
+#### World Features:
+
+- [ ] **Larger Non-Procedural Map** - Hand-crafted world with strategic harbor placement
+- [ ] **Fog of War System** (Two Levels):
+  - **Level 1 (Black):** Completely unexplored areas (never visited)
+  - **Level 2 (Grey):** Explored areas showing terrain/harbors but hiding ship traffic
+- [ ] **Map Discovery** - Reveal fog of war by sailing through areas
+- [ ] **Harbor Discovery** - Find new harbors to unlock fast travel/mission access
+- [ ] **Max View Distance** - Ships only visible within certain range (even in explored areas)
+
+#### Emergent Gameplay:
+
+- [ ] **Neutral Merchant AI Ships**
+  - Spawn in vicinity of players (performance optimization)
+  - Travel between harbors with valuable cargo
+  - Non-aggressive behavior (flee when attacked)
+  - Attacking merchants affects reputation (pirate vs. privateer)
+- [ ] **Dynamic Encounters** - Random events while exploring:
+  - Shipwrecks with loot
+  - Distress signals from friendly ships
+  - Hostile patrol encounters
+
+### 5. Supporting Systems
+
+**Required for Extended Game-Loop:**
+
+#### Chat & Social
+- [ ] **Chat System** - Multiple channels:
+  - **Global Channel** - All players can see
+  - **Team/Clan Channel** - Only team members
+  - **Local Channel** - Players within certain range
+  - **Whisper/Direct Message** - Private 1-on-1 communication
+- [ ] **Friend System** - Mark players as friends, see online status
+- [ ] **Teams/Clans** - Create/join groups, shared chat, in-game recognition (colors/tags)
+
+#### Faction System
+- [ ] **4 Nations** - Inspired by original Pirates! (e.g., England, Spain, France, Netherlands)
+- [ ] **Harbor Ownership** - Each harbor belongs to a nation
+- [ ] **Ship Nationality** - AI ships belong to nations
+- [ ] **Reputation per Nation** - Actions affect standing with each faction
+- [ ] **Faction Conflicts** - Nations at war affect mission availability and AI behavior
+- [ ] **Letters of Marque** - Official privateer status with a nation
+
+#### Boarding Mechanics
+- [ ] **Boarding Initiation** - Close-range interaction to board enemy ship
+- [ ] **Crew Strength** - Determines boarding success chance
+- [ ] **Ship Capture** - Take control of enemy vessel without sinking
+- [ ] **Cargo Plunder** - Steal cargo from boarded ships
+- [ ] **Fencing Mini-Game** - Optional enhancement (low priority):
+  - Simple timing-based combat
+  - Increases boarding success chance
+  - Adds skill element to boarding
+
+#### Inventory & Economy
+- [ ] **Ship Cargo Hold** - Limited capacity based on ship class
+- [ ] **Item Types** - Trade goods, quest items, resources
+- [ ] **Harbor Trading** - Buy/sell goods at different prices per harbor
+- [ ] **Currency System** - Gold earned from missions and trading
+
+#### AI Ship Behavior
+- [ ] **Basic Navigation** - AI ships follow waypoints/routes
+- [ ] **Combat AI** - Aggressive (pirates) vs. Defensive (merchants)
+- [ ] **Flee Behavior** - AI ships retreat when outmatched
+- [ ] **Proximity Spawning** - AI only spawns near players (performance)
+- [ ] **Despawn Logic** - AI despawns when far from all players
+
+#### Progression System
+- [ ] **Experience Points** - Earned from missions, combat, exploration
+- [ ] **Player Levels** - Unlock new ships, upgrades, missions
+- [ ] **Skill Points** - Allocate to navigation, combat, trading skills
+- [ ] **Reputation System** - Affects mission availability and NPC behavior
+
+#### Ship Upgrades
+- [ ] **Upgrade Categories:**
+  - Cannons (damage, fire rate, range)
+  - Sails (speed, turn rate)
+  - Hull (health, armor)
+  - Cargo hold (capacity)
+- [ ] **Purchase & Installation** - Buy upgrades at harbors with gold
+- [ ] **Persistent Upgrades** - Saved to database per ship
+
+### Implementation Priority
+
+**Phase 1: Foundation (Database & Map)**
+1. Database integration
+2. Authentication system
+3. **Hand-crafted non-procedural map** (SHOULD come before persistent spawns)
+4. Persistent spawn locations (depends on static map)
+5. New player harbor with tutorial
+
+**Phase 2: Core Social & Communication**
+1. Chat system (global, team, local channels)
+2. Friend system
+3. Teams/Clans system
+
+**Phase 3: Basic Missions & AI**
+1. Mission framework (accept, track, complete)
+2. Basic AI ship behavior
+3. Pirate hunting missions
+4. Inventory system
+
+**Phase 4: Economy & Trading**
+1. Harbor trading
+2. Currency system
+3. Cargo transport missions
+4. Ship upgrades
+
+**Phase 5: Exploration & Discovery**
+1. Fog of war system
+2. Harbor discovery
+3. Merchant AI ships
+4. Dynamic encounters
+
+**Phase 6: Advanced Gameplay**
+1. Faction system (4 nations)
+2. Boarding mechanics
+3. Escort missions
+4. Progression system (levels, skills, reputation)
+
+**Phase 7: Polish & Expansion**
+1. Sound effects and music
+2. Visual effects
+3. Weather effects
+4. Fencing mini-game (boarding enhancement)
+
+---
+
 ## 💡 Ideas (Unconfirmed)
 
 These are brainstormed ideas that need design validation:
@@ -194,41 +416,66 @@ Features we've decided NOT to implement (and why):
 
 ---
 
-## 📊 Feature Priority Matrix
 
-| Feature | Impact | Effort | Priority |
-|---------|--------|--------|----------|
-| Minimap | High | Medium | **Do First** |
-| Ship Acquisition System | High | High | **Plan Carefully** |
-| Kill Feed | Medium | Low | **Quick Win** |
-| Sound Effects | Medium | Medium | **Schedule** |
-| Weather Effects | Low | High | **Later** |
 
----
+## 🎯 Roadmap (Aligned with Extended Game-Loop)
 
-## 🎯 Roadmap (Tentative)
+### Phase 1: Foundation (Database & Map)
+**Goal:** Establish persistent world and player data
 
-### Version 0.2 (Next Release)
-- Kill feed / combat log
-- Improved spawn system
-- Main menu
+- Database integration (PostgreSQL/MongoDB)
+- Authentication system (login/registration)
+- **Hand-crafted non-procedural map** (required before persistent spawns)
+- Persistent spawn locations (spawn where logged out)
+- New player harbor with tutorial
 
-### Version 0.3
-- Minimap
-- Ship acquisition system
-- Basic progression/economy
-- Teams/clans
+### Phase 2: Core Social & Communication
+**Goal:** Enable player interaction and coordination
 
-### Version 0.4
+- Chat system (global, team, local channels)
+- Friend system (mark and recognize friends)
+- Teams/Clans system (cooperative gameplay)
+
+### Phase 3: Basic Missions & AI
+**Goal:** Introduce PvE content and progression
+
+- Mission framework (accept, track, complete)
+- Basic AI ship behavior (navigation, combat)
+- Pirate hunting missions
+- Inventory system (cargo holds)
+
+### Phase 4: Economy & Trading
+**Goal:** Add economic gameplay loop
+
+- Harbor trading system
+- Currency system (gold)
+- Cargo transport missions
+- Ship upgrades (purchase & installation)
+
+### Phase 5: Exploration & Discovery
+**Goal:** Encourage world exploration
+
+- Fog of war system (two levels)
+- Harbor discovery
+- Merchant AI ships (neutral, flee when attacked)
+- Dynamic encounters (shipwrecks, distress signals)
+
+### Phase 6: Advanced Gameplay
+**Goal:** Deepen strategic options
+
+- Faction system (4 nations, harbor/ship ownership)
+- Boarding mechanics (capture ships)
+- Escort missions
+- Progression system (levels, skill points, reputation)
+
+### Phase 7: Polish & Expansion
+**Goal:** Enhance player experience
+
 - Sound effects and music
-- Visual effects polish
-- Chat system
-
-### Version 1.0 (Full Release)
-- All core features complete
-- Balanced gameplay
-- Polished UI/UX
-- Stable multiplayer
+- Visual effects (explosions, splashes)
+- Weather effects
+- Fencing mini-game (boarding enhancement)
+- Additional mission types
 
 ---
 
