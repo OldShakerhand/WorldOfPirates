@@ -23,6 +23,13 @@ class World {
 
         // Water depth based on islands
         this.waterDepth = this.generateWaterDepth();
+
+        // DEBUG ONLY: Track World creation for early-session collision diagnosis
+        // NO gameplay behavior change
+        const CombatConfig = require('./CombatConfig');
+        if (CombatConfig.DEBUG_INITIALIZATION) {
+            console.log(`[INIT] World created | Islands: ${this.islands.length} | Harbors: ${this.harbors.length} | Timestamp: ${Date.now()}`);
+        }
     }
 
     generateIslands() {
@@ -230,6 +237,14 @@ class World {
 
     addEntity(entity) {
         this.entities[entity.id] = entity;
+
+        // DEBUG ONLY: Track entity registration for early-session collision diagnosis
+        // NO gameplay behavior change
+        const CombatConfig = require('./CombatConfig');
+        if (CombatConfig.DEBUG_INITIALIZATION) {
+            const totalEntities = Object.keys(this.entities).length;
+            console.log(`[INIT] Entity added to world | Type: ${entity.type} | ID: ${entity.id} | Total entities: ${totalEntities}`);
+        }
     }
 
     removeEntity(id) {

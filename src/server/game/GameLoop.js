@@ -14,6 +14,11 @@ class GameLoop {
         // Performance monitoring
         this.tickTimes = [];
         this.monitoringInterval = null;
+
+        // DEBUG ONLY: Track first-time events for early-session collision diagnosis
+        // NO gameplay behavior change
+        this.firstTickLogged = false;
+        this.firstProjectileLogged = false;
     }
 
     start() {
@@ -70,6 +75,16 @@ class GameLoop {
         const deltaTime = (now - this.lastTime) / 1000; // in seconds
         this.lastTime = now;
 
+        // DEBUG ONLY: Track first tick for early-session collision diagnosis
+        // NO gameplay behavior change
+        const CombatConfig = require('./CombatConfig');
+        if (CombatConfig.DEBUG_INITIALIZATION && !this.firstTickLogged) {
+            const entityCount = Object.keys(this.world.entities).length;
+            const projectileCount = this.world.projectiles.length;
+            console.log(`[INIT] First tick executed | DeltaTime: ${deltaTime.toFixed(4)} | Entities: ${entityCount} | Projectiles: ${projectileCount}`);
+            this.firstTickLogged = true;
+        }
+
         this.world.update(deltaTime);
 
         // Send game state to all connected clients
@@ -99,6 +114,14 @@ class GameLoop {
 
         // Pass io and world references for kill message emission
         const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
+
+        // DEBUG ONLY: Track player join for early-session collision diagnosis
+        // NO gameplay behavior change
+        const CombatConfig = require('./CombatConfig');
+        if (CombatConfig.DEBUG_INITIALIZATION) {
+            const entityCount = Object.keys(this.world.entities).length;
+            console.log(`[INIT] Player joined | ID: ${socket.id} | Name: ${playerName} | Entities in world: ${entityCount}`);
+        }
 
         // Find a safe spawn position (not inside islands)
         const safePosition = this.findSafeSpawnPosition();
