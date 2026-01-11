@@ -79,8 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Handle successful connection
         socket.on('map_data', (data) => {
-            mapData = data;
+            mapData = data;  // Keep local variable for backward compatibility
+            window.mapData = data;  // Also set globally for harbor rendering
             console.log('Received map data:', data);
+            console.log('Harbors count:', data.harbors ? data.harbors.length : 0);
 
             // Hide name overlay and show game
             nameOverlay.style.display = 'none';

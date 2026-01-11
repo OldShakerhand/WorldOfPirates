@@ -214,12 +214,16 @@ class GameLoop {
 
     findSafeSpawnPosition() {
         const maxAttempts = 50;
-        const spawnMin = GameConfig.PLAYER_SPAWN_MIN;
-        const spawnRange = GameConfig.PLAYER_SPAWN_RANGE;
+
+        // Nassau area spawn (Bahamas - many nearby harbors)
+        // Nassau is at tile (1753, 443) = world (43825, 11075) - 50% scale
+        const spawnCenterX = 43825;
+        const spawnCenterY = 11075;
+        const spawnRange = 500;  // 500 pixel radius to find water near Nassau
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const x = spawnMin + Math.random() * spawnRange;
-            const y = spawnMin + Math.random() * spawnRange;
+            const x = spawnCenterX + (Math.random() - 0.5) * spawnRange * 2;
+            const y = spawnCenterY + (Math.random() - 0.5) * spawnRange * 2;
 
             // Check if position is safe (tile-based: must be water, not land or shallow)
             const isWater = this.world.worldMap.isWater(x, y);
@@ -232,8 +236,8 @@ class GameLoop {
         // Fallback: return a position anyway (shouldn't happen with proper spawn area)
         console.warn('Could not find safe spawn position after 50 attempts, using fallback');
         return {
-            x: spawnMin + spawnRange / 2,
-            y: spawnMin + spawnRange / 2
+            x: spawnCenterX,
+            y: spawnCenterY
         };
     }
 

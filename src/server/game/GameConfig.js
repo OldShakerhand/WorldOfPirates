@@ -4,9 +4,9 @@
  */
 
 const GameConfig = {
-    // World dimensions (Gulf of Mexico + Caribbean: 6460×3403 tiles @ 25px)
-    WORLD_WIDTH: 161500,  // 6460 tiles × 25px
-    WORLD_HEIGHT: 85075,  // 3403 tiles × 25px
+    // World dimensions (Gulf of Mexico + Caribbean: 3230×1701 tiles @ 25px - 50% scale)
+    WORLD_WIDTH: 80750,   // 3230 tiles × 25px
+    WORLD_HEIGHT: 42525,  // 1701 tiles × 25px
 
     // Canvas/Display
     CANVAS_WIDTH: 1024,
@@ -33,10 +33,9 @@ const GameConfig = {
     HARBOR_INTERACTION_RADIUS: 30,
     HARBOR_SPAWN_DISTANCE: 50, // Distance from harbor when leaving
 
-    // Player spawn (Caribbean map: 25,600×13,475 pixels)
-    // Spawn in center area to avoid map edges
-    PLAYER_SPAWN_MIN: 10000,    // Start at 10,000 pixels (center-left)
-    PLAYER_SPAWN_RANGE: 5000    // 5,000 pixel range (10k-15k area)
+    // Player spawn (Nassau area - Bahamas, many nearby harbors)
+    PLAYER_SPAWN_MIN: 80000,      // Center X: Nassau area (tileX ~3466 * 25 = 86,650)
+    PLAYER_SPAWN_RANGE: 5000,     // Spawn within 5000 pixels of center
 };
 
 module.exports = GameConfig;

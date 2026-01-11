@@ -86,9 +86,11 @@ function getShipProperties(shipClassName) {
     return SHIP_PROPERTIES[shipClassName] || SHIP_PROPERTIES['Raft'];
 }
 
-// World dimensions (Gulf of Mexico + Caribbean: 6460×3403 tiles @ 25px = 161,500×85,075 pixels)
-const WORLD_WIDTH = 161500;
-const WORLD_HEIGHT = 85075;
+// World dimensions (Gulf of Mexico + Caribbean: 3230×1701 tiles @ 25px = 80,750×42,525 pixels - 50% scale)
+const WORLD_WIDTH = 80750;
+const WORLD_HEIGHT = 42525;
+
+let frameCount = 0;  // For debug logging throttling
 
 // Set canvas resolution to 1024x768
 canvas.width = 1024;
@@ -109,6 +111,8 @@ if (typeof DEBUG_RENDER_TILEMAP !== 'undefined' && DEBUG_RENDER_TILEMAP) {
 }
 
 function renderGame(state, mapData, myId) {
+    frameCount++;  // Increment for debug logging
+
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -203,6 +207,11 @@ function renderGame(state, mapData, myId) {
 
     // Draw harbors with world wrapping
     if (mapData.harbors) {
+        if (frameCount % 60 === 0) {  // Log once per second
+            console.log('[DEBUG] Rendering', mapData.harbors.length, 'harbors');
+            console.log('[DEBUG] First 3 harbors:', mapData.harbors.slice(0, 3).map(h => `${h.name} at (${h.x}, ${h.y})`));
+            console.log('[DEBUG] Player at:', myShip ? `(${Math.round(myShip.x)}, ${Math.round(myShip.y)})` : 'unknown');
+        }
         for (const harbor of mapData.harbors) {
             // Draw at actual position
             drawHarbor(harbor);

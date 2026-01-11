@@ -23,8 +23,8 @@ const BOUNDS = {
 
 // World dimensions (tiles) - MUST match actual map size
 const WORLD = {
-    widthTiles: 6460,   // Full Gulf of Mexico + Caribbean map
-    heightTiles: 3403,  // Full map height
+    widthTiles: 3230,   // 50% of original 6460
+    heightTiles: 1701,  // 50% of original 3403
     tileSize: 25
 };
 
