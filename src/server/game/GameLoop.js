@@ -216,9 +216,9 @@ class GameLoop {
         const maxAttempts = 50;
 
         // Nassau area spawn (Bahamas - many nearby harbors)
-        // Nassau is at tile (1753, 443) = world (43825, 11075) - 50% scale
-        const spawnCenterX = 43825;
-        const spawnCenterY = 11075;
+        // Nassau corrected coordinates: tile (1661, 420) = world (41525, 10500)
+        const spawnCenterX = 41525;
+        const spawnCenterY = 10500;
         const spawnRange = 500;  // 500 pixel radius to find water near Nassau
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {

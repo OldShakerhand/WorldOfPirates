@@ -207,11 +207,11 @@ function renderGame(state, mapData, myId) {
 
     // Draw harbors with world wrapping
     if (mapData.harbors) {
-        if (frameCount % 60 === 0) {  // Log once per second
-            console.log('[DEBUG] Rendering', mapData.harbors.length, 'harbors');
-            console.log('[DEBUG] First 3 harbors:', mapData.harbors.slice(0, 3).map(h => `${h.name} at (${h.x}, ${h.y})`));
-            console.log('[DEBUG] Player at:', myShip ? `(${Math.round(myShip.x)}, ${Math.round(myShip.y)})` : 'unknown');
-        }
+        // if (frameCount % 60 === 0) {  // Log once per second
+        //     console.log('[DEBUG] Rendering', mapData.harbors.length, 'harbors');
+        //     console.log('[DEBUG] First 3 harbors:', mapData.harbors.slice(0, 3).map(h => `${h.name} at (${h.x}, ${h.y})`));
+        //     console.log('[DEBUG] Player at:', myShip ? `(${Math.round(myShip.x)}, ${Math.round(myShip.y)})` : 'unknown');
+        // }
         for (const harbor of mapData.harbors) {
             // Draw at actual position
             drawHarbor(harbor);

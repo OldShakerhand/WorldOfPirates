@@ -78,6 +78,33 @@ io.on('connection', (socket) => {
         gameLoop.handleCloseHarbor(socket.id);
     });
 
+    // DEBUG: Teleport command for harbor positioning
+    // ⚠️ WARNING: REMOVE THIS BEFORE PRODUCTION
+    socket.on('debug_teleport', (data) => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        const { x, y } = data;
+
+        // Validate coordinates
+        if (typeof x !== 'number' || typeof y !== 'number') {
+            console.warn('[DEBUG] Invalid teleport coordinates:', data);
+            return;
+        }
+
+        // Clamp to world bounds
+        const GameConfig = require('./game/GameConfig'); // Assuming GameConfig is available or imported
+        const clampedX = Math.max(0, Math.min(x, GameConfig.WORLD_WIDTH));
+        const clampedY = Math.max(0, Math.min(y, GameConfig.WORLD_HEIGHT));
+
+        console.log(`[DEBUG] Teleporting ${player.name} to (${clampedX}, ${clampedY})`);
+
+        player.x = clampedX;
+        player.y = clampedY;
+        player.velocityX = 0;
+        player.velocityY = 0;
+    });
+
     socket.on('switchFlagship', (shipClass) => {
         gameLoop.handleSwitchFlagship(socket.id, shipClass);
     });

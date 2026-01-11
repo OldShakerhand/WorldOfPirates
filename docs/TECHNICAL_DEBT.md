@@ -1,4 +1,21 @@
-# Technical Debt Tracking
+# Technical Debt
+
+## Global State Management
+
+### `window.gameState` and `window.myPlayerId` (client.js)
+- **Issue:** Game state stored in global `window` object to share between files
+- **Why:** Debug harbor teleport system needs access to player position from separate file
+- **Debt:** Pollutes global scope, breaks encapsulation, not scalable
+- **When to fix:** Before production - implement proper module system or state management
+- **How to fix:** 
+  1. Use ES6 modules with exports/imports
+  2. Or implement event-based state subscription pattern
+  3. Or use a lightweight state management library
+- **Impact:** Low (debug-only feature), but sets bad precedent
+- **Related:** `harbor_teleport_debug.js` (entire file is debug-only, will be removed)
+
+---
+ Tracking
 
 This document tracks all identified technical debt in the World of Pirates codebase. Each item includes why it's debt, what refactor would help, and when it becomes relevant.
 

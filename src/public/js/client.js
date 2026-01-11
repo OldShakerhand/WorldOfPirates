@@ -10,6 +10,19 @@ let mapData = null;
 // - Client stores last 10 messages for display
 let chatMessages = [];
 
+// Game state (updated every frame from server)
+// GameState: { players: {id: Player}, projectiles: [Projectile] }
+window.gameState = { players: {}, projectiles: [] };  // Make globally accessible for debug tools
+window.myPlayerId = null;  // Make globally accessible for debug tools
+
+// DEBUG: Helper function for debug tools to get player position
+function getMyShipPosition() {
+    if (!window.gameState || !window.myPlayerId) return null;
+    const players = Object.values(window.gameState.players || {});
+    const myShip = players.find(p => p.id === window.myPlayerId);
+    return myShip ? { x: myShip.x, y: myShip.y } : null;
+}
+
 // Name input handling
 document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('playerNameInput');
@@ -124,6 +137,10 @@ function setupGameListeners() {
 
     // Game State handling
     socket.on('gamestate_update', (state) => {
+        // Store state globally for debug tools
+        window.gameState = state;
+        window.myPlayerId = socket.id;
+
         // Pass both map data and dynamic state to the renderer
         if (mapData) {
             renderGame(state, mapData, socket.id);
