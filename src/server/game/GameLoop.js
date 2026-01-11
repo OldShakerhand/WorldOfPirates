@@ -95,7 +95,7 @@ class GameLoop {
         this.tickTimes.push(tickDuration);
     }
 
-    addPlayer(socket, playerName = 'Anonymous') {
+    addPlayer(socket, playerName = 'Anonymous', customSpawn = null) {
         // Validate player name
         if (!this.isValidPlayerName(playerName)) {
             console.log(`Rejected invalid name from ${socket.id}: "${playerName}"`);
@@ -123,10 +123,17 @@ class GameLoop {
             console.log(`[INIT] Player joined | ID: ${socket.id} | Name: ${playerName} | Entities in world: ${entityCount}`);
         }
 
-        // Find a safe spawn position (not inside islands)
-        const safePosition = this.findSafeSpawnPosition();
-        player.x = safePosition.x;
-        player.y = safePosition.y;
+        // Use custom spawn if provided (for testing), otherwise find safe position
+        let spawnPosition;
+        if (customSpawn && customSpawn.x !== undefined && customSpawn.y !== undefined) {
+            spawnPosition = customSpawn;
+            console.log(`[DEBUG] Custom spawn for ${playerName}: (${customSpawn.x}, ${customSpawn.y})`);
+        } else {
+            spawnPosition = this.findSafeSpawnPosition();
+        }
+
+        player.x = spawnPosition.x;
+        player.y = spawnPosition.y;
 
         this.world.addEntity(player);
 
@@ -489,25 +496,16 @@ class GameLoop {
         // Undock and respawn ship outside harbor
         if (player.inHarbor && player.dockedHarborId) {
             const harbor = this.world.harbors.find(h => h.id === player.dockedHarborId);
-            if (harbor) {
-                // Calculate position outside harbor (opposite side from island)
-                const island = this.world.islands.find(i => i.id === harbor.island.id);
-                if (island) {
-                    // Vector from island to harbor
-                    const dx = harbor.x - island.x;
-                    const dy = harbor.y - island.y;
-                    const dist = Math.hypot(dx, dy);
+            if (harbor && harbor.island) {
+                // Spawn player at fixed offset from harbor (east side)
+                // Harbor is now at exact tile position, no random offset
+                player.x = harbor.x + GameConfig.HARBOR_SPAWN_DISTANCE;
+                player.y = harbor.y;
 
-                    // Place ship 50 units beyond harbor
-                    const spawnDist = dist + GameConfig.HARBOR_SPAWN_DISTANCE;
-                    player.x = island.x + (dx / dist) * spawnDist;
-                    player.y = island.y + (dy / dist) * spawnDist;
+                // Grant 6-second shield when leaving harbor
+                player.shieldEndTime = Date.now() / 1000 + CombatConfig.HARBOR_EXIT_SHIELD_DURATION;
 
-                    // Grant 6-second shield when leaving harbor
-                    player.shieldEndTime = Date.now() / 1000 + CombatConfig.HARBOR_EXIT_SHIELD_DURATION;
-
-                    console.log(`Player ${playerId} left ${harbor.name} with 6s shield`);
-                }
+                console.log(`Player ${playerId} left ${harbor.name} with 6s shield`);
             }
 
             player.inHarbor = false;

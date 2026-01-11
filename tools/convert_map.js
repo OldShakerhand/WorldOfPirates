@@ -65,10 +65,19 @@ function convertMapToTilemap(inputPath, outputPath, tileSize = 10) {
             const g = png.data[idx + 1];
             const b = png.data[idx + 2];
 
-            // Use red channel (or average for grayscale)
-            const value = r; // Could also use: (r + g + b) / 3 for grayscale
+            // Detect terrain by RGB values:
+            // Black (0,0,0) = WATER
+            // Cyan (0,255,255) = SHALLOW
+            // White (255,255,255) = LAND
+            let terrain;
+            if (r < 50 && g < 50 && b < 50) {
+                terrain = TERRAIN.WATER;  // Black
+            } else if (r < 50 && g > 200 && b > 200) {
+                terrain = TERRAIN.SHALLOW;  // Cyan
+            } else {
+                terrain = TERRAIN.LAND;  // White or other
+            }
 
-            const terrain = classifyTerrain(value);
             row.push(terrain);
 
             // Update statistics

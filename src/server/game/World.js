@@ -3,6 +3,7 @@ const Wind = require('./Wind');
 const Harbor = require('./Harbor');
 const GameConfig = require('./GameConfig');
 const WorldMap = require('./WorldMap');
+const HarborRegistry = require('./HarborRegistry');
 
 class World {
     constructor() {
@@ -21,8 +22,13 @@ class World {
         // Wind system
         this.wind = new Wind();
 
-        // Generate harbors (TODO: will be replaced with tile-based placement)
-        this.harbors = this.generateHarbors();
+        // Load harbor registry (replaces hardcoded positions)
+        this.harborRegistry = new HarborRegistry(GameConfig.HARBORS_PATH);
+
+        // Create Harbor instances from registry data
+        this.harbors = this.harborRegistry.getAllHarbors().map(data =>
+            new Harbor(data.id, this.createIslandStub(data), data.name)
+        );
 
         // DEBUG ONLY: Track World creation for early-session collision diagnosis
         // NO gameplay behavior change
@@ -32,47 +38,17 @@ class World {
         }
     }
 
-    generateHarbors() {
-        // TODO: Replace with harbor data from world_map.json (coordinates + names)
-        // TEMPORARY: Hardcoded positions on land for testing
-        // These positions are manually placed on islands in the 100x100 test map
-
-        const harbors = [];
-
-        // Hardcoded harbor positions (world coordinates) on shallow water
-        // Format: {x, y} in world coordinates (tile * tileSize)
-        // Positioned on shallow water (cyan) so ships can dock
-        // Based on visual coordinates from test map
-        const harborPositions = [
-            { x: 115, y: 75 },    // Santiago - top-left island
-            { x: 195, y: 645 },   // Martinique - bottom-left island
-            { x: 305, y: 490 },   // Cartagena - left side of center island
-            { x: 755, y: 195 },   // Porto Bello - top-right island
-            { x: 755, y: 685 },   // San Juan - bottom-right island
-        ];
-
-        for (let i = 0; i < harborPositions.length; i++) {
-            const pos = harborPositions[i];
-
-            // Verify position is valid (not deep water is fine, harbors can be on shallow/land edge)
-            const terrain = this.worldMap.getTile(pos.x, pos.y);
-            const TERRAIN = require('./GameConfig').TERRAIN;
-
-            console.log(`Harbor ${i} at (${pos.x}, ${pos.y}): terrain = ${terrain} (0=WATER, 1=SHALLOW, 2=LAND)`);
-
-            // Accept any terrain - harbors work anywhere for now (will be refined later)
-            const islandStub = {
-                id: `island_${i}`,
-                x: pos.x,
-                y: pos.y,
-                radius: 50
-            };
-            const harbor = new Harbor(`harbor_${i}`, islandStub);
-            harbors.push(harbor);
-        }
-
-        console.log(`Generated ${harbors.length} harbors (hardcoded positions, temporary)`);
-        return harbors;
+    /**
+     * Create island stub for Harbor compatibility
+     * Converts tile coordinates to world coordinates
+     */
+    createIslandStub(harborData) {
+        return {
+            id: harborData.id,
+            x: harborData.tileX * GameConfig.TILE_SIZE,
+            y: harborData.tileY * GameConfig.TILE_SIZE,
+            radius: 50
+        };
     }
 
     update(deltaTime) {

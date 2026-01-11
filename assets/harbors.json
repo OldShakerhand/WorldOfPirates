@@ -1,0 +1,2117 @@
+[
+  {
+    "id": "abaco",
+    "name": "Abaco",
+    "tileX": 3549,
+    "tileY": 754,
+    "lat": 28.35,
+    "lon": -77.35,
+    "nation": "england",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "andros",
+    "name": "Andros",
+    "tileX": 3455,
+    "tileY": 938,
+    "lat": 26.73,
+    "lon": -77.91,
+    "nation": "england",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "anguilla",
+    "name": "Anguilla",
+    "tileX": 5760,
+    "tileY": 1841,
+    "lat": 18.77,
+    "lon": -64.17,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "antigua",
+    "name": "Antigua",
+    "tileX": 6000,
+    "tileY": 2050,
+    "lat": 16.93,
+    "lon": -62.74,
+    "nation": "england",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "arecibo",
+    "name": "Arecibo",
+    "tileX": 5213,
+    "tileY": 1860,
+    "lat": 18.6,
+    "lon": -67.43,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "armanuelles",
+    "name": "Armanuelles",
+    "tileX": 2837,
+    "tileY": 3371,
+    "lat": 5.28,
+    "lon": -81.59,
+    "nation": "spain",
+    "defenses": "walls",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "aruba",
+    "name": "Aruba",
+    "tileX": 4685,
+    "tileY": 2710,
+    "lat": 11.11,
+    "lon": -70.58,
+    "nation": "holland",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "baracoa",
+    "name": "Baracoa",
+    "tileX": 4009,
+    "tileY": 1585,
+    "lat": 21.03,
+    "lon": -74.61,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "merchant",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "barbados",
+    "name": "Barbados",
+    "tileX": 6343,
+    "tileY": 2627,
+    "lat": 11.84,
+    "lon": -60.7,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "barbuda",
+    "name": "Barbuda",
+    "tileX": 5995,
+    "tileY": 1979,
+    "lat": 17.55,
+    "lon": -62.77,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "barcelona",
+    "name": "Barcelona",
+    "tileX": 5530,
+    "tileY": 3070,
+    "lat": 7.94,
+    "lon": -65.54,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "basseterre",
+    "name": "Basse-Terre",
+    "tileX": 6010,
+    "tileY": 2210,
+    "lat": 15.52,
+    "lon": -62.68,
+    "nation": "france",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "belize_city",
+    "name": "Belize City",
+    "tileX": 1789,
+    "tileY": 1984,
+    "lat": 17.51,
+    "lon": -87.84,
+    "nation": "portugal",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "bermuda",
+    "name": "Bermuda",
+    "tileX": 5455,
+    "tileY": 109,
+    "lat": 34.04,
+    "lon": -65.99,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "bluefields",
+    "name": "Bluefields",
+    "tileX": 2502,
+    "tileY": 2788,
+    "lat": 10.42,
+    "lon": -83.59,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "bonaire",
+    "name": "Bonaire",
+    "tileX": 4962,
+    "tileY": 2773,
+    "lat": 10.55,
+    "lon": -68.93,
+    "nation": "holland",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "caibarian",
+    "name": "Caibarian",
+    "tileX": 3195,
+    "tileY": 1274,
+    "lat": 23.77,
+    "lon": -79.46,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "camarco",
+    "name": "Camarco",
+    "tileX": 2671,
+    "tileY": 1360,
+    "lat": 23.01,
+    "lon": -82.58,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "merchant",
+      "jobShipType": "none_available"
+    }
+  },
+  {
+    "id": "campeche",
+    "name": "Campeche",
+    "tileX": 1441,
+    "tileY": 1619,
+    "lat": 20.73,
+    "lon": -89.91,
+    "nation": "spain",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "cancun",
+    "name": "Cancun",
+    "tileX": 2005,
+    "tileY": 1453,
+    "lat": 22.19,
+    "lon": -86.55,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "caracas",
+    "name": "Caracas",
+    "tileX": 5188,
+    "tileY": 2996,
+    "lat": 8.59,
+    "lon": -67.58,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "caratasca",
+    "name": "Caratasca",
+    "tileX": 2507,
+    "tileY": 2307,
+    "lat": 14.66,
+    "lon": -83.56,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "cartagena",
+    "name": "Cartagena",
+    "tileX": 3822,
+    "tileY": 3038,
+    "lat": 8.22,
+    "lon": -75.72,
+    "nation": "spain",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "carupano",
+    "name": "Carupano",
+    "tileX": 5740,
+    "tileY": 2988,
+    "lat": 8.66,
+    "lon": -64.29,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "casares",
+    "name": "Casares",
+    "tileX": 2134,
+    "tileY": 2887,
+    "lat": 9.55,
+    "lon": -85.78,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "nil"
+    }
+  },
+  {
+    "id": "cat_island",
+    "name": "Cat Island",
+    "tileX": 3837,
+    "tileY": 1011,
+    "lat": 26.09,
+    "lon": -75.63,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "none_available"
+    }
+  },
+  {
+    "id": "chetumal",
+    "name": "Chetumal",
+    "tileX": 1795,
+    "tileY": 1848,
+    "lat": 18.71,
+    "lon": -87.8,
+    "nation": "portugal",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "choluteca",
+    "name": "Choluteca",
+    "tileX": 1824,
+    "tileY": 2620,
+    "lat": 11.9,
+    "lon": -87.63,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "ciudad_del_carmen",
+    "name": "Ciudad del Carmen",
+    "tileX": 1289,
+    "tileY": 1813,
+    "lat": 19.02,
+    "lon": -90.82,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "cojoida",
+    "name": "Cojoida",
+    "tileX": 6186,
+    "tileY": 3296,
+    "lat": 5.94,
+    "lon": -61.63,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "mercant"
+    }
+  },
+  {
+    "id": "colon",
+    "name": "Colon",
+    "tileX": 3121,
+    "tileY": 3182,
+    "lat": 6.95,
+    "lon": -79.9,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "coro",
+    "name": "Coro",
+    "tileX": 4754,
+    "tileY": 2856,
+    "lat": 9.82,
+    "lon": -70.17,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "corpus_christi",
+    "name": "Corpus Christi",
+    "tileX": 354,
+    "tileY": 508,
+    "lat": 30.52,
+    "lon": -96.39,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "cozumel",
+    "name": "Cozumel",
+    "tileX": 2002,
+    "tileY": 1569,
+    "lat": 21.17,
+    "lon": -86.57,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "none_available"
+    }
+  },
+  {
+    "id": "cumana",
+    "name": "Cumana",
+    "tileX": 5619,
+    "tileY": 3014,
+    "lat": 8.43,
+    "lon": -65.01,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "curacao",
+    "name": "Curacao",
+    "tileX": 4861,
+    "tileY": 2756,
+    "lat": 10.7,
+    "lon": -69.53,
+    "nation": "holland",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "dominica",
+    "name": "Dominica",
+    "tileX": 6051,
+    "tileY": 2273,
+    "lat": 14.96,
+    "lon": -62.44,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "don_diego",
+    "name": "Don Diego",
+    "tileX": 4165,
+    "tileY": 2895,
+    "lat": 9.48,
+    "lon": -73.68,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "el_macao",
+    "name": "El Macao",
+    "tileX": 4858,
+    "tileY": 1804,
+    "lat": 19.1,
+    "lon": -69.55,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "eleuthera",
+    "name": "Eleuthera",
+    "tileX": 3713,
+    "tileY": 890,
+    "lat": 27.15,
+    "lon": -76.37,
+    "nation": "england",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "espiritu_santo",
+    "name": "Espiritu Santo",
+    "tileX": 812,
+    "tileY": 1907,
+    "lat": 18.19,
+    "lon": -93.66,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "florida_keys",
+    "name": "Florida Keys",
+    "tileX": 2849,
+    "tileY": 980,
+    "lat": 26.36,
+    "lon": -81.52,
+    "nation": "holland",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "fort_caroline",
+    "name": "Fort Caroline",
+    "tileX": 2891,
+    "tileY": 121,
+    "lat": 33.93,
+    "lon": -81.27,
+    "nation": "france",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "merchant",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "fort_lauderdale",
+    "name": "Fort Lauderdale",
+    "tileX": 3096,
+    "tileY": 715,
+    "lat": 28.7,
+    "lon": -80.05,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "fort_louis_de_la_mobile",
+    "name": "Fort Louis de la Mobile",
+    "tileX": 1832,
+    "tileY": 79,
+    "lat": 34.3,
+    "lon": -87.58,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "fortdefrance",
+    "name": "Fort-de-France",
+    "tileX": 6113,
+    "tileY": 2425,
+    "lat": 13.62,
+    "lon": -62.07,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "galveston_bay",
+    "name": "Galveston Bay",
+    "tileX": 785,
+    "tileY": 217,
+    "lat": 33.09,
+    "lon": -93.82,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "merchant",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "george_town",
+    "name": "George Town",
+    "tileX": 2884,
+    "tileY": 1746,
+    "lat": 19.61,
+    "lon": -81.31,
+    "nation": "portugal",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "gibara",
+    "name": "Gibara",
+    "tileX": 3710,
+    "tileY": 1476,
+    "lat": 21.99,
+    "lon": -76.39,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "gibraltar",
+    "name": "Gibraltar",
+    "tileX": 4527,
+    "tileY": 3178,
+    "lat": 6.98,
+    "lon": -71.52,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "gran_granada",
+    "name": "Gran Granada",
+    "tileX": 2151,
+    "tileY": 2805,
+    "lat": 10.27,
+    "lon": -85.68,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "grand_bahama",
+    "name": "Grand Bahama",
+    "tileX": 3371,
+    "tileY": 678,
+    "lat": 29.02,
+    "lon": -78.41,
+    "nation": "holland",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "grand_turk",
+    "name": "Grand Turk",
+    "tileX": 4517,
+    "tileY": 1420,
+    "lat": 22.48,
+    "lon": -71.58,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "havana",
+    "name": "Havana",
+    "tileX": 2743,
+    "tileY": 1164,
+    "lat": 24.74,
+    "lon": -82.15,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "iriona",
+    "name": "Iriona",
+    "tileX": 2274,
+    "tileY": 2229,
+    "lat": 15.35,
+    "lon": -84.95,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "isla_beata",
+    "name": "Isla Beata",
+    "tileX": 4421,
+    "tileY": 1966,
+    "lat": 17.67,
+    "lon": -72.15,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "baque"
+    }
+  },
+  {
+    "id": "joana",
+    "name": "Joana",
+    "tileX": 6235,
+    "tileY": 3198,
+    "lat": 6.81,
+    "lon": -61.34,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "kingstown",
+    "name": "Kingstown",
+    "tileX": 6101,
+    "tileY": 2645,
+    "lat": 11.68,
+    "lon": -62.14,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "la_ceiba",
+    "name": "La Ceiba",
+    "tileX": 2042,
+    "tileY": 2243,
+    "lat": 15.23,
+    "lon": -86.33,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "limon",
+    "name": "Limon",
+    "tileX": 2123,
+    "tileY": 2229,
+    "lat": 15.35,
+    "lon": -85.85,
+    "nation": "spain",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "manzanillo",
+    "name": "Manzanillo",
+    "tileX": 3557,
+    "tileY": 1580,
+    "lat": 21.07,
+    "lon": -77.3,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "frigate",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "maracaibo",
+    "name": "Maracaibo",
+    "tileX": 4440,
+    "tileY": 2989,
+    "lat": 8.65,
+    "lon": -72.04,
+    "nation": "spain",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "margarita",
+    "name": "Margarita",
+    "tileX": 5591,
+    "tileY": 2938,
+    "lat": 9.1,
+    "lon": -65.18,
+    "nation": "holland",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "mariegalante",
+    "name": "Marie-Galante",
+    "tileX": 6074,
+    "tileY": 2224,
+    "lat": 15.39,
+    "lon": -62.3,
+    "nation": "france",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "matanzas",
+    "name": "Matanzas",
+    "tileX": 2854,
+    "tileY": 1182,
+    "lat": 24.58,
+    "lon": -81.49,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "matthew_town",
+    "name": "Matthew Town",
+    "tileX": 4108,
+    "tileY": 1500,
+    "lat": 21.78,
+    "lon": -74.02,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "monte_cristi",
+    "name": "Monte Cristi",
+    "tileX": 4403,
+    "tileY": 1645,
+    "lat": 20.5,
+    "lon": -72.26,
+    "nation": "france",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "montego_bay",
+    "name": "Montego Bay",
+    "tileX": 3433,
+    "tileY": 1835,
+    "lat": 18.82,
+    "lon": -78.04,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "montserrat",
+    "name": "Montserrat",
+    "tileX": 5928,
+    "tileY": 2108,
+    "lat": 16.42,
+    "lon": -63.17,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "merchant",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "nassau",
+    "name": "Nassau",
+    "tileX": 3505,
+    "tileY": 886,
+    "lat": 27.19,
+    "lon": -77.61,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "navassa_island",
+    "name": "Navassa Island",
+    "tileX": 3868,
+    "tileY": 1871,
+    "lat": 18.51,
+    "lon": -75.45,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "nevis",
+    "name": "Nevis",
+    "tileX": 5866,
+    "tileY": 2046,
+    "lat": 16.96,
+    "lon": -63.54,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "new_orleans",
+    "name": "New Orleans",
+    "tileX": 1513,
+    "tileY": 169,
+    "lat": 33.51,
+    "lon": -89.48,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "nombre_de_dios",
+    "name": "Nombre de Dios",
+    "tileX": 3233,
+    "tileY": 3149,
+    "lat": 7.24,
+    "lon": -79.23,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "nuestra_senora_de_guadalupe_de_reynosa",
+    "name": "Nuestra Senora de Guadalupe de Reynosa",
+    "tileX": 228,
+    "tileY": 752,
+    "lat": 28.37,
+    "lon": -97.14,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "old_biloxi",
+    "name": "Old Biloxi",
+    "tileX": 1668,
+    "tileY": 123,
+    "lat": 33.92,
+    "lon": -88.56,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "pedernales",
+    "name": "Pedernales",
+    "tileX": 5931,
+    "tileY": 3094,
+    "lat": 7.72,
+    "lon": -63.15,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "sloop",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "petitgoave",
+    "name": "Petit-Goave",
+    "tileX": 4248,
+    "tileY": 1842,
+    "lat": 18.76,
+    "lon": -73.18,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "pointe_a_la_hache",
+    "name": "Pointe a la Hache",
+    "tileX": 1559,
+    "tileY": 239,
+    "lat": 32.89,
+    "lon": -89.21,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "pointeapitre",
+    "name": "Pointe-a-Pitre",
+    "tileX": 6042,
+    "tileY": 2177,
+    "lat": 15.81,
+    "lon": -62.49,
+    "nation": "france",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "ponce",
+    "name": "Ponce",
+    "tileX": 5222,
+    "tileY": 1934,
+    "lat": 17.95,
+    "lon": -67.38,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "port_antonio",
+    "name": "Port Antonio",
+    "tileX": 3673,
+    "tileY": 1877,
+    "lat": 18.45,
+    "lon": -76.61,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "port_of_spain",
+    "name": "Port of Spain",
+    "tileX": 6032,
+    "tileY": 2991,
+    "lat": 8.63,
+    "lon": -62.55,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "port_royal",
+    "name": "Port Royal",
+    "tileX": 3584,
+    "tileY": 1924,
+    "lat": 18.04,
+    "lon": -77.14,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "port_salut",
+    "name": "Port Salut",
+    "tileX": 4062,
+    "tileY": 1886,
+    "lat": 18.37,
+    "lon": -74.29,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "port_st_joseph",
+    "name": "Port St. Joseph",
+    "tileX": 2243,
+    "tileY": 210,
+    "lat": 33.15,
+    "lon": -85.13,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "portdepaix",
+    "name": "Port-de-Paix",
+    "tileX": 4237,
+    "tileY": 1654,
+    "lat": 20.42,
+    "lon": -73.25,
+    "nation": "france",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "prinzapolca",
+    "name": "Prinzapolca",
+    "tileX": 2542,
+    "tileY": 2600,
+    "lat": 12.08,
+    "lon": -83.35,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "providence",
+    "name": "Providence",
+    "tileX": 2886,
+    "tileY": 2590,
+    "lat": 12.17,
+    "lon": -81.3,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "merchant",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "pueblo_nuevo",
+    "name": "Pueblo Nuevo",
+    "tileX": 280,
+    "tileY": 2205,
+    "lat": 15.56,
+    "lon": -96.83,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "nil"
+    }
+  },
+  {
+    "id": "puerto_barrios",
+    "name": "Puerto Barrios",
+    "tileX": 1733,
+    "tileY": 2248,
+    "lat": 15.18,
+    "lon": -88.17,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "puerto_bello",
+    "name": "Puerto Bello",
+    "tileX": 3154,
+    "tileY": 3155,
+    "lat": 7.19,
+    "lon": -79.7,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "puerto_cabello",
+    "name": "Puerto Cabello",
+    "tileX": 5010,
+    "tileY": 3014,
+    "lat": 8.43,
+    "lon": -68.64,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "puerto_cabezas",
+    "name": "Puerto Cabezas",
+    "tileX": 2567,
+    "tileY": 2497,
+    "lat": 12.99,
+    "lon": -83.2,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "puerto_cortes",
+    "name": "Puerto Cortes",
+    "tileX": 1844,
+    "tileY": 2230,
+    "lat": 15.34,
+    "lon": -87.51,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "puerto_estrella",
+    "name": "Puerto Estrella",
+    "tileX": 4483,
+    "tileY": 2739,
+    "lat": 10.85,
+    "lon": -71.78,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "puerto_plata",
+    "name": "Puerto Plata",
+    "tileX": 4577,
+    "tileY": 1666,
+    "lat": 20.31,
+    "lon": -71.22,
+    "nation": "france",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "punta_gorda",
+    "name": "Punta Gorda",
+    "tileX": 2752,
+    "tileY": 655,
+    "lat": 29.23,
+    "lon": -82.1,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "punto_fijo",
+    "name": "Punto Fijo",
+    "tileX": 4650,
+    "tileY": 2831,
+    "lat": 10.04,
+    "lon": -70.79,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "merchant",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "puntarenas",
+    "name": "Puntarenas",
+    "tileX": 2374,
+    "tileY": 3165,
+    "lat": 7.1,
+    "lon": -84.35,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "road_town",
+    "name": "Road Town",
+    "tileX": 5593,
+    "tileY": 1877,
+    "lat": 18.45,
+    "lon": -65.17,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "merchant",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "roatan",
+    "name": "Roatan",
+    "tileX": 2081,
+    "tileY": 2193,
+    "lat": 15.67,
+    "lon": -86.1,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "none_available"
+    }
+  },
+  {
+    "id": "saba",
+    "name": "Saba",
+    "tileX": 5740,
+    "tileY": 1968,
+    "lat": 17.65,
+    "lon": -64.29,
+    "nation": "holland",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "pinnace",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "saint_eustatius",
+    "name": "Saint Eustatius",
+    "tileX": 5797,
+    "tileY": 1988,
+    "lat": 17.47,
+    "lon": -63.95,
+    "nation": "holland",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "merchant",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "saint_lucia",
+    "name": "Saint Lucia",
+    "tileX": 6128,
+    "tileY": 2489,
+    "lat": 13.06,
+    "lon": -61.98,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "frigate",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "sainte_marie",
+    "name": "Sainte Marie",
+    "tileX": 6123,
+    "tileY": 2395,
+    "lat": 13.89,
+    "lon": -62.01,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "san_andres",
+    "name": "San Andres",
+    "tileX": 2837,
+    "tileY": 2714,
+    "lat": 11.07,
+    "lon": -81.59,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "none_available"
+    }
+  },
+  {
+    "id": "san_carlos",
+    "name": "San Carlos",
+    "tileX": 2334,
+    "tileY": 2915,
+    "lat": 9.3,
+    "lon": -84.59,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "san_juan",
+    "name": "San Juan",
+    "tileX": 5326,
+    "tileY": 1861,
+    "lat": 18.59,
+    "lon": -66.76,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "sloop",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "san_juan_del_norte",
+    "name": "San Juan del Norte",
+    "tileX": 2500,
+    "tileY": 2944,
+    "lat": 9.05,
+    "lon": -83.6,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "san_rafael_de_curiapo",
+    "name": "San Rafael de Curiapo",
+    "tileX": 6228,
+    "tileY": 3379,
+    "lat": 5.21,
+    "lon": -61.38,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "san_ramos",
+    "name": "San Ramos",
+    "tileX": 2173,
+    "tileY": 2874,
+    "lat": 9.66,
+    "lon": -85.55,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "nil"
+    }
+  },
+  {
+    "id": "san_sebastian",
+    "name": "San Sebastian",
+    "tileX": 3614,
+    "tileY": 3324,
+    "lat": 5.7,
+    "lon": -76.96,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "santa_maria",
+    "name": "Santa Maria",
+    "tileX": 4472,
+    "tileY": 3214,
+    "lat": 6.67,
+    "lon": -71.85,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "fluyt",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "santa_maria_de_galve",
+    "name": "Santa Maria de Galve",
+    "tileX": 1945,
+    "tileY": 120,
+    "lat": 33.94,
+    "lon": -86.91,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "santa_maria_de_la_antigua",
+    "name": "Santa Maria de la Antigua",
+    "tileX": 3562,
+    "tileY": 3327,
+    "lat": 5.67,
+    "lon": -77.27,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "santa_marta",
+    "name": "Santa Marta",
+    "tileX": 4022,
+    "tileY": 2911,
+    "lat": 9.34,
+    "lon": -74.53,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "merchant",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "santiago_de_cuba",
+    "name": "Santiago de Cuba",
+    "tileX": 3759,
+    "tileY": 1644,
+    "lat": 20.51,
+    "lon": -76.1,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "barque"
+    }
+  },
+  {
+    "id": "santo_domingo",
+    "name": "Santo Domingo",
+    "tileX": 4663,
+    "tileY": 1847,
+    "lat": 18.72,
+    "lon": -70.71,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "sint_maarten",
+    "name": "Sint Maarten",
+    "tileX": 5777,
+    "tileY": 1863,
+    "lat": 18.58,
+    "lon": -64.07,
+    "nation": "holland",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "south_andros",
+    "name": "South Andros",
+    "tileX": 3495,
+    "tileY": 1052,
+    "lat": 25.73,
+    "lon": -77.67,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "spring_point",
+    "name": "Spring Point",
+    "tileX": 4062,
+    "tileY": 1257,
+    "lat": 23.92,
+    "lon": -74.29,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "st_augustine",
+    "name": "St. Augustine",
+    "tileX": 2923,
+    "tileY": 193,
+    "lat": 33.3,
+    "lon": -81.08,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "st_georges",
+    "name": "St. George's",
+    "tileX": 5999,
+    "tileY": 2784,
+    "lat": 10.46,
+    "lon": -62.75,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "st_john",
+    "name": "St. John",
+    "tileX": 5556,
+    "tileY": 1888,
+    "lat": 18.36,
+    "lon": -65.39,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "pinnace",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "st_kitts",
+    "name": "St. Kitts",
+    "tileX": 5848,
+    "tileY": 2024,
+    "lat": 17.16,
+    "lon": -63.65,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "st_miguel",
+    "name": "St. Miguel",
+    "tileX": 1549,
+    "tileY": 2561,
+    "lat": 12.42,
+    "lon": -89.27,
+    "nation": "spain",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "st_thomas",
+    "name": "St. Thomas",
+    "tileX": 5514,
+    "tileY": 1882,
+    "lat": 18.41,
+    "lon": -65.64,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "spanish_galleon",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "swan_islands",
+    "name": "Swan Islands",
+    "tileX": 2477,
+    "tileY": 2075,
+    "lat": 16.71,
+    "lon": -83.74,
+    "nation": "pirates",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "sloop",
+      "jobShipType": "none_available"
+    }
+  },
+  {
+    "id": "tampa",
+    "name": "Tampa",
+    "tileX": 2683,
+    "tileY": 482,
+    "lat": 30.75,
+    "lon": -82.51,
+    "nation": "france",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "frigate",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "tampico",
+    "name": "Tampico",
+    "tileX": 295,
+    "tileY": 1309,
+    "lat": 23.46,
+    "lon": -96.74,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "tobago",
+    "name": "Tobago",
+    "tileX": 6200,
+    "tileY": 2898,
+    "lat": 9.45,
+    "lon": -61.55,
+    "nation": "holland",
+    "defenses": "none",
+    "services": {
+      "bank": false,
+      "shipyardMax": "barque",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "tortuga",
+    "name": "Tortuga",
+    "tileX": 4230,
+    "tileY": 1619,
+    "lat": 20.73,
+    "lon": -73.29,
+    "nation": "france",
+    "defenses": "fort_2",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "sloop"
+    }
+  },
+  {
+    "id": "tortuguero",
+    "name": "Tortuguero",
+    "tileX": 2665,
+    "tileY": 3126,
+    "lat": 7.44,
+    "lon": -82.62,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "trinidad",
+    "name": "Trinidad",
+    "tileX": 6062,
+    "tileY": 3038,
+    "lat": 8.22,
+    "lon": -62.37,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "fluyt"
+    }
+  },
+  {
+    "id": "trinidad_de_cuba",
+    "name": "Trinidad de Cuba",
+    "tileX": 3097,
+    "tileY": 1382,
+    "lat": 22.82,
+    "lon": -80.04,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "war_galleon",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "tucupita",
+    "name": "Tucupita",
+    "tileX": 5955,
+    "tileY": 3316,
+    "lat": 5.77,
+    "lon": -63.01,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "frigate",
+      "jobShipType": "merchant"
+    }
+  },
+  {
+    "id": "vera_cruz",
+    "name": "Vera Cruz",
+    "tileX": 502,
+    "tileY": 1733,
+    "lat": 19.72,
+    "lon": -95.51,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "frigate"
+    }
+  },
+  {
+    "id": "victoria_hill",
+    "name": "Victoria Hill",
+    "tileX": 3980,
+    "tileY": 1042,
+    "lat": 25.81,
+    "lon": -74.78,
+    "nation": "england",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fluyt",
+      "jobShipType": "pinnace"
+    }
+  },
+  {
+    "id": "villa_hermosa",
+    "name": "Villa Hermosa",
+    "tileX": 1060,
+    "tileY": 1959,
+    "lat": 17.73,
+    "lon": -92.18,
+    "nation": "spain",
+    "defenses": "none",
+    "services": {
+      "bank": true,
+      "shipyardMax": "fast_galleon",
+      "jobShipType": "war_galleon"
+    }
+  },
+  {
+    "id": "yaguana",
+    "name": "Yaguana",
+    "tileX": 4307,
+    "tileY": 1826,
+    "lat": 18.9,
+    "lon": -72.83,
+    "nation": "france",
+    "defenses": "fort",
+    "services": {
+      "bank": true,
+      "shipyardMax": "barque",
+      "jobShipType": "barque"
+    }
+  }
+]

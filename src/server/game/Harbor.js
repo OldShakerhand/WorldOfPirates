@@ -4,19 +4,24 @@ const GameConfig = require('./GameConfig');
  * Harbor - represents a port on an island
  */
 class Harbor {
-    constructor(id, island) {
+    constructor(id, island, name = null) {
         this.id = id;
         this.island = island;
         this.radius = GameConfig.HARBOR_INTERACTION_RADIUS;
 
-        // Place harbor on island perimeter (random angle)
-        const angle = Math.random() * Math.PI * 2;
-        const distance = island.radius + 15; // Just outside island edge
-        this.x = island.x + Math.cos(angle) * distance;
-        this.y = island.y + Math.sin(angle) * distance;
+        // Use exact island position (island stub already at correct tile coordinates)
+        // No random offset - harbor IS at the island position
+        this.x = island.x;
+        this.y = island.y;
 
-        // Harbor name (placeholder - will add Caribbean names later)
-        this.name = this.generateName();
+        // DEBUG: Log if coordinates are NaN
+        if (isNaN(this.x) || isNaN(this.y)) {
+            console.error(`[HARBOR ERROR] ${name || id}: NaN coordinates! island.x=${island.x}, island.y=${island.y}, island:`, island);
+        }
+
+        // Use real harbor name from CSV (passed from HarborRegistry)
+        // If no name provided, fall back to generated name (for backwards compatibility)
+        this.name = name || this.generateName();
     }
 
     generateName() {

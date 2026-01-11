@@ -58,8 +58,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize socket connection
         socket = io();
 
-        // Send player name to server
-        socket.emit('setPlayerName', { name: playerName });
+        // Get custom spawn coordinates if provided
+        const spawnX = document.getElementById('spawnX').value;
+        const spawnY = document.getElementById('spawnY').value;
+
+        let customSpawn = null;
+        if (spawnX && spawnY) {
+            customSpawn = {
+                x: parseInt(spawnX),
+                y: parseInt(spawnY)
+            };
+            console.log('[DEBUG] Custom spawn requested:', customSpawn);
+        }
+
+        // Send player name to server (with optional spawn)
+        socket.emit('setPlayerName', {
+            name: playerName,
+            spawn: customSpawn
+        });
 
         // Handle successful connection
         socket.on('map_data', (data) => {

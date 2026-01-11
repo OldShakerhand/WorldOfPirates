@@ -20,6 +20,14 @@
             <p>Enter your captain's name to set sail!</p>
             <input type="text" id="playerNameInput" placeholder="Captain Name" maxlength="20" autocomplete="off">
             <div id="nameError" style="display: none;"></div>
+
+            <!-- Custom spawn for testing -->
+            <div style="margin: 10px 0; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 3px;">
+                <label style="font-size: 11px; color: #aaa;">Custom Spawn (testing only):</label><br>
+                <input type="number" id="spawnX" placeholder="X" style="width: 80px; margin: 3px; padding: 4px;">
+                <input type="number" id="spawnY" placeholder="Y" style="width: 80px; padding: 4px;">
+            </div>
+
             <button id="setSailBtn">Set Sail! 🏴‍☠️</button>
             <p class="hint">3-20 characters (letters, numbers, spaces)</p>
         </div>

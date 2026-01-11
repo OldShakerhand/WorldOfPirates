@@ -86,9 +86,9 @@ function getShipProperties(shipClassName) {
     return SHIP_PROPERTIES[shipClassName] || SHIP_PROPERTIES['Raft'];
 }
 
-// World dimensions (must match server GameConfig)
-const WORLD_WIDTH = 2000;
-const WORLD_HEIGHT = 2000;
+// World dimensions (Gulf of Mexico + Caribbean: 6460×3403 tiles @ 25px = 161,500×85,075 pixels)
+const WORLD_WIDTH = 161500;
+const WORLD_HEIGHT = 85075;
 
 // Set canvas resolution to 1024x768
 canvas.width = 1024;

@@ -38,9 +38,10 @@ io.on('connection', (socket) => {
         }
 
         const playerName = data.name || 'Anonymous';
+        const customSpawn = data.spawn || null;  // Optional {x, y} for testing
 
         // Try to add player (includes validation)
-        const success = gameLoop.addPlayer(socket, playerName);
+        const success = gameLoop.addPlayer(socket, playerName, customSpawn);
 
         if (success) {
             playerCount++;

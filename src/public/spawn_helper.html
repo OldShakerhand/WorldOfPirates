@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Spawn Coordinate Helper</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .harbor {
+            margin: 5px 0;
+            padding: 5px;
+            background: #2a2a2a;
+        }
+
+        .harbor:hover {
+            background: #3a3a3a;
+        }
+
+        input {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Harbor Coordinates (for spawning)</h2>
+    <p>Map size: 25,600 × 13,475 pixels (1024×539 tiles @ 25px)</p>
+
+    <div id="harbors"></div>
+
+    <h3>Custom Spawn</h3>
+    <input type="number" id="spawnX" placeholder="X coordinate" style="width: 150px;">
+    <input type="number" id="spawnY" placeholder="Y coordinate" style="width: 150px;">
+    <button onclick="copySpawn()">Copy to Clipboard</button>
+    <p id="result"></p>
+
+    <script>
+        const harbors = require('../../assets/harbors.json');
+        const container = document.getElementById('harbors');
+
+        // Sort by name
+        harbors.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Display harbors
+        harbors.forEach(h => {
+            const worldX = h.tileX * 25;
+            const worldY = h.tileY * 25;
+
+            const div = document.createElement('div');
+            div.className = 'harbor';
+            div.innerHTML = `<strong>${h.name}</strong> (${h.nation}) - Tile: (${h.tileX}, ${h.tileY}) → World: (${worldX}, ${worldY})`;
+            div.onclick = () => {
+                document.getElementById('spawnX').value = worldX;
+                document.getElementById('spawnY').value = worldY;
+                document.getElementById('result').textContent = `Selected: ${h.name}`;
+            };
+            container.appendChild(div);
+        });
+
+        function copySpawn() {
+            const x = document.getElementById('spawnX').value;
+            const y = document.getElementById('spawnY').value;
+
+            if (!x || !y) {
+                document.getElementById('result').textContent = 'Enter coordinates first!';
+                return;
+            }
+
+            const text = `Spawn at (${x}, ${y})`;
+            navigator.clipboard.writeText(text);
+            document.getElementById('result').textContent = `Copied: ${text}`;
+        }
+    </script>
+</body>
+
+</html>
