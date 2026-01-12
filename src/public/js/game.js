@@ -318,7 +318,7 @@ function renderGame(state, mapData, myId) {
     // Restore context to draw UI elements at fixed positions
     ctx.restore();
 
-    // DEBUG: Draw ship coordinates in upper right corner
+    // DEBUG: Draw ship coordinates in upper right corner (below minimap)
     if (myShip && DEBUG_RENDER_TILEMAP) {
         ctx.save();
         ctx.font = '14px monospace';
@@ -328,8 +328,8 @@ function renderGame(state, mapData, myId) {
         ctx.lineWidth = 3;
 
         const coordText = `X: ${Math.round(myShip.x)} Y: ${Math.round(myShip.y)}`;
-        ctx.strokeText(coordText, canvas.width - 10, 50);
-        ctx.fillText(coordText, canvas.width - 10, 50);
+        ctx.strokeText(coordText, canvas.width - 10, 205); // 10px top + 160px minimap + 2px border + ~33px spacing
+        ctx.fillText(coordText, canvas.width - 10, 205);
         ctx.restore();
     }
 
@@ -480,7 +480,7 @@ function drawFleetUI(player) {
 
 function drawSpeedDisplay(player) {
     const x = canvas.width - 100;
-    const y = 30;
+    const y = 280; // Moved below minimap (256px + 10px top padding + 10px margin + 4px border)
 
     ctx.save();
     ctx.font = '16px Arial';

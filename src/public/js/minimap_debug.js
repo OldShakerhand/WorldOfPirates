@@ -1,0 +1,244 @@
+/**
+ * DEBUG MINIMAP
+ * 
+ * PURE DEBUG TOOL - NOT A GAMEPLAY FEATURE
+ * 
+ * Purpose:
+ * - Visualize entire world map at small scale
+ * - Show terrain types from tilemap data
+ * - Display player position and harbor markers
+ * 
+ * Constraints:
+ * - NO interaction (no zoom, no scrolling, no clicking)
+ * - NO gameplay impact
+ * - Easy to disable/remove
+ * 
+ * To disable: Set DEBUG_MINIMAP = false
+ * To remove: Delete this file, remove <script> tag from index.html, remove CSS from style.css
+ */
+
+// Debug flag - set to false to disable minimap
+const DEBUG_MINIMAP = true;
+
+// Minimap configuration
+const MINIMAP_CONFIG = {
+    // World dimensions: 3230×1702 tiles (aspect ratio ~1.9:1)
+    // Keep height fixed, calculate width to maintain aspect ratio
+    HEIGHT: 256,
+    WIDTH: null,  // Calculated based on tilemap aspect ratio
+    TILE_SIZE: 25,  // Must match GameConfig.TILE_SIZE
+
+    // Terrain colors (debug-only, simple solid colors)
+    COLORS: {
+        WATER: '#1a4d7a',      // Dark blue
+        SHALLOW: '#5dade2',    // Cyan
+        LAND: '#654321',       // Brown
+        PLAYER: '#FF0000',     // Red
+        HARBOR: '#FFD700'      // Yellow/Gold
+    },
+
+    // Marker sizes
+    PLAYER_RADIUS: 3,
+    HARBOR_SIZE: 4
+};
+
+// Minimap canvas element
+let minimapCanvas = null;
+let minimapCtx = null;
+
+// Offscreen canvas for terrain caching (render once, reuse every frame)
+let terrainCanvas = null;
+let terrainCtx = null;
+let terrainRendered = false;
+
+/**
+ * Initialize minimap canvas
+ * Creates canvas element and appends to game container
+ * Width is calculated based on world aspect ratio
+ */
+function initMinimap() {
+    if (!DEBUG_MINIMAP) return;
+
+    // Create visible minimap canvas
+    minimapCanvas = document.createElement('canvas');
+    minimapCanvas.id = 'minimapCanvas';
+
+    // Width will be set when we know the tilemap dimensions
+    // For now, use height as default
+    minimapCanvas.width = MINIMAP_CONFIG.HEIGHT;
+    minimapCanvas.height = MINIMAP_CONFIG.HEIGHT;
+
+    // Append to game container (not body) so it's positioned relative to canvas
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+        gameContainer.appendChild(minimapCanvas);
+    } else {
+        document.body.appendChild(minimapCanvas);
+        console.warn('[DEBUG MINIMAP] game-container not found, appending to body');
+    }
+
+    // Get context
+    minimapCtx = minimapCanvas.getContext('2d');
+
+    // Create offscreen canvas for terrain caching (will be resized when tilemap loads)
+    terrainCanvas = document.createElement('canvas');
+    terrainCanvas.width = MINIMAP_CONFIG.HEIGHT;
+    terrainCanvas.height = MINIMAP_CONFIG.HEIGHT;
+    terrainCtx = terrainCanvas.getContext('2d');
+
+    console.log('[DEBUG MINIMAP] Initialized minimap with terrain caching');
+}
+
+/**
+ * Update minimap rendering
+ * Called every frame from gamestate_update handler
+ * 
+ * @param {Object} worldTilemap - Tilemap data from world_map.json
+ * @param {Object} mapData - Static map data (harbors, dimensions)
+ * @param {Object} myShip - Local player ship data (position)
+ */
+function updateMinimap(worldTilemap, mapData, myShip) {
+    if (!DEBUG_MINIMAP || !minimapCanvas || !minimapCtx) return;
+    if (!worldTilemap || !mapData) return;
+
+    // Calculate correct width based on tilemap aspect ratio (first time only)
+    if (!MINIMAP_CONFIG.WIDTH && worldTilemap.width && worldTilemap.height) {
+        const aspectRatio = worldTilemap.width / worldTilemap.height;
+        MINIMAP_CONFIG.WIDTH = Math.round(MINIMAP_CONFIG.HEIGHT * aspectRatio);
+
+        // Resize both canvases to correct dimensions
+        minimapCanvas.width = MINIMAP_CONFIG.WIDTH;
+        minimapCanvas.height = MINIMAP_CONFIG.HEIGHT;
+        terrainCanvas.width = MINIMAP_CONFIG.WIDTH;
+        terrainCanvas.height = MINIMAP_CONFIG.HEIGHT;
+
+        console.log(`[DEBUG MINIMAP] Resized to ${MINIMAP_CONFIG.WIDTH}×${MINIMAP_CONFIG.HEIGHT} (aspect ratio ${aspectRatio.toFixed(2)}:1)`);
+    }
+
+    // Render terrain to offscreen canvas ONCE (expensive operation)
+    if (!terrainRendered && terrainCtx && MINIMAP_CONFIG.WIDTH) {
+        renderTerrain(worldTilemap);
+        terrainRendered = true;
+        console.log('[DEBUG MINIMAP] Terrain cached to offscreen canvas');
+    }
+
+    // Clear main canvas
+    minimapCtx.fillStyle = '#000000';
+    minimapCtx.fillRect(0, 0, MINIMAP_CONFIG.WIDTH, MINIMAP_CONFIG.HEIGHT);
+
+    // Blit cached terrain from offscreen canvas (very fast)
+    if (terrainRendered) {
+        minimapCtx.drawImage(terrainCanvas, 0, 0);
+    }
+
+    // Render harbor markers on top
+    if (mapData.harbors) {
+        renderHarbors(mapData.harbors, worldTilemap.width, worldTilemap.height);
+    }
+
+    // Render player marker on top
+    if (myShip) {
+        renderPlayer(myShip, worldTilemap.width, worldTilemap.height);
+    }
+}
+
+/**
+ * Render terrain from tilemap data to offscreen canvas
+ * Called ONCE when tilemap is loaded, then cached
+ * 
+ * @param {Object} worldTilemap - Tilemap data {width, height, tiles[]}
+ */
+function renderTerrain(worldTilemap) {
+    const tilemapWidth = worldTilemap.width;
+    const tilemapHeight = worldTilemap.height;
+    const tiles = worldTilemap.tiles;  // FIXED: Use 'tiles' property, not 'data'
+
+    // Calculate scale factors (tile → minimap)
+    const scaleX = MINIMAP_CONFIG.WIDTH / tilemapWidth;
+    const scaleY = MINIMAP_CONFIG.HEIGHT / tilemapHeight;
+
+    // Iterate through tilemap and draw each tile as a pixel to OFFSCREEN canvas
+    for (let tileY = 0; tileY < tilemapHeight; tileY++) {
+        for (let tileX = 0; tileX < tilemapWidth; tileX++) {
+            // FIXED: tiles is a 2D array (array of rows), not a flat 1D array
+            const terrainType = tiles[tileY][tileX];
+
+            // Get color for terrain type
+            let color;
+            switch (terrainType) {
+                case 0: color = MINIMAP_CONFIG.COLORS.WATER; break;
+                case 1: color = MINIMAP_CONFIG.COLORS.SHALLOW; break;
+                case 2: color = MINIMAP_CONFIG.COLORS.LAND; break;
+                default: color = '#000000'; // Unknown terrain = black
+            }
+
+            // Calculate minimap position
+            const minimapX = Math.floor(tileX * scaleX);
+            const minimapY = Math.floor(tileY * scaleY);
+
+            // Draw pixel to OFFSCREEN canvas (cached)
+            terrainCtx.fillStyle = color;
+            terrainCtx.fillRect(minimapX, minimapY, Math.ceil(scaleX), Math.ceil(scaleY));
+        }
+    }
+}
+
+/**
+ * Render harbor markers
+ * 
+ * @param {Array} harbors - Array of harbor objects {x, y, name}
+ * @param {number} tilemapWidth - Tilemap width in tiles
+ * @param {number} tilemapHeight - Tilemap height in tiles
+ */
+function renderHarbors(harbors, tilemapWidth, tilemapHeight) {
+    harbors.forEach(harbor => {
+        // World → Tile
+        const tileX = Math.floor(harbor.x / MINIMAP_CONFIG.TILE_SIZE);
+        const tileY = Math.floor(harbor.y / MINIMAP_CONFIG.TILE_SIZE);
+
+        // Tile → Minimap
+        const minimapX = (tileX / tilemapWidth) * MINIMAP_CONFIG.WIDTH;
+        const minimapY = (tileY / tilemapHeight) * MINIMAP_CONFIG.HEIGHT;
+
+        // Draw yellow square
+        minimapCtx.fillStyle = MINIMAP_CONFIG.COLORS.HARBOR;
+        minimapCtx.fillRect(
+            minimapX - MINIMAP_CONFIG.HARBOR_SIZE / 2,
+            minimapY - MINIMAP_CONFIG.HARBOR_SIZE / 2,
+            MINIMAP_CONFIG.HARBOR_SIZE,
+            MINIMAP_CONFIG.HARBOR_SIZE
+        );
+    });
+}
+
+/**
+ * Render player position marker
+ * 
+ * @param {Object} myShip - Player ship data {x, y}
+ * @param {number} tilemapWidth - Tilemap width in tiles
+ * @param {number} tilemapHeight - Tilemap height in tiles
+ */
+function renderPlayer(myShip, tilemapWidth, tilemapHeight) {
+    // World → Tile
+    const tileX = Math.floor(myShip.x / MINIMAP_CONFIG.TILE_SIZE);
+    const tileY = Math.floor(myShip.y / MINIMAP_CONFIG.TILE_SIZE);
+
+    // Tile → Minimap
+    const minimapX = (tileX / tilemapWidth) * MINIMAP_CONFIG.WIDTH;
+    const minimapY = (tileY / tilemapHeight) * MINIMAP_CONFIG.HEIGHT;
+
+    // Draw red circle
+    minimapCtx.fillStyle = MINIMAP_CONFIG.COLORS.PLAYER;
+    minimapCtx.beginPath();
+    minimapCtx.arc(minimapX, minimapY, MINIMAP_CONFIG.PLAYER_RADIUS, 0, Math.PI * 2);
+    minimapCtx.fill();
+}
+
+// Initialize minimap when DOM is ready
+if (DEBUG_MINIMAP) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMinimap);
+    } else {
+        initMinimap();
+    }
+}

@@ -10,6 +10,8 @@ body {
 }
 
 #game-container {
+    position: relative;
+    /* Added for minimap absolute positioning */
     width: 1024px;
     height: 768px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -233,4 +235,26 @@ canvas {
 
 #switchShipBtn:hover {
     background-color: #2980b9;
+}
+
+/* DEBUG MINIMAP - Remove before production */
+#minimapCanvas {
+    position: absolute;
+    /* Changed from fixed - now relative to game-container */
+    top: 10px;
+    right: 10px;
+    /* Width and height controlled by JavaScript based on aspect ratio */
+    /* CSS scales it down to fit in corner - 62.5% of calculated size (50% * 1.25) */
+    max-width: 304px;
+    /* 243px * 1.25 */
+    max-height: 160px;
+    /* 128px * 1.25 */
+    width: auto;
+    height: auto;
+    border: 2px solid #8B4513;
+    background-color: #000;
+    z-index: 50;
+    image-rendering: pixelated;
+    /* Crisp pixel rendering */
+    image-rendering: crisp-edges;
 }

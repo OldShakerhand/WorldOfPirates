@@ -144,6 +144,12 @@ function setupGameListeners() {
         // Pass both map data and dynamic state to the renderer
         if (mapData) {
             renderGame(state, mapData, socket.id);
+
+            // Update debug minimap (if enabled)
+            if (typeof updateMinimap !== 'undefined' && worldTilemap) {
+                const myShip = state.players[socket.id];
+                updateMinimap(worldTilemap, mapData, myShip);
+            }
         }
     });
 
