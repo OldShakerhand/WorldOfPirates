@@ -96,19 +96,17 @@ let frameCount = 0;  // For debug logging throttling
 canvas.width = 1024;
 canvas.height = 768;
 
-// DEBUG ONLY: Load tilemap for visualization
-// This is TEMPORARY and does NOT affect server authority
+// Load tilemap for visual rendering
+// Used by Visual Adapter Layer for terrain visualization
 // Server remains 100% authoritative for all gameplay logic
 let worldTilemap = null;
-if (typeof DEBUG_RENDER_TILEMAP !== 'undefined' && DEBUG_RENDER_TILEMAP) {
-    fetch('/assets/world_map.json')
-        .then(response => response.json())
-        .then(data => {
-            worldTilemap = data;
-            console.log('[DEBUG] Tilemap loaded for visualization:', data.width, 'x', data.height, 'tiles');
-        })
-        .catch(err => console.warn('[DEBUG] Could not load tilemap for visualization:', err));
-}
+fetch('/assets/world_map.json')
+    .then(response => response.json())
+    .then(data => {
+        worldTilemap = data;
+        console.log('[Visual Adapter] Tilemap loaded:', data.width, 'x', data.height, 'tiles');
+    })
+    .catch(err => console.warn('[Visual Adapter] Could not load tilemap:', err));
 
 function renderGame(state, mapData, myId) {
     frameCount++;  // Increment for debug logging
@@ -138,9 +136,14 @@ function renderGame(state, mapData, myId) {
     const worldWidth = mapData.width;
     const worldHeight = mapData.height;
 
-    // DEBUG ONLY: Render tilemap visualization
-    // This is TEMPORARY - purely for testing server-authoritative terrain
-    // NO gameplay logic depends on this rendering
+    // Visual Adapter Layer - Always-on terrain rendering
+    // This provides visual representation of the world without affecting gameplay
+    if (worldTilemap && typeof VisualAdapter !== 'undefined') {
+        VisualAdapter.render(ctx, worldTilemap, cameraX, cameraY, canvas.width, canvas.height);
+    }
+
+    // DEBUG ONLY: Optional debug grid overlay
+    // Can be enabled to show tile boundaries for debugging
     if (DEBUG_RENDER_TILEMAP && worldTilemap && typeof drawTilemapDebug !== 'undefined') {
         drawTilemapDebug(worldTilemap, ctx, canvas);
     }
