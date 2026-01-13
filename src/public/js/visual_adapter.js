@@ -54,6 +54,8 @@ const VisualAdapter = {
         // Render coastlines (Phase 2)
         if (this.showCoastlines) {
             this.renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
+            // Render corner overlays for curved illusion
+            this.renderCornerOverlays(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
         }
     },
 
@@ -168,14 +170,203 @@ const VisualAdapter = {
             case 'east': neighborX++; break;
             case 'west': neighborX--; break;
         }
-     */
-        toggle() {
-            this.enabled = !this.enabled;
-            console.log(`[Visual Adapter] ${this.enabled ? 'Enabled' : 'Disabled'}`);
-        }
-    };
 
-    // Make available globally
-    if(typeof window !== 'undefined') {
-        window.VisualAdapter = VisualAdapter;
+        const neighborTerrain = this.getTerrain(tilemap, neighborX, neighborY);
+        return neighborTerrain === this.TERRAIN.WATER || neighborTerrain === this.TERRAIN.SHALLOW;
+    },
+
+    /**
+     * Render coastline borders
+     * Draws lines where land meets water/shallow
+     */
+    renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight) {
+        const tileSize = tilemap.tileSize || 25;
+
+        // Calculate visible tile range
+        const startTileX = Math.max(0, Math.floor(cameraX / tileSize));
+        const startTileY = Math.max(0, Math.floor(cameraY / tileSize));
+        const endTileX = Math.min(tilemap.width - 1, Math.ceil((cameraX + viewportWidth) / tileSize));
+        const endTileY = Math.min(tilemap.height - 1, Math.ceil((cameraY + viewportHeight) / tileSize));
+
+        // Coastline style
+        ctx.strokeStyle = this.colors.SHALLOW;  // Match corner overlay color
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'square';
+
+        // Check each visible tile
+        for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+            for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+                const terrain = this.getTerrain(tilemap, tileX, tileY);
+
+                // Only draw coastlines for land tiles
+                if (terrain !== this.TERRAIN.LAND) continue;
+
+                const worldX = tileX * tileSize;
+                const worldY = tileY * tileSize;
+
+                // Check each direction and draw border if water is adjacent
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'north')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY);
+                    ctx.lineTo(worldX + tileSize, worldY);
+                    ctx.stroke();
+                }
+
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'south')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY + tileSize);
+                    ctx.lineTo(worldX + tileSize, worldY + tileSize);
+                    ctx.stroke();
+                }
+
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'east')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX + tileSize, worldY);
+                    ctx.lineTo(worldX + tileSize, worldY + tileSize);
+                    ctx.stroke();
+                }
+
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'west')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY);
+                    ctx.lineTo(worldX, worldY + tileSize);
+                    ctx.stroke();
+                }
+            }
+        }
+    },
+
+    /**
+     * Render corner overlays to create illusion of curved coastlines
+     * Detects land tiles with water on TWO ADJACENT sides and rounds the outer corner
+     */
+    renderCornerOverlays(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight) {
+        const tileSize = tilemap.tileSize || 25;
+        const radius = tileSize * 0.5;  // 50% of tile size for visible silhouette change
+
+        // Calculate visible tile range
+        const startTileX = Math.max(0, Math.floor(cameraX / tileSize));
+        const startTileY = Math.max(0, Math.floor(cameraY / tileSize));
+        const endTileX = Math.min(tilemap.width - 1, Math.ceil((cameraX + viewportWidth) / tileSize));
+        const endTileY = Math.min(tilemap.height - 1, Math.ceil((cameraY + viewportHeight) / tileSize));
+
+        // Helper: Check if tile is land
+        const isLand = (x, y) => this.getTerrain(tilemap, x, y) === this.TERRAIN.LAND;
+
+        // Helper: Check if tile is water or shallow
+        const isWater = (x, y) => {
+            const terrain = this.getTerrain(tilemap, x, y);
+            return terrain === this.TERRAIN.WATER || terrain === this.TERRAIN.SHALLOW;
+        };
+
+        // Use normal drawing to paint water over land
+        ctx.globalCompositeOperation = 'source-over';
+
+        // Check each visible tile
+        for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+            for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+                const terrain = this.getTerrain(tilemap, tileX, tileY);
+                let overlayColor = null;
+                let isSurroundingType = null;
+
+                // Case 1: LAND surrounded by WATER/SHALLOW -> Paint SHALLOW
+                if (terrain === this.TERRAIN.LAND) {
+                    overlayColor = this.colors.SHALLOW;
+                    isSurroundingType = (tx, ty) => {
+                        const t = this.getTerrain(tilemap, tx, ty);
+                        return t === this.TERRAIN.WATER || t === this.TERRAIN.SHALLOW;
+                    };
+                }
+                // Case 2: SHALLOW surrounded by DEEP WATER -> Paint DEEP WATER
+                else if (terrain === this.TERRAIN.SHALLOW) {
+                    overlayColor = this.colors.WATER;
+                    isSurroundingType = (tx, ty) => {
+                        const t = this.getTerrain(tilemap, tx, ty);
+                        return t === this.TERRAIN.WATER;
+                    };
+                }
+                // Skip if not a target tile type
+                else {
+                    continue;
+                }
+
+                // Set color
+                ctx.fillStyle = overlayColor;
+
+                const worldX = tileX * tileSize;
+                const worldY = tileY * tileSize;
+
+                // Get neighbors using the correct predicate
+                const north = isSurroundingType(tileX, tileY - 1);
+                const south = isSurroundingType(tileX, tileY + 1);
+                const east = isSurroundingType(tileX + 1, tileY);
+                const west = isSurroundingType(tileX - 1, tileY);
+
+                const nw = isSurroundingType(tileX - 1, tileY - 1);
+                const ne = isSurroundingType(tileX + 1, tileY - 1);
+                const sw = isSurroundingType(tileX - 1, tileY + 1);
+                const se = isSurroundingType(tileX + 1, tileY + 1);
+
+                // NW Outer Corner (Top-Left)
+                if (north && west && nw) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY + radius);      // Left edge
+                    ctx.lineTo(worldX, worldY);               // Corner
+                    ctx.lineTo(worldX + radius, worldY);      // Top edge
+                    ctx.arc(worldX + radius, worldY + radius, radius, -Math.PI / 2, -Math.PI, true);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // NE Outer Corner (Top-Right)
+                if (north && east && ne) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX + tileSize - radius, worldY); // Top edge
+                    ctx.lineTo(worldX + tileSize, worldY);          // Corner
+                    ctx.lineTo(worldX + tileSize, worldY + radius); // Right edge
+                    ctx.arc(worldX + tileSize - radius, worldY + radius, radius, 0, -Math.PI / 2, true);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // SW Outer Corner (Bottom-Left)
+                if (south && west && sw) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY + tileSize - radius); // Left edge
+                    ctx.lineTo(worldX, worldY + tileSize);          // Corner
+                    ctx.lineTo(worldX + radius, worldY + tileSize); // Bottom edge
+                    ctx.arc(worldX + radius, worldY + tileSize - radius, radius, Math.PI / 2, Math.PI, false);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // SE Outer Corner (Bottom-Right)
+                if (south && east && se) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX + tileSize - radius, worldY + tileSize); // Bottom edge
+                    ctx.lineTo(worldX + tileSize, worldY + tileSize);          // Corner
+                    ctx.lineTo(worldX + tileSize, worldY + tileSize - radius); // Right edge
+                    ctx.arc(worldX + tileSize - radius, worldY + tileSize - radius, radius, 0, Math.PI / 2, false);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Reset composite operation to normal
+        ctx.globalCompositeOperation = 'source-over';
+    },
+
+    /**
+     * Toggle visual adapter on/off
+     */
+    toggle() {
+        this.enabled = !this.enabled;
+        console.log(`[Visual Adapter] ${this.enabled ? 'Enabled' : 'Disabled'}`);
+    }
+};
+
+// Make available globally
+if (typeof window !== 'undefined') {
+    window.VisualAdapter = VisualAdapter;
 }
