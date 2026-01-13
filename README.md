@@ -9,9 +9,10 @@ A multiplayer naval combat game built with Node.js and Socket.IO. Command your f
 - **Fleet Management** - Command multiple ships with different classes and capabilities
 - **Naval Combat** - Broadside cannon battles with physics-based projectiles
 - **10 Ship Classes** - From humble rafts to mighty War Galleons
-- **Harbor System** - Repair ships and manage your fleet
+- **Authentic Caribbean Map** - 141 historic harbors on a 80,000x42,000 world map
+- **Visual Adapter Layer** - Organic rounded coastlines and shallow water transitions
+- **Harbor System** - Repair ships, switch flagships, and manage your fleet
 - **Invulnerability Shields** - Strategic protection when switching ships or leaving harbor
-- **Island Navigation** - Procedurally generated islands with shallow water zones
 
 ## 🚀 Quick Start
 
@@ -19,6 +20,7 @@ A multiplayer naval combat game built with Node.js and Socket.IO. Command your f
 
 - Node.js (v14 or higher)
 - npm
+- **Git LFS** (Required for map assets)
 
 ### Installation
 
@@ -29,6 +31,10 @@ cd WorldOfPirates
 
 # Install dependencies
 npm install
+
+# Initialize LFS (Important!)
+git lfs install
+git lfs pull
 
 # Start the development server
 npm run dev
@@ -53,14 +59,15 @@ The game will be available at `http://localhost:3000`
 - **Backend**: Node.js, Express, Socket.IO
 - **Frontend**: Vanilla JavaScript, HTML5 Canvas
 - **Real-time Communication**: Socket.IO (WebSocket)
-- **Game Loop**: 60 tick/second server-authoritative architecture
+- **Game Architecture**: Server-authoritative, 60 tick/s game loop
+- **Visuals**: Custom "Visual Adapter" for organic terrain rendering
 
 ## 📊 Server Capacity
 
 - **Max Players**: 20 concurrent players
 - **Tick Rate**: 60 updates per second
-- **Performance Monitoring**: Real-time tick time tracking
-- **World Size**: 2000×2000 units with 7 procedurally generated islands
+- **World Size**: 3230x1702 tiles (80,750x42,525 px) based on real Caribbean geography
+- **Harbors**: 141 named locations with historical accuracy
 
 ## 🛠️ Project Structure
 
@@ -72,24 +79,16 @@ WorldOfPirates/
 │   │   └── game/
 │   │       ├── GameLoop.js        # Core game loop (60 tick/s)
 │   │       ├── World.js           # World state & entity management
-│   │       ├── Player.js          # Player entity & fleet management
-│   │       ├── Ship.js            # Ship instances
-│   │       ├── ShipClass.js       # Ship class definitions
-│   │       ├── Projectile.js      # Cannonball physics
-│   │       ├── Wind.js            # Dynamic wind system
-│   │       ├── Island.js          # Island generation & collision
-│   │       ├── Harbor.js          # Harbor system
-│   │       ├── GameConfig.js      # World & game constants
-│   │       ├── CombatConfig.js    # Combat balancing
-│   │       └── PhysicsConfig.js   # Movement & physics
+│   │       ├── WorldMap.js        # Tile-based map logic
+│   │       ├── HarborRegistry.js  # Harbor data management
+│   │       └── ...
 │   └── public/
-│       ├── index.html             # Game UI
-│       ├── style.css              # Styling
+│       ├── assets/                # Game assets (map, images)
 │       └── js/
-│           ├── client.js          # Client-side networking
-│           └── game.js            # Client-side rendering
+│           ├── visual_adapter.js  # Client-side visual enhancement layer
+│           └── game.js            # Main client render loop
 ├── docs/                          # Documentation
-└── package.json
+└── tools/                         # Map processing tools
 ```
 
 ## 📖 Documentation
@@ -99,6 +98,7 @@ WorldOfPirates/
 - [Technical Documentation](docs/TECHNICAL.md) - Architecture and technical decisions
 - [Coordinate System](docs/COORDINATE_SYSTEM.md) - Spatial mechanics and physics reference
 - [Ship Assets](docs/SHIP_ASSETS.md) - Asset creation and sprite guidelines
+- [Visual Adapter](docs/visual_adapter/walkthrough.md) - Terrain rendering techniques
 - [Changelog](docs/CHANGELOG.md) - Version history and updates
 
 ## 🎨 Ship Classes
@@ -109,7 +109,7 @@ WorldOfPirates/
 | Sloop | 120 | 100 | 2 | Fast, maneuverable starter ship |
 | Pinnace | 110 | 150 | 3 | Balanced combat vessel |
 | Barque | 100 | 200 | 4 | Sturdy merchant-warrior |
-| Fluyt | 90 | 220 | 3 | Cargo-focused design |
+| Fluyt | 90 | 220 | 4 | Cargo-focused design |
 | Merchant | 95 | 250 | 4 | Trading vessel with decent firepower |
 | Frigate | 105 | 300 | 6 | Powerful warship |
 | Fast Galleon | 100 | 350 | 7 | Speed and firepower combined |
@@ -126,47 +126,12 @@ npm run dev
 
 Uses `nodemon` for automatic server restarts on file changes.
 
-### Performance Monitoring
+### Map Processing
 
-The server logs performance metrics every 10 seconds:
-```
-[Performance] Avg tick: 0.11ms | Max: 1.00ms | Players: 5 | Projectiles: 12
-```
-
-Warnings appear when average tick time exceeds the 60 FPS target (16.67ms).
-
-## 🌊 Gameplay Mechanics
-
-### Wind System
-- Wind direction and strength change every 30-60 seconds
-- Sailing with the wind provides speed bonuses
-- Sailing against the wind reduces speed
-- Tactical positioning is key to combat advantage
-
-### Combat
-- **Broadside Cannons**: 2-10 cannons per side (varies by ship class)
-- **Cannon Positioning**: Configurable per-side with clustering at midship
-- **Fire Rate**: 4 seconds between volleys
-- **Damage**: 5 HP per cannonball hit
-- **Projectile Range**: 400 pixels (distance-based)
-- **Velocity Compensation**: Configurable arcade-style firing (default 70%)
-- **Sector-Based Detection**: Precise ±60° broadside firing zones
-- **Collision Damage**: Ramming islands at high speed damages your ship
-
-### Fleet Management
-- Start with a Sloop (or receive one at first harbor if on a raft)
-- Manage multiple ships in your fleet
-- When your flagship sinks, switch to another ship (protected by a 10 second shield)
-- Lose all ships? You respawn on an invulnerable raft
-
-### Harbors
-- Repair your flagship to full health
-- Receive a free Sloop if you arrive on a raft
-- Gain a 10-second invulnerability shield when leaving harbor
-
-## 📝 License
-
-MIT
+The world map is generated from high-resolution satellite data. Tools in `tools/` handle:
+- Resizing (Lanczos3 high-quality downscaling)
+- Coordinate transformation (teleporting 141 harbors to new positions)
+- Mask generation (Water/Land/Shallow classification)
 
 ## 🤝 Contributing
 
@@ -174,7 +139,11 @@ This is currently a personal project. Documentation and contribution guidelines 
 
 ## 🎯 Current Status
 
-**Alpha Development** - Core mechanics implemented, actively adding features and balancing gameplay.
+**Active Development**
+- ✅ Core Gameplay Loop (Sailing, Combat, Harbors)
+- ✅ Massive Caribbean Map (50% scale, fully navigable)
+- ✅ Visual Layer (Rounded coastlines, shallow gradients)
+- 🚧 Next: Economy System & Persistent Player Data
 
 ---
 
