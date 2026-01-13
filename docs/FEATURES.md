@@ -44,16 +44,19 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Fleet Speed Penalty** - Additional ships reduce overall speed (5% per ship)
 
 ### World & Environment
-- [x] **Procedural Islands** - 7 randomly generated islands per world
+- [x] **Production World Map** - Hand-crafted Gulf of Mexico + Caribbean (3230×1702 tiles)
+- [x] **Tilemap System** - Three terrain types (deep water, shallow water, land)
+- [x] **Water Depth** - Shallow water around coastlines reduces speed by 25%
+- [x] **Island Collision** - Collision damage based on impact speed
 - [x] **Dynamic Wind System** - Wind changes direction/strength every 30-60 seconds
 - [x] **Wind Effects** - Tailwind bonus, headwind penalty, crosswind neutral
-- [x] **Water Depth** - Shallow water around islands reduces speed by 25%
-- [x] **Island Collision** - Collision damage based on impact speed
 
 ### Harbor System
-- [x] **Harbor Docking** - Enter harbors with H key when in range
+- [x] **141 Historical Harbors** - Accurate Caribbean/Gulf of Mexico harbor locations
+- [x] **Harbor Docking** - Enter harbors with H key when in range (200px)
 - [x] **Ship Repair** - Repair flagship to full health while docked
 - [x] **Raft Upgrade** - Receive free Sloop when entering harbor on a raft
+- [x] **Flagship Switching in Harbor** - Change flagship while docked
 - [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
 
 ### Combat Mechanics
@@ -74,12 +77,13 @@ This document tracks the implementation status of all features in World of Pirat
 ### UI/UX
 - [x] **HUD Display** - Shows health, speed, sail state, ship class
 - [x] **Fleet Info** - Display fleet size and navigation skill
-- [x] **Harbor UI** - Overlay showing fleet and repair options
+- [x] **Harbor UI** - Overlay showing fleet, repair, and flagship switching options
 - [x] **Reload Indicators** - Visual feedback for cannon reload times
 - [x] **Water Depth Indicator** - Shows when in shallow water
 - [x] **Kill Feed** - System chat displaying ship destruction events with ship class
 - [x] **Player Rafted Messages** - Emphasizes recoverability (not death/elimination)
 - [x] **Ship Switching Messages** - Informational messages when switching flagships
+- [x] **Debug Minimap** - 304×160px terrain visualization with player/harbor markers
 
 ### Server & Performance
 - [x] **Player Cap** - 20 concurrent players maximum
@@ -92,7 +96,15 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **No Magic Numbers** - All constants defined in config files
 - [x] **Modular Architecture** - Separated concerns (World, Player, Ship, etc.)
 - [x] **Design Contracts** - Documented gameplay semantics and physics models
-- [x] **Debug Instrumentation** - Collision debug logging (disabled by default)
+- [x] **Technical Debt Documentation** - TODO/FIXME comments for future refactoring
+
+### Debug Tools
+- [x] **Debug Minimap** - Real-time terrain visualization with aspect ratio correction
+- [x] **Harbor Teleportation** - Instant travel to any harbor for testing (Shift+H)
+- [x] **Tilemap Visualization** - Render terrain types on main canvas
+- [x] **Coordinate Display** - Show player X/Y position
+- [x] **Collision Debug Logging** - Detailed collision event tracking (disabled by default)
+- [x] **Performance Monitoring** - Server tick time tracking and reporting
 
 ---
 
@@ -114,10 +126,10 @@ Currently no features in active development.
 - [ ] **Score/Stats** - Track kills, deaths, ships sunk
 
 #### Core Gameplay Improvements
-- [ ] **Minimap** - Small map showing islands, harbors, and nearby players
-- [ ] **Spawn System** - Better spawn locations (away from combat)
-- [ ] **Ship Acquisition** - Define how players get new ships
+- [ ] **Spawn System** - Better spawn locations (away from combat, near harbors)
+- [ ] **Ship Acquisition** - Define how players get new ships (beyond harbor raft upgrade)
 - [ ] **Progression System** - Economy, unlocks, or session-based progression
+- [ ] **Interactive Minimap** - Click-to-view, zoom controls, other player markers
 
 ### Medium Priority
 
@@ -135,8 +147,8 @@ Currently no features in active development.
 - [ ] **Quest System** - Define objectives for players
 
 #### World Features
-- [ ] **Larger Non-Procedural Map** - Hand-crafted world (required before persistent spawns)
 - [ ] **Weather Effects** - Storms, fog affecting visibility/gameplay
+- [ ] **Map Expansion** - Extend to full Atlantic/Pacific if needed
 
 #### Polish
 - [ ] **Sound Effects** - Cannon fire, wind, waves, impacts
@@ -343,12 +355,12 @@ Missions provide structured PvE content and progression. Players select missions
 
 ### Implementation Priority
 
-**Phase 1: Foundation (Database & Map)**
-1. Database integration
-2. Authentication system
-3. **Hand-crafted non-procedural map** (SHOULD come before persistent spawns)
-4. Persistent spawn locations (depends on static map)
-5. New player harbor with tutorial
+**Phase 1: Foundation (Database & Persistence)**
+1. [x] **Hand-crafted non-procedural map** (Gulf of Mexico + Caribbean complete)
+2. [ ] Database integration
+3. [ ] Authentication system
+4. [ ] Persistent spawn locations (depends on database)
+5. [ ] New player harbor with tutorial
 
 **Phase 2: Core Social & Communication**
 1. Chat system (global, team, local channels)
@@ -420,14 +432,18 @@ Features we've decided NOT to implement (and why):
 
 ## 🎯 Roadmap (Aligned with Extended Game-Loop)
 
-### Phase 1: Foundation (Database & Map)
+### Phase 1: Foundation (Database & Persistence)
 **Goal:** Establish persistent world and player data
 
-- Database integration (PostgreSQL/MongoDB)
-- Authentication system (login/registration)
-- **Hand-crafted non-procedural map** (required before persistent spawns)
-- Persistent spawn locations (spawn where logged out)
-- New player harbor with tutorial
+**Status:** World map complete ✅, persistence systems pending
+
+- [ ] Database integration (PostgreSQL/MongoDB)
+- [ ] Authentication system (login/registration)
+- [x] **Hand-crafted non-procedural map** (Gulf of Mexico + Caribbean complete)
+- [ ] Persistent spawn locations (spawn where logged out)
+- [ ] New player harbor with tutorial
+
+**Next Priority:** Database integration to enable player persistence
 
 ### Phase 2: Core Social & Communication
 **Goal:** Enable player interaction and coordination
