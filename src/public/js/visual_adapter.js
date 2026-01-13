@@ -14,6 +14,7 @@ const VisualAdapter = {
     // Configuration
     enabled: true,  // Master toggle
     showCoastlines: true,  // Phase 2 feature - now enabled!
+    showShallowGradients: true,  // Phase 3 feature - visual enhancements
 
     // Terrain colors (matching current debug rendering)
     colors: {
@@ -44,6 +45,11 @@ const VisualAdapter = {
 
         // Render base terrain (always on)
         this.renderBaseTerrain(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
+
+        // Render shallow water gradients (Phase 3)
+        if (this.showShallowGradients) {
+            this.renderShallowWaterGradients(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
+        }
 
         // Render coastlines (Phase 2)
         if (this.showCoastlines) {
@@ -93,6 +99,46 @@ const VisualAdapter = {
                     tileSize,
                     tileSize
                 );
+            }
+        }
+    },
+
+    /**
+     * Render shallow water with gradient effect
+     * Creates visual transition between deep water and land
+     */
+    renderShallowWaterGradients(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight) {
+        const tileSize = tilemap.tileSize || 25;
+
+        // Calculate visible tile range
+        const startTileX = Math.max(0, Math.floor(cameraX / tileSize));
+        const startTileY = Math.max(0, Math.floor(cameraY / tileSize));
+        const endTileX = Math.min(tilemap.width - 1, Math.ceil((cameraX + viewportWidth) / tileSize));
+        const endTileY = Math.min(tilemap.height - 1, Math.ceil((cameraY + viewportHeight) / tileSize));
+
+        // Check each visible tile
+        for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+            for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+                const terrain = this.getTerrain(tilemap, tileX, tileY);
+
+                // Only enhance shallow water tiles
+                if (terrain !== this.TERRAIN.SHALLOW) continue;
+
+                const worldX = tileX * tileSize;
+                const worldY = tileY * tileSize;
+
+                // Check if this shallow water is near land (creates lighter accent)
+                const hasLandNeighbor =
+                    this.getTerrain(tilemap, tileX, tileY - 1) === this.TERRAIN.LAND ||
+                    this.getTerrain(tilemap, tileX, tileY + 1) === this.TERRAIN.LAND ||
+                    this.getTerrain(tilemap, tileX + 1, tileY) === this.TERRAIN.LAND ||
+                    this.getTerrain(tilemap, tileX - 1, tileY) === this.TERRAIN.LAND;
+
+                if (hasLandNeighbor) {
+                    // Add lighter overlay to shallow water near land
+                    ctx.fillStyle = 'rgba(147, 197, 253, 0.15)';  // Light blue overlay
+                    ctx.fillRect(worldX, worldY, tileSize, tileSize);
+                }
             }
         }
     },
