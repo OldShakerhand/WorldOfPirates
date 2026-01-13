@@ -15,7 +15,7 @@ const DEBUG_COLLISION_VISUAL = false;
 // This is TEMPORARY and NOT a gameplay feature - purely for visual feedback during development
 // Server remains 100% authoritative, this is informational only
 // IMPORTANT: Easy to disable - set to false when not needed
-const DEBUG_RENDER_TILEMAP = true;
+const DEBUG_RENDER_TILEMAP = false;  // Disabled - using Visual Adapter Layer instead
 
 // Visual Constants - centralized styling
 const COLORS = {
@@ -139,7 +139,11 @@ function renderGame(state, mapData, myId) {
     // Visual Adapter Layer - Always-on terrain rendering
     // This provides visual representation of the world without affecting gameplay
     if (worldTilemap && typeof VisualAdapter !== 'undefined') {
-        VisualAdapter.render(ctx, worldTilemap, cameraX, cameraY, canvas.width, canvas.height);
+        // Convert camera offset to world position
+        // Camera is negative offset, so negate to get world position
+        const worldCameraX = -cameraX;
+        const worldCameraY = -cameraY;
+        VisualAdapter.render(ctx, worldTilemap, worldCameraX, worldCameraY, canvas.width, canvas.height);
     }
 
     // DEBUG ONLY: Optional debug grid overlay

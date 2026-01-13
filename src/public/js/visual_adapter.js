@@ -13,7 +13,7 @@
 const VisualAdapter = {
     // Configuration
     enabled: true,  // Master toggle
-    showCoastlines: false,  // Phase 2 feature (not yet implemented)
+    showCoastlines: true,  // Phase 2 feature - now enabled!
 
     // Terrain colors (matching current debug rendering)
     colors: {
@@ -45,10 +45,10 @@ const VisualAdapter = {
         // Render base terrain (always on)
         this.renderBaseTerrain(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
 
-        // Future: Coastline rendering will go here (Phase 2)
-        // if (this.showCoastlines) {
-        //     this.renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
-        // }
+        // Render coastlines (Phase 2)
+        if (this.showCoastlines) {
+            this.renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
+        }
     },
 
     /**
@@ -93,6 +93,97 @@ const VisualAdapter = {
                     tileSize,
                     tileSize
                 );
+            }
+        }
+    },
+
+    /**
+     * Get terrain type at specific tile coordinates
+     * Returns null if out of bounds
+     */
+    getTerrain(tilemap, tileX, tileY) {
+        if (tileX < 0 || tileX >= tilemap.width || tileY < 0 || tileY >= tilemap.height) {
+            return null;
+        }
+        return tilemap.tiles[tileY][tileX];
+    },
+
+    /**
+     * Check if a tile has a water/shallow neighbor in a specific direction
+     * Used for coastline detection
+     */
+    hasWaterNeighbor(tilemap, tileX, tileY, direction) {
+        let neighborX = tileX;
+        let neighborY = tileY;
+
+        switch (direction) {
+            case 'north': neighborY--; break;
+            case 'south': neighborY++; break;
+            case 'east': neighborX++; break;
+            case 'west': neighborX--; break;
+        }
+
+        const neighborTerrain = this.getTerrain(tilemap, neighborX, neighborY);
+        return neighborTerrain === this.TERRAIN.WATER || neighborTerrain === this.TERRAIN.SHALLOW;
+    },
+
+    /**
+     * Render coastline borders
+     * Draws lines where land meets water/shallow
+     */
+    renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight) {
+        const tileSize = tilemap.tileSize || 25;
+
+        // Calculate visible tile range
+        const startTileX = Math.max(0, Math.floor(cameraX / tileSize));
+        const startTileY = Math.max(0, Math.floor(cameraY / tileSize));
+        const endTileX = Math.min(tilemap.width - 1, Math.ceil((cameraX + viewportWidth) / tileSize));
+        const endTileY = Math.min(tilemap.height - 1, Math.ceil((cameraY + viewportHeight) / tileSize));
+
+        // Coastline style
+        ctx.strokeStyle = '#8B4513';  // Brown coastline
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'square';
+
+        // Check each visible tile
+        for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+            for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+                const terrain = this.getTerrain(tilemap, tileX, tileY);
+
+                // Only draw coastlines for land tiles
+                if (terrain !== this.TERRAIN.LAND) continue;
+
+                const worldX = tileX * tileSize;
+                const worldY = tileY * tileSize;
+
+                // Check each direction and draw border if water is adjacent
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'north')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY);
+                    ctx.lineTo(worldX + tileSize, worldY);
+                    ctx.stroke();
+                }
+
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'south')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY + tileSize);
+                    ctx.lineTo(worldX + tileSize, worldY + tileSize);
+                    ctx.stroke();
+                }
+
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'east')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX + tileSize, worldY);
+                    ctx.lineTo(worldX + tileSize, worldY + tileSize);
+                    ctx.stroke();
+                }
+
+                if (this.hasWaterNeighbor(tilemap, tileX, tileY, 'west')) {
+                    ctx.beginPath();
+                    ctx.moveTo(worldX, worldY);
+                    ctx.lineTo(worldX, worldY + tileSize);
+                    ctx.stroke();
+                }
             }
         }
     },
