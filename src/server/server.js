@@ -108,6 +108,31 @@ io.on('connection', (socket) => {
     socket.on('switchFlagship', (shipClass) => {
         gameLoop.handleSwitchFlagship(socket.id, shipClass);
     });
+
+    // NPC Spawn: N key (spawn single trader near player)
+    socket.on('spawnNPC', () => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        console.log(`[NPC] ${player.name} requested NPC spawn`);
+        gameLoop.world.npcManager.spawnTrader(player.x, player.y);
+    });
+
+    // DEBUG: Spawn multiple NPCs (command: /spawn_npcs N)
+    socket.on('debug_spawn_npcs', (data) => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        const count = parseInt(data.count) || 1;
+        const maxSpawn = 10; // Safety limit
+        const actualCount = Math.min(count, maxSpawn);
+
+        console.log(`[DEBUG] ${player.name} spawning ${actualCount} NPCs`);
+
+        for (let i = 0; i < actualCount; i++) {
+            gameLoop.world.npcManager.spawnTrader(player.x, player.y);
+        }
+    });
 });
 
 server.listen(PORT, () => {

@@ -212,6 +212,11 @@ document.addEventListener('keydown', (e) => {
         case 'h':
             socket.emit('enterHarbor');
             break;
+        case 'n':
+            // Spawn NPC trader near player
+            socket.emit('spawnNPC');
+            console.log('[NPC] Requested NPC spawn');
+            break;
     }
     sendInput();
 });

@@ -4,6 +4,7 @@ const Harbor = require('./Harbor');
 const GameConfig = require('./GameConfig');
 const WorldMap = require('./WorldMap');
 const HarborRegistry = require('./HarborRegistry');
+const NPCManager = require('./NPCManager');
 
 class World {
     constructor() {
@@ -30,6 +31,9 @@ class World {
             new Harbor(data.id, this.createIslandStub(data), data.name)
         );
 
+        // NPC Manager (Phase 1: Trader NPCs)
+        this.npcManager = new NPCManager(this);
+
         // DEBUG ONLY: Track World creation for early-session collision diagnosis
         // NO gameplay behavior change
         const CombatConfig = require('./CombatConfig');
@@ -55,7 +59,11 @@ class World {
         // Update Wind
         this.wind.update(deltaTime);
 
-        // Update Entities
+        // Update NPC AI (BEFORE entity movement)
+        // NPCs compute inputs, then use same update() as players
+        this.npcManager.update(deltaTime);
+
+        // Update Entities (Players + NPCs use SAME simulation core)
         for (const id in this.entities) {
             this.entities[id].update(deltaTime, this.wind, this.worldMap);
         }
@@ -68,7 +76,11 @@ class World {
             // Collision Detection with Rotated Rectangles
             for (const id in this.entities) {
                 const entity = this.entities[id];
-                if (entity.type === 'PLAYER' && entity.id !== proj.ownerId) {
+                // Check both PLAYER and NPC entities (same combat mechanics)
+                const isShipEntity = (entity.type === 'PLAYER' || entity.type === 'NPC');
+                const isNotOwner = entity.id !== proj.ownerId;
+
+                if (isShipEntity && isNotOwner) {
                     // Skip rafts (invulnerable)
                     if (entity.isRaft) continue;
 
@@ -191,7 +203,9 @@ class World {
             wind: this.wind.serialize()
         };
         for (const id in this.entities) {
-            if (this.entities[id].type === 'PLAYER') {
+            // Include both PLAYER and NPC entities
+            // NPCs serialize identically to players for client rendering
+            if (this.entities[id].type === 'PLAYER' || this.entities[id].type === 'NPC') {
                 state.players[id] = this.entities[id].serialize();
             }
         }
