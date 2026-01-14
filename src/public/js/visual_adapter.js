@@ -53,7 +53,7 @@ const VisualAdapter = {
 
         // Render coastlines (Phase 2)
         if (this.showCoastlines) {
-            this.renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
+            // this.renderCoastlines(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight); // Disabled: Breaks rounded illusion
             // Render corner overlays for curved illusion
             this.renderCornerOverlays(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
         }
@@ -242,7 +242,7 @@ const VisualAdapter = {
      */
     renderCornerOverlays(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight) {
         const tileSize = tilemap.tileSize || 25;
-        const radius = tileSize * 0.5;  // 50% of tile size for visible silhouette change
+        const radius = tileSize * 0.5;
 
         // Calculate visible tile range
         const startTileX = Math.max(0, Math.floor(cameraX / tileSize));
@@ -250,105 +250,115 @@ const VisualAdapter = {
         const endTileX = Math.min(tilemap.width - 1, Math.ceil((cameraX + viewportWidth) / tileSize));
         const endTileY = Math.min(tilemap.height - 1, Math.ceil((cameraY + viewportHeight) / tileSize));
 
-        // Helper: Check if tile is land
-        const isLand = (x, y) => this.getTerrain(tilemap, x, y) === this.TERRAIN.LAND;
-
-        // Helper: Check if tile is water or shallow
-        const isWater = (x, y) => {
-            const terrain = this.getTerrain(tilemap, x, y);
-            return terrain === this.TERRAIN.WATER || terrain === this.TERRAIN.SHALLOW;
-        };
-
-        // Use normal drawing to paint water over land
+        // Use normal drawing to paint over corners
         ctx.globalCompositeOperation = 'source-over';
 
-        // Check each visible tile
+        // Pre-allocate helper closure to get terrain safely
+        const getT = (tx, ty) => {
+            if (tx < 0 || tx >= tilemap.width || ty < 0 || ty >= tilemap.height) return null;
+            return tilemap.tiles[ty][tx];
+        };
+
+        // Drawing helpers for the 4 corners
+        const drawNW = (wx, wy) => {
+            ctx.beginPath();
+            ctx.moveTo(wx, wy + radius);
+            ctx.lineTo(wx, wy); // Corner
+            ctx.lineTo(wx + radius, wy);
+            ctx.arc(wx + radius, wy + radius, radius, -Math.PI / 2, -Math.PI, true);
+            ctx.closePath();
+            ctx.fill();
+        };
+        const drawNE = (wx, wy) => {
+            ctx.beginPath();
+            ctx.moveTo(wx + tileSize - radius, wy);
+            ctx.lineTo(wx + tileSize, wy); // Corner
+            ctx.lineTo(wx + tileSize, wy + radius);
+            ctx.arc(wx + tileSize - radius, wy + radius, radius, 0, -Math.PI / 2, true);
+            ctx.closePath();
+            ctx.fill();
+        };
+        const drawSW = (wx, wy) => {
+            ctx.beginPath();
+            ctx.moveTo(wx, wy + tileSize - radius);
+            ctx.lineTo(wx, wy + tileSize); // Corner
+            ctx.lineTo(wx + radius, wy + tileSize);
+            ctx.arc(wx + radius, wy + tileSize - radius, radius, Math.PI / 2, Math.PI, false);
+            ctx.closePath();
+            ctx.fill();
+        };
+        const drawSE = (wx, wy) => {
+            ctx.beginPath();
+            ctx.moveTo(wx + tileSize - radius, wy + tileSize);
+            ctx.lineTo(wx + tileSize, wy + tileSize); // Corner
+            ctx.lineTo(wx + tileSize, wy + tileSize - radius);
+            ctx.arc(wx + tileSize - radius, wy + tileSize - radius, radius, 0, Math.PI / 2, false);
+            ctx.closePath();
+            ctx.fill();
+        };
+
         for (let tileY = startTileY; tileY <= endTileY; tileY++) {
             for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-                const terrain = this.getTerrain(tilemap, tileX, tileY);
-                let overlayColor = null;
-                let isSurroundingType = null;
+                const terrain = tilemap.tiles[tileY][tileX];
 
-                // Case 1: LAND surrounded by WATER/SHALLOW -> Paint SHALLOW
-                if (terrain === this.TERRAIN.LAND) {
-                    overlayColor = this.colors.SHALLOW;
-                    isSurroundingType = (tx, ty) => {
-                        const t = this.getTerrain(tilemap, tx, ty);
-                        return t === this.TERRAIN.WATER || t === this.TERRAIN.SHALLOW;
-                    };
-                }
-                // Case 2: SHALLOW surrounded by DEEP WATER -> Paint DEEP WATER
-                else if (terrain === this.TERRAIN.SHALLOW) {
-                    overlayColor = this.colors.WATER;
-                    isSurroundingType = (tx, ty) => {
-                        const t = this.getTerrain(tilemap, tx, ty);
-                        return t === this.TERRAIN.WATER;
-                    };
-                }
-                // Skip if not a target tile type
-                else {
-                    continue;
-                }
-
-                // Set color
-                ctx.fillStyle = overlayColor;
+                // Cache neighbors
+                const n = getT(tileX, tileY - 1);
+                const s = getT(tileX, tileY + 1);
+                const e = getT(tileX + 1, tileY);
+                const w = getT(tileX - 1, tileY);
+                const nw = getT(tileX - 1, tileY - 1);
+                const ne = getT(tileX + 1, tileY - 1);
+                const sw = getT(tileX - 1, tileY + 1);
+                const se = getT(tileX + 1, tileY + 1);
 
                 const worldX = tileX * tileSize;
                 const worldY = tileY * tileSize;
 
-                // Get neighbors using the correct predicate
-                const north = isSurroundingType(tileX, tileY - 1);
-                const south = isSurroundingType(tileX, tileY + 1);
-                const east = isSurroundingType(tileX + 1, tileY);
-                const west = isSurroundingType(tileX - 1, tileY);
+                // --- CASE 1: LAND TILE (Round against Water) ---
+                if (terrain === this.TERRAIN.LAND) {
+                    ctx.fillStyle = this.colors.SHALLOW; // Paint with Shallow Water
+                    const isWater = t => t === this.TERRAIN.WATER || t === this.TERRAIN.SHALLOW;
 
-                const nw = isSurroundingType(tileX - 1, tileY - 1);
-                const ne = isSurroundingType(tileX + 1, tileY - 1);
-                const sw = isSurroundingType(tileX - 1, tileY + 1);
-                const se = isSurroundingType(tileX + 1, tileY + 1);
-
-                // NW Outer Corner (Top-Left)
-                if (north && west && nw) {
-                    ctx.beginPath();
-                    ctx.moveTo(worldX, worldY + radius);      // Left edge
-                    ctx.lineTo(worldX, worldY);               // Corner
-                    ctx.lineTo(worldX + radius, worldY);      // Top edge
-                    ctx.arc(worldX + radius, worldY + radius, radius, -Math.PI / 2, -Math.PI, true);
-                    ctx.closePath();
-                    ctx.fill();
+                    if (isWater(n) && isWater(w) && isWater(nw)) drawNW(worldX, worldY);
+                    if (isWater(n) && isWater(e) && isWater(ne)) drawNE(worldX, worldY);
+                    if (isWater(s) && isWater(w) && isWater(sw)) drawSW(worldX, worldY);
+                    if (isWater(s) && isWater(e) && isWater(se)) drawSE(worldX, worldY);
                 }
 
-                // NE Outer Corner (Top-Right)
-                if (north && east && ne) {
-                    ctx.beginPath();
-                    ctx.moveTo(worldX + tileSize - radius, worldY); // Top edge
-                    ctx.lineTo(worldX + tileSize, worldY);          // Corner
-                    ctx.lineTo(worldX + tileSize, worldY + radius); // Right edge
-                    ctx.arc(worldX + tileSize - radius, worldY + radius, radius, 0, -Math.PI / 2, true);
-                    ctx.closePath();
-                    ctx.fill();
+                // --- CASE 2 & 3: SHALLOW WATER TILE ---
+                else if (terrain === this.TERRAIN.SHALLOW) {
+
+                    // Sub-case A: Round against Deep Water (Convex Shallow)
+                    // Check if corner is surrounded by Deep Water
+                    ctx.fillStyle = this.colors.WATER; // Paint with Deep Water
+                    const isDeep = t => t === this.TERRAIN.WATER;
+
+                    if (isDeep(n) && isDeep(w) && isDeep(nw)) drawNW(worldX, worldY);
+                    if (isDeep(n) && isDeep(e) && isDeep(ne)) drawNE(worldX, worldY);
+                    if (isDeep(s) && isDeep(w) && isDeep(sw)) drawSW(worldX, worldY);
+                    if (isDeep(s) && isDeep(e) && isDeep(se)) drawSE(worldX, worldY);
+
+                    // Sub-case B: Round against Land (Inner Land Corner)
+                    // Check if neighbor is Land (Concave/Inner Coastline)
+                    ctx.fillStyle = this.colors.LAND; // Paint with Land
+                    const isLand = t => t === this.TERRAIN.LAND;
+
+                    if (isLand(n) && isLand(w) && isLand(nw)) drawNW(worldX, worldY);
+                    if (isLand(n) && isLand(e) && isLand(ne)) drawNE(worldX, worldY);
+                    if (isLand(s) && isLand(w) && isLand(sw)) drawSW(worldX, worldY);
+                    if (isLand(s) && isLand(e) && isLand(se)) drawSE(worldX, worldY);
                 }
 
-                // SW Outer Corner (Bottom-Left)
-                if (south && west && sw) {
-                    ctx.beginPath();
-                    ctx.moveTo(worldX, worldY + tileSize - radius); // Left edge
-                    ctx.lineTo(worldX, worldY + tileSize);          // Corner
-                    ctx.lineTo(worldX + radius, worldY + tileSize); // Bottom edge
-                    ctx.arc(worldX + radius, worldY + tileSize - radius, radius, Math.PI / 2, Math.PI, false);
-                    ctx.closePath();
-                    ctx.fill();
-                }
+                // --- CASE 4: DEEP WATER TILE (Inner Shallow Corner) ---
+                else if (terrain === this.TERRAIN.WATER) {
+                    // Check if neighbor is Shallow (Concave/Inner Shallow)
+                    ctx.fillStyle = this.colors.SHALLOW; // Paint with Shallow Water
+                    const isShallow = t => t === this.TERRAIN.SHALLOW;
 
-                // SE Outer Corner (Bottom-Right)
-                if (south && east && se) {
-                    ctx.beginPath();
-                    ctx.moveTo(worldX + tileSize - radius, worldY + tileSize); // Bottom edge
-                    ctx.lineTo(worldX + tileSize, worldY + tileSize);          // Corner
-                    ctx.lineTo(worldX + tileSize, worldY + tileSize - radius); // Right edge
-                    ctx.arc(worldX + tileSize - radius, worldY + tileSize - radius, radius, 0, Math.PI / 2, false);
-                    ctx.closePath();
-                    ctx.fill();
+                    if (isShallow(n) && isShallow(w) && isShallow(nw)) drawNW(worldX, worldY);
+                    if (isShallow(n) && isShallow(e) && isShallow(ne)) drawNE(worldX, worldY);
+                    if (isShallow(s) && isShallow(w) && isShallow(sw)) drawSW(worldX, worldY);
+                    if (isShallow(s) && isShallow(e) && isShallow(se)) drawSE(worldX, worldY);
                 }
             }
         }
