@@ -48,7 +48,7 @@ const VisualAdapter = {
 
         // Render shallow water gradients (Phase 3)
         if (this.showShallowGradients) {
-            this.renderShallowWaterGradients(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight);
+            // this.renderShallowWaterGradients(ctx, tilemap, cameraX, cameraY, viewportWidth, viewportHeight); // Disabled: Removed "light blue frames"
         }
 
         // Render coastlines (Phase 2)
@@ -98,8 +98,8 @@ const VisualAdapter = {
                 ctx.fillRect(
                     tileX * tileSize,
                     tileY * tileSize,
-                    tileSize,
-                    tileSize
+                    tileSize + 1, // Overlap to prevent sub-pixel seams
+                    tileSize + 1
                 );
             }
         }
@@ -260,6 +260,7 @@ const VisualAdapter = {
         };
 
         // Drawing helpers for the 4 corners
+        // Added stroke to seal pixel gaps (seams)
         const drawNW = (wx, wy) => {
             ctx.beginPath();
             ctx.moveTo(wx, wy + radius);
@@ -268,6 +269,9 @@ const VisualAdapter = {
             ctx.arc(wx + radius, wy + radius, radius, -Math.PI / 2, -Math.PI, true);
             ctx.closePath();
             ctx.fill();
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 1;
+            ctx.stroke();
         };
         const drawNE = (wx, wy) => {
             ctx.beginPath();
@@ -277,6 +281,9 @@ const VisualAdapter = {
             ctx.arc(wx + tileSize - radius, wy + radius, radius, 0, -Math.PI / 2, true);
             ctx.closePath();
             ctx.fill();
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 1;
+            ctx.stroke();
         };
         const drawSW = (wx, wy) => {
             ctx.beginPath();
@@ -286,6 +293,9 @@ const VisualAdapter = {
             ctx.arc(wx + radius, wy + tileSize - radius, radius, Math.PI / 2, Math.PI, false);
             ctx.closePath();
             ctx.fill();
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 1;
+            ctx.stroke();
         };
         const drawSE = (wx, wy) => {
             ctx.beginPath();
@@ -295,6 +305,9 @@ const VisualAdapter = {
             ctx.arc(wx + tileSize - radius, wy + tileSize - radius, radius, 0, Math.PI / 2, false);
             ctx.closePath();
             ctx.fill();
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 1;
+            ctx.stroke();
         };
 
         for (let tileY = startTileY; tileY <= endTileY; tileY++) {
