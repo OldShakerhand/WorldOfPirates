@@ -1,6 +1,7 @@
 const Ship = require('./Ship');
 const GameConfig = require('./GameConfig');
 const PhysicsConfig = require('./PhysicsConfig');
+const NavigationConfig = require('./NavigationConfig');
 
 /**
  * NPCShip - Non-player ship entity
@@ -78,6 +79,11 @@ class NPCShip {
         // Stuck detection (prevent infinite collision spam)
         this.consecutiveCollisions = 0;
         this.maxConsecutiveCollisions = 10; // Despawn after 10 consecutive collisions
+
+        // Navigation state (Phase 2: Predictive navigation)
+        this.desiredHeading = this.rotation; // Ideal heading toward target
+        this.currentHeading = this.rotation; // Actual heading (may differ due to obstacles)
+        this.navUpdateCounter = 0; // Counter for navigation update interval
     }
 
     get flagship() {
@@ -119,7 +125,7 @@ class NPCShip {
 
     /**
      * AI Input Computation
-     * Replaces socket-driven inputs with state machine logic
+     * Phase 2: Predictive navigation with obstacle avoidance
      */
     computeAIInputs(world) {
         // Reset inputs
@@ -141,17 +147,24 @@ class NPCShip {
                 return;
             }
 
-            // Calculate bearing to target
+            // 1. Compute desired heading (ideal path to target)
             const dx = targetHarbor.x - this.x;
             const dy = targetHarbor.y - this.y;
-            const targetBearing = Math.atan2(dy, dx) + Math.PI / 2; // Convert to ship rotation convention
+            this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2; // Convert to ship rotation convention
 
-            // Normalize angle difference to [-PI, PI]
-            let angleDiff = targetBearing - this.rotation;
+            // 2. Update navigation (check for obstacles and adjust currentHeading)
+            if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+                this.navUpdateCounter = 0;
+                this.updateNavigation(world.worldMap);
+            }
+
+            // 3. Steer toward currentHeading (not desiredHeading)
+            let angleDiff = this.currentHeading - this.rotation;
+            // Normalize to [-PI, PI]
             while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
             while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
-            // Steering logic (simple proportional control)
+            // Steering logic
             const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
             if (angleDiff > TURN_THRESHOLD) {
                 this.inputs.right = true;
@@ -181,6 +194,130 @@ class NPCShip {
             }
         }
         // DESPAWNING state: no inputs needed
+    }
+
+    /**
+     * Update Navigation - Predictive obstacle avoidance
+     * Checks for obstacles ahead and adjusts currentHeading accordingly
+     */
+    updateNavigation(worldMap) {
+        const lookAhead = NavigationConfig.LOOK_AHEAD_TILES * GameConfig.TILE_SIZE;
+
+        // Check both current and desired headings
+        const currentIsClear = this.isHeadingClear(this.currentHeading, lookAhead, worldMap);
+        const desiredIsClear = this.isHeadingClear(this.desiredHeading, lookAhead, worldMap);
+
+        if (currentIsClear && desiredIsClear) {
+            // Both paths clear - gradually converge to desired heading
+            this.currentHeading = this.smoothInterpolate(
+                this.currentHeading,
+                this.desiredHeading,
+                NavigationConfig.NPC_TURN_SMOOTHING * (1 / 60)
+            );
+
+            if (NavigationConfig.DEBUG_NAVIGATION) {
+                console.log(`[NAV] ${this.id} | Both clear, converging to desired`);
+            }
+        } else if (!currentIsClear && desiredIsClear) {
+            // Current blocked, desired clear - re-acquire direct path
+            this.currentHeading = this.smoothInterpolate(
+                this.currentHeading,
+                this.desiredHeading,
+                NavigationConfig.NPC_TURN_SMOOTHING * (1 / 60)
+            );
+
+            if (NavigationConfig.DEBUG_NAVIGATION) {
+                console.log(`[NAV] ${this.id} | Re-acquiring direct path`);
+            }
+        } else if (!currentIsClear) {
+            // Current path blocked - find alternative
+            const alternative = this.findClearHeading(worldMap, lookAhead);
+            if (alternative !== null) {
+                this.currentHeading = alternative;
+
+                if (NavigationConfig.DEBUG_NAVIGATION) {
+                    const altDeg = (alternative * 180 / Math.PI).toFixed(0);
+                    console.log(`[NAV] ${this.id} | Avoiding obstacle, new heading: ${altDeg}°`);
+                }
+            } else {
+                // No clear path found - turn perpendicular and mark as stuck
+                this.currentHeading = this.desiredHeading + Math.PI / 2;
+                this.consecutiveCollisions++;
+
+                console.log(`[NPC] ${this.id} | No clear path found, turning perpendicular`);
+            }
+        }
+        // else: current clear, desired blocked - keep currentHeading (hysteresis)
+    }
+
+    /**
+     * Check if a heading is clear of obstacles
+     * @param {number} heading - Heading to test (radians)
+     * @param {number} lookAheadDistance - Distance to look ahead (pixels)
+     * @param {WorldMap} worldMap - World map for collision detection
+     * @returns {boolean} True if path is clear
+     */
+    isHeadingClear(heading, lookAheadDistance, worldMap) {
+        const samples = Math.ceil(lookAheadDistance / GameConfig.TILE_SIZE);
+
+        for (let i = 1; i <= samples; i++) {
+            const dist = i * GameConfig.TILE_SIZE;
+            // Convert heading to world coordinates (heading - PI/2 for ship convention)
+            const x = this.x + Math.cos(heading - Math.PI / 2) * dist;
+            const y = this.y + Math.sin(heading - Math.PI / 2) * dist;
+
+            if (worldMap.isLand(x, y)) {
+                return false; // Obstacle detected
+            }
+        }
+
+        return true; // Path is clear
+    }
+
+    /**
+     * Find a clear alternative heading
+     * Tests search angles and returns first clear heading that makes forward progress
+     * @param {WorldMap} worldMap - World map for collision detection
+     * @param {number} lookAheadDistance - Distance to look ahead
+     * @returns {number|null} Clear heading or null if none found
+     */
+    findClearHeading(worldMap, lookAheadDistance) {
+        for (const angle of NavigationConfig.SEARCH_ANGLES) {
+            const testHeading = this.desiredHeading + angle;
+
+            // Check if heading is clear
+            if (this.isHeadingClear(testHeading, lookAheadDistance, worldMap)) {
+                // Check if still making forward progress toward target
+                const progressDot = Math.cos(testHeading - this.desiredHeading);
+
+                if (progressDot >= NavigationConfig.MIN_PROGRESS_DOT) {
+                    return testHeading; // Found a good alternative
+                }
+            }
+        }
+
+        return null; // No clear heading found
+    }
+
+    /**
+     * Smooth angular interpolation
+     * Gradually turns from current to target heading
+     * @param {number} current - Current heading (radians)
+     * @param {number} target - Target heading (radians)
+     * @param {number} maxTurnRate - Maximum turn rate (radians per tick)
+     * @returns {number} New heading
+     */
+    smoothInterpolate(current, target, maxTurnRate) {
+        let diff = target - current;
+
+        // Normalize to [-PI, PI]
+        while (diff > Math.PI) diff -= 2 * Math.PI;
+        while (diff < -Math.PI) diff += 2 * Math.PI;
+
+        // Clamp to max turn rate
+        const turn = Math.max(-maxTurnRate, Math.min(maxTurnRate, diff));
+
+        return current + turn;
     }
 
     /**

@@ -48,10 +48,21 @@ class GameLoop {
 
         const avgTick = this.tickTimes.reduce((a, b) => a + b, 0) / this.tickTimes.length;
         const maxTick = Math.max(...this.tickTimes);
-        const playerCount = Object.keys(this.world.entities).length;
+
+        // Count NPCs and Players separately
+        let playerCount = 0;
+        let npcCount = 0;
+        for (const id in this.world.entities) {
+            const entity = this.world.entities[id];
+            if (entity.type === 'PLAYER') {
+                playerCount++;
+            } else if (entity.type === 'NPC') {
+                npcCount++;
+            }
+        }
         const projectileCount = this.world.projectiles.length;
 
-        console.log(`[Performance] Avg tick: ${avgTick.toFixed(2)}ms | Max: ${maxTick.toFixed(2)}ms | Players: ${playerCount} | Projectiles: ${projectileCount}`);
+        console.log(`[Performance] Avg tick: ${avgTick.toFixed(2)}ms | Max: ${maxTick.toFixed(2)}ms | Players: ${playerCount} | NPCs: ${npcCount} | Projectiles: ${projectileCount}`);
 
         // Warn if performance is degrading
         // TODO: Make performance threshold configurable (TECH_DEBT_002)
