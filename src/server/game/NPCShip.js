@@ -2,6 +2,8 @@ const Ship = require('./Ship');
 const GameConfig = require('./GameConfig');
 const PhysicsConfig = require('./PhysicsConfig');
 const NavigationConfig = require('./NavigationConfig');
+const CombatConfig = require('./CombatConfig');
+const CombatNPCConfig = require('./CombatNPCConfig');
 
 /**
  * NPCShip - Non-player ship entity
@@ -84,6 +86,11 @@ class NPCShip {
         this.desiredHeading = this.rotation; // Ideal heading toward target
         this.currentHeading = this.rotation; // Actual heading (may differ due to obstacles)
         this.navUpdateCounter = 0; // Counter for navigation update interval
+
+        // Combat state (Phase Combat-NPC 1A: Combat NPCs)
+        this.combatTarget = null;  // Player entity ID or null
+        this.combatDistance = CombatConfig.PROJECTILE_MAX_DISTANCE * 0.8;  // 80% of max range
+        this.combatSide = CombatNPCConfig.DEFAULT_COMBAT_SIDE;  // 'PORT' or 'STARBOARD'
     }
 
     get flagship() {
@@ -112,12 +119,14 @@ class NPCShip {
     }
 
     get cannonsPerSide() {
-        return 0; // NPCs don't fire in Phase 1
+        if (this.isRaft) return 0;
+        return this.flagship.shipClass.cannonsPerSide;
     }
 
     generateName(npcType) {
         const names = {
-            TRADER: ['Merchant Vessel', 'Trading Ship', 'Cargo Runner', 'Supply Ship']
+            TRADER: ['Merchant Vessel', 'Trading Ship', 'Cargo Runner', 'Supply Ship'],
+            PIRATE: ['Pirate Scourge', 'Black Revenge', 'Sea Wolf', 'Crimson Tide', 'Dark Fortune']
         };
         const nameList = names[npcType] || ['NPC Ship'];
         return nameList[Math.floor(Math.random() * nameList.length)];
@@ -126,6 +135,7 @@ class NPCShip {
     /**
      * AI Input Computation
      * Phase 2: Predictive navigation with obstacle avoidance
+     * Phase Combat-NPC 1A: Combat behavior for pirates
      */
     computeAIInputs(world) {
         // Reset inputs
@@ -138,7 +148,72 @@ class NPCShip {
             shootRight: false
         };
 
-        if (this.state === 'SAILING') {
+        if (this.npcType === 'PIRATE' && this.state === 'SAILING') {
+            // === COMBAT BEHAVIOR ===
+
+            // 1. Select combat target
+            this.selectCombatTarget(world);
+
+            if (!this.combatTarget) {
+                // No target - despawn
+                this.state = 'DESPAWNING';
+                return;
+            }
+
+            const target = world.entities[this.combatTarget];
+            if (!target) {
+                // Target disappeared
+                this.combatTarget = null;
+                this.state = 'DESPAWNING';
+                return;
+            }
+
+            // 2. Compute combat position and heading
+            const combatPos = this.computeCombatPosition(target);
+            const distToPosition = Math.hypot(combatPos.x - this.x, combatPos.y - this.y);
+
+            // Blend movement toward position with rotation for broadside
+            if (distToPosition > CombatNPCConfig.POSITION_THRESHOLD) {
+                // Far from position - move toward it
+                const dx = combatPos.x - this.x;
+                const dy = combatPos.y - this.y;
+                this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2;
+            } else {
+                // Near position - rotate for broadside
+                this.desiredHeading = this.computeDesiredCombatHeading(target);
+            }
+
+            // 3. Update navigation (obstacle avoidance)
+            if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+                this.navUpdateCounter = 0;
+                this.updateNavigation(world.worldMap);
+            }
+
+            // 4. Steer toward currentHeading
+            let angleDiff = this.currentHeading - this.rotation;
+            while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+            while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+            const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
+            if (angleDiff > TURN_THRESHOLD) {
+                this.inputs.right = true;
+            } else if (angleDiff < -TURN_THRESHOLD) {
+                this.inputs.left = true;
+            }
+
+            // 5. Sail management (use half sails)
+            if (this.sailState < 1) {
+                this.inputs.sailUp = true;
+            } else if (this.sailState > 1) {
+                this.inputs.sailDown = true;
+            }
+
+            // 6. Attempt to fire cannons
+            this.attemptCombatFire(world, target);
+        }
+        else if (this.npcType === 'TRADER' && this.state === 'SAILING') {
+            // === TRADER BEHAVIOR ===
+
             // Find target harbor
             const targetHarbor = world.harbors.find(h => h.id === this.targetHarborId);
             if (!targetHarbor) {
@@ -318,6 +393,126 @@ class NPCShip {
         const turn = Math.max(-maxTurnRate, Math.min(maxTurnRate, diff));
 
         return current + turn;
+    }
+
+    /**
+     * Combat: Select Combat Target
+     * Finds nearest player within engagement range
+     */
+    selectCombatTarget(world) {
+        let nearestPlayer = null;
+        let nearestDist = Infinity;
+
+        for (const id in world.entities) {
+            const entity = world.entities[id];
+            if (entity.type === 'PLAYER') {
+                const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
+
+                // Check if within engagement range
+                if (dist < CombatNPCConfig.MAX_ENGAGEMENT_RANGE && dist < nearestDist) {
+                    // Validate target (not in harbor, not sunk)
+                    if (!entity.inHarbor && !entity.isRaft && entity.flagship && !entity.flagship.isSunk) {
+                        nearestDist = dist;
+                        nearestPlayer = entity;
+                    }
+                }
+            }
+        }
+
+        this.combatTarget = nearestPlayer ? nearestPlayer.id : null;
+    }
+
+    /**
+     * Combat: Compute Combat Position
+     * Returns desired position for broadside attack
+     */
+    computeCombatPosition(target) {
+        // Position perpendicular to target for broadside
+        const attackAngle = this.combatSide === 'PORT'
+            ? target.rotation + Math.PI / 2   // Attack from target's left
+            : target.rotation - Math.PI / 2;  // Attack from target's right
+
+        // Compute position at combatDistance from target
+        const goalX = target.x + Math.cos(attackAngle - Math.PI / 2) * this.combatDistance;
+        const goalY = target.y + Math.sin(attackAngle - Math.PI / 2) * this.combatDistance;
+
+        return { x: goalX, y: goalY };
+    }
+
+    /**
+     * Combat: Compute Desired Combat Heading
+     * Returns heading for broadside positioning
+     */
+    computeDesiredCombatHeading(target) {
+        // Vector from NPC to target
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
+        const angleToTarget = Math.atan2(dy, dx) + Math.PI / 2;
+
+        // Desired heading: perpendicular to target vector for broadside
+        const desiredHeading = this.combatSide === 'PORT'
+            ? angleToTarget + Math.PI / 2  // Face left of target vector
+            : angleToTarget - Math.PI / 2; // Face right of target vector
+
+        return desiredHeading;
+    }
+
+    /**
+     * Combat: Attempt to Fire Cannons
+     * Fires broadsides if target is in range and arc
+     */
+    attemptCombatFire(world, target) {
+        const dist = Math.hypot(target.x - this.x, target.y - this.y);
+
+        // Check range (Limit to 90% of max range to ensure better hit probability)
+        if (dist > CombatConfig.PROJECTILE_MAX_DISTANCE * 0.9) {
+            return; // Out of effective range
+        }
+
+        // Check which broadside can fire
+        const angleToTarget = Math.atan2(target.y - this.y, target.x - this.x) + Math.PI / 2;
+        let angleDiff = angleToTarget - this.rotation;
+
+        // Normalize to [-PI, PI]
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+        const BROADSIDE_SECTOR = Math.PI / 18; // ±10° tolerance around 90° for firing (very strict)
+        const now = Date.now() / 1000;
+
+        // Starboard firing check (Target must be approx +90° / +PI/2 relative to bow)
+        // angleDiff is (TargetDir - ShipDir). If Target is Right, angleDiff ~= PI/2
+        if (Math.abs(angleDiff - Math.PI / 2) < BROADSIDE_SECTOR) {
+            if (now - this.lastShotTimeRight >= CombatConfig.CANNON_FIRE_RATE) {
+                this.inputs.shootRight = true;
+                // GameLoop handles timestamp update upon actual firing
+
+                if (CombatNPCConfig.DEBUG_COMBAT) {
+                    console.log(`[COMBAT] ${this.id} firing STARBOARD at ${target.id}`);
+                }
+            } else if (CombatNPCConfig.DEBUG_COMBAT && Math.random() < 0.1) {
+                console.log(`[COMBAT] ${this.id} Starboard cooldown (${(now - this.lastShotTimeRight).toFixed(1)}s < ${CombatConfig.CANNON_FIRE_RATE})`);
+            }
+        }
+        // Port firing check (Target must be approx -90° / -PI/2 relative to bow)
+        // angleDiff is (TargetDir - ShipDir). If Target is Left, angleDiff ~= -PI/2
+        else if (Math.abs(angleDiff + Math.PI / 2) < BROADSIDE_SECTOR) {
+            if (now - this.lastShotTimeLeft >= CombatConfig.CANNON_FIRE_RATE) {
+                this.inputs.shootLeft = true;
+                // GameLoop handles timestamp update upon actual firing
+
+                if (CombatNPCConfig.DEBUG_COMBAT) {
+                    console.log(`[COMBAT] ${this.id} firing PORT at ${target.id}`);
+                }
+            } else if (CombatNPCConfig.DEBUG_COMBAT && Math.random() < 0.1) {
+                console.log(`[COMBAT] ${this.id} Port cooldown (${(now - this.lastShotTimeLeft).toFixed(1)}s < ${CombatConfig.CANNON_FIRE_RATE})`);
+            }
+        }
+        else if (CombatNPCConfig.DEBUG_COMBAT && Math.random() < 0.05) {
+            // Log angle mismatch occasionally (5% chance per tick to avoid spam)
+            const deg = angleDiff * 180 / Math.PI;
+            console.log(`[COMBAT] ${this.id} NO SHOT - Angle: ${deg.toFixed(0)}° (Need ~90° or ~-90°)`);
+        }
     }
 
     /**

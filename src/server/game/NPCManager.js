@@ -1,5 +1,6 @@
 const NPCShip = require('./NPCShip');
 const GameConfig = require('./GameConfig');
+const CombatConfig = require('./CombatConfig');
 
 /**
  * NPCManager - Handles NPC lifecycle and spawning
@@ -51,6 +52,38 @@ class NPCManager {
         this.world.addEntity(npc);
 
         console.log(`[NPCManager] Spawned ${npcId} at (${Math.round(spawnX)}, ${Math.round(spawnY)}) targeting ${targetHarbor.name}`);
+
+        return npc;
+    }
+
+    /**
+     * Spawn a pirate NPC near a given position
+     * @param {number} nearX - X coordinate to spawn near
+     * @param {number} nearY - Y coordinate to spawn near
+     * @param {string} targetPlayerId - Player ID to attack
+     * @param {number} spawnRadius - How far from position to spawn (default 500)
+     * @returns {NPCShip} The spawned pirate NPC
+     */
+    spawnPirate(nearX, nearY, targetPlayerId, spawnRadius = 500) {
+        // Generate spawn position (offset from player)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 200 + Math.random() * (spawnRadius - 200); // Min 200px away
+        const spawnX = nearX + Math.cos(angle) * distance;
+        const spawnY = nearY + Math.sin(angle) * distance;
+
+        // Create pirate NPC
+        const npcId = `npc_pirate_${this.npcIdCounter++}`;
+        const npc = new NPCShip(npcId, spawnX, spawnY, null, 'PIRATE');
+
+        // Set combat target
+        npc.combatTarget = targetPlayerId;
+        npc.fireRate = CombatConfig.CANNON_FIRE_RATE;
+
+        // Register NPC
+        this.npcs.set(npcId, npc);
+        this.world.addEntity(npc);
+
+        console.log(`[NPCManager] Spawned pirate ${npcId} at (${Math.round(spawnX)}, ${Math.round(spawnY)}) targeting ${targetPlayerId}`);
 
         return npc;
     }

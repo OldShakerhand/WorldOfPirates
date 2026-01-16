@@ -217,6 +217,11 @@ document.addEventListener('keydown', (e) => {
             socket.emit('spawnNPC');
             console.log('[NPC] Requested NPC spawn');
             break;
+        case 'p':
+            // Spawn combat NPC (pirate) near player
+            socket.emit('spawnCombatNPC');
+            console.log('[COMBAT] Requested pirate spawn');
+            break;
     }
     sendInput();
 });

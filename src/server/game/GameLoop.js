@@ -2,6 +2,7 @@ const World = require('./World');
 const Player = require('./Player');
 const GameConfig = require('./GameConfig');
 const CombatConfig = require('./CombatConfig');
+const CombatNPCConfig = require('./CombatNPCConfig');
 
 class GameLoop {
     constructor(io) {
@@ -97,6 +98,36 @@ class GameLoop {
         }
 
         this.world.update(deltaTime);
+
+        // Process NPC firing inputs (NPCs set inputs, but need GameLoop to fire)
+        for (const id in this.world.entities) {
+            const entity = this.world.entities[id];
+            if (entity.type === 'NPC' && !entity.isRaft) {
+                const now = Date.now() / 1000;
+
+                // Handle NPC Left Broadside (Port)
+                if (entity.inputs.shootLeft) {
+                    if (now - entity.lastShotTimeLeft >= entity.fireRate) {
+                        if (CombatNPCConfig.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing LEFT (Port) for ${id}`);
+
+                        const baseAngle = entity.rotation + Math.PI;
+                        this.fireCannons(entity, baseAngle);
+                        entity.lastShotTimeLeft = now;
+                    }
+                }
+
+                // Handle NPC Right Broadside (Starboard)
+                if (entity.inputs.shootRight) {
+                    if (now - entity.lastShotTimeRight >= entity.fireRate) {
+                        if (CombatNPCConfig.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing RIGHT (Starboard) for ${id}`);
+
+                        const baseAngle = entity.rotation;
+                        this.fireCannons(entity, baseAngle);
+                        entity.lastShotTimeRight = now;
+                    }
+                }
+            }
+        }
 
         // Send game state to all connected clients
         this.io.emit('gamestate_update', this.world.getState());
@@ -296,7 +327,10 @@ class GameLoop {
     fireCannons(player, baseAngle) {
         const cannonCount = player.cannonsPerSide;
 
-        if (cannonCount === 0) return; // No cannons (shouldn't happen, but safety check)
+        if (cannonCount === 0) {
+            if (CombatNPCConfig.DEBUG_COMBAT) console.warn(`[GAMELOOP] ${player.id} tried to fire but has 0 cannons!`);
+            return; // No cannons (shouldn't happen, but safety check)
+        }
 
         // Get ship class for dimensions
         const shipClass = player.flagship.shipClass;

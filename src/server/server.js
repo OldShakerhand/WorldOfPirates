@@ -133,6 +133,31 @@ io.on('connection', (socket) => {
             gameLoop.world.npcManager.spawnTrader(player.x, player.y);
         }
     });
+
+    // Combat NPC Spawn: P key (spawn single pirate near player)
+    socket.on('spawnCombatNPC', () => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        console.log(`[COMBAT] ${player.name} requested pirate spawn`);
+        gameLoop.world.npcManager.spawnPirate(player.x, player.y, socket.id);
+    });
+
+    // DEBUG: Spawn multiple pirates (command: /spawn_pirates N)
+    socket.on('debug_spawn_pirates', (data) => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        const count = parseInt(data.count) || 1;
+        const maxSpawn = 10; // Safety limit
+        const actualCount = Math.min(count, maxSpawn);
+
+        console.log(`[DEBUG] ${player.name} spawning ${actualCount} pirates`);
+
+        for (let i = 0; i < actualCount; i++) {
+            gameLoop.world.npcManager.spawnPirate(player.x, player.y, socket.id);
+        }
+    });
 });
 
 server.listen(PORT, () => {
