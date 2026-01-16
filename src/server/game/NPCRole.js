@@ -16,8 +16,8 @@ const NPCRoles = {
         name: 'Trader',
         description: 'Peaceful merchant traveling between harbors',
 
-        // Ship preferences
-        shipClasses: ['FLUYT', 'MERCHANT'],
+        // Ship preferences (TODO: Add MERCHANT when assets available)
+        shipClasses: ['FLUYT'],
 
         // Behavior parameters
         defaultIntent: 'TRAVEL',
@@ -35,8 +35,8 @@ const NPCRoles = {
         name: 'Pirate',
         description: 'Hostile NPC that actively engages players',
 
-        // Ship preferences
-        shipClasses: ['SLOOP', 'BARQUE', 'FRIGATE'],
+        // Ship preferences (TODO: Add SLOOP, BARQUE, FRIGATE when assets available)
+        shipClasses: ['FLUYT'],
 
         // Behavior parameters
         defaultIntent: 'ENGAGE',
@@ -54,8 +54,8 @@ const NPCRoles = {
         name: 'Patrol',
         description: 'Defensive NPC that guards trade routes',
 
-        // Ship preferences
-        shipClasses: ['FRIGATE', 'WAR_GALLEON'],
+        // Ship preferences (TODO: Add FRIGATE, WAR_GALLEON when assets available)
+        shipClasses: ['FLUYT'],
 
         // Behavior parameters
         defaultIntent: 'TRAVEL',
