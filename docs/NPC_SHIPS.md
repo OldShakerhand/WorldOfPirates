@@ -158,6 +158,117 @@ SAILING → STOPPED → DESPAWNING
 
 ---
 
+### Phase 3.5: NPC System Consolidation 🔄 (Planned)
+
+**Status:** Planned - Formalize existing structure without adding features
+
+**Goal:** Make roles, combat capability, and intent explicit and consistent. This is about **structure and clarity**, not expansion.
+
+#### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────┐
+│  ROLE (What am I?)                              │
+│  - Parameter sets: TRADER, PIRATE, PATROL       │
+│  - Defines identity, ship class, aggression     │
+└─────────────────────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────┐
+│  INTENT (Why am I acting?)                      │
+│  - Current objective: TRAVEL, ENGAGE, EVADE     │
+│  - Changes based on situation                   │
+└─────────────────────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────┐
+│  CAPABILITIES (How do I act?)                   │
+│  - Navigation (existing, unchanged)             │
+│  - Combat (overlay, situational)                │
+└─────────────────────────────────────────────────┘
+```
+
+#### 1. Role System (Explicit Identity)
+
+**Concept:** Roles are parameter sets, not separate code paths.
+
+**Role Definitions:**
+- **TRADER**: Defensive only, flees at 50% HP, no pursuit
+- **PIRATE**: Always hostile, flees at 20% HP, pursues targets
+- **PATROL**: Defensive, flees at 30% HP, no pursuit
+
+**Implementation:**
+- `NPCRole.js` - Role configuration file
+- Roles define: ship classes, aggression, flee threshold, engagement range
+- Existing `npcType` replaced with `role`
+
+#### 2. Intent System (Explicit Objectives)
+
+**Concept:** Intent describes **why** NPCs act, not **how**.
+
+**Intent Types:**
+- `TRAVEL` - Navigate to destination (traders, patrols)
+- `ENGAGE` - Pursue and attack target (pirates)
+- `EVADE` - Flee from threat (damaged NPCs)
+- `WAIT` - Stopped at harbor/waypoint
+- `DESPAWNING` - Cleanup
+
+**Intent Transitions:**
+```
+TRADER: TRAVEL → (attacked) → EVADE → (safe) → TRAVEL
+PIRATE: ENGAGE → (low HP) → EVADE → (safe) → ENGAGE
+PATROL: TRAVEL → (attacked) → ENGAGE → (safe) → TRAVEL
+```
+
+#### 3. Combat Overlay (Situational Capability)
+
+**Concept:** Combat is a capability, not a role. Activated based on intent.
+
+**Features:**
+- `CombatOverlay.js` - Extracted combat logic
+- Traders can defend themselves (return fire without pursuing)
+- Pirates always engage (existing behavior)
+- Combat activates/deactivates based on intent
+
+**Defensive Combat (New):**
+- Traders return fire when attacked
+- Do not pursue targets
+- Deactivate when threat leaves range
+
+#### What Changes
+
+✅ Structure becomes explicit and debuggable  
+✅ Combat becomes a capability, not a role  
+✅ Intent makes objectives visible in logs  
+
+#### What Stays the Same
+
+✅ All existing behavior preserved  
+✅ Navigation unchanged  
+✅ Combat mechanics unchanged  
+✅ Performance maintained  
+
+#### Future Mission Attachment Point
+
+Missions would **assign intent**, not replace the system:
+
+```javascript
+// Conceptual only - not implementing now
+mission.assign(npc, {
+    intent: 'ESCORT',
+    intentData: { target: playerId, route: [harbor1, harbor2] }
+});
+```
+
+#### Implementation Phases
+
+1. **Role System** - Formalize TRADER/PIRATE/PATROL
+2. **Intent System** - Map existing states to intents
+3. **Combat Overlay** - Extract combat, add defensive mode
+4. **Debug & Polish** - Logging, inspection, validation
+
+**Estimated Effort:** 2-3 days
+
+---
+
 ### Phase 4: Economy & Trading 🔄
 
 **Cargo System:**
@@ -271,6 +382,212 @@ NPCs should not degrade server performance. Target: <1ms per NPC per frame.
 1. Spawn NPC near land
 2. If NPC hits land, it will despawn after 10 collisions
 3. Check server console for: `[NPC] npc_trader_X stuck on land, despawning`
+
+---
+
+## Testing Phase 3.5 Consolidation
+
+### Test 1: Role Verification
+
+**Objective:** Verify NPCs spawn with correct role parameters
+
+**Steps:**
+1. Spawn a trader with `N` key
+2. Check server console for: `[NPC] npc_trader_X | Role: TRADER | Intent: TRAVEL`
+3. Spawn a pirate with `P` key
+4. Check server console for: `[NPC] npc_pirate_X | Role: PIRATE | Intent: ENGAGE`
+5. Verify ship classes match role definitions
+
+**Expected Results:**
+- Traders spawn as FLUYT or MERCHANT
+- Pirates spawn as SLOOP, BARQUE, or FRIGATE
+- Console logs show correct role names
+
+### Test 2: Intent Transitions (Trader)
+
+**Objective:** Verify trader intent changes correctly
+
+**Steps:**
+1. Spawn a trader with `N`
+2. Observe: Intent = TRAVEL (sailing to harbor)
+3. Attack the trader with cannons
+4. Observe: Intent changes to EVADE (if HP < 50%)
+5. Stop attacking and wait
+6. Observe: Intent returns to TRAVEL
+
+**Expected Results:**
+- `TRAVEL` → `EVADE` transition when damaged
+- `EVADE` → `TRAVEL` transition when safe
+- Console logs show intent changes
+
+### Test 3: Intent Transitions (Pirate)
+
+**Objective:** Verify pirate intent changes correctly
+
+**Steps:**
+1. Spawn a pirate with `P`
+2. Observe: Intent = ENGAGE (pursuing you)
+3. Reduce pirate HP to < 20% with cannon fire
+4. Observe: Intent changes to EVADE (fleeing)
+5. Stop attacking and wait
+6. Observe: Intent returns to ENGAGE
+
+**Expected Results:**
+- `ENGAGE` → `EVADE` transition at low HP
+- `EVADE` → `ENGAGE` transition when recovered
+- Pirate maintains distance while evading
+
+### Test 4: Defensive Combat (Trader)
+
+**Objective:** Verify traders can defend themselves without pursuing
+
+**Steps:**
+1. Spawn a trader with `N`
+2. Position yourself broadside to the trader
+3. Fire cannons at the trader
+4. Observe: Trader returns fire (combat overlay activates)
+5. Sail away from the trader
+6. Observe: Trader does NOT pursue you
+7. Observe: Trader resumes TRAVEL intent
+
+**Expected Results:**
+- Trader fires back when attacked
+- Trader does not chase you
+- Combat deactivates when you leave range
+- Console shows: `Combat: ACTIVE` → `Combat: INACTIVE`
+
+### Test 5: Aggressive Combat (Pirate)
+
+**Objective:** Verify pirates remain always-hostile
+
+**Steps:**
+1. Spawn a pirate with `P`
+2. Observe: Pirate immediately pursues you
+3. Sail away from pirate
+4. Observe: Pirate continues pursuit
+5. Enter a harbor
+6. Observe: Pirate stops pursuit (target invalid)
+
+**Expected Results:**
+- Pirate always has Intent = ENGAGE
+- Combat overlay always active
+- Pirate pursues until target lost
+
+### Test 6: Combat Overlay Activation/Deactivation
+
+**Objective:** Verify combat overlay state management
+
+**Steps:**
+1. Spawn a trader with `N`
+2. Check console: `Combat: INACTIVE`
+3. Attack the trader
+4. Check console: `Combat: ACTIVE` (defensive mode)
+5. Sail out of range (> 300px)
+6. Check console: `Combat: INACTIVE`
+7. Spawn a pirate with `P`
+8. Check console: `Combat: ACTIVE` (always on for pirates)
+
+**Expected Results:**
+- Trader combat activates only when attacked
+- Trader combat deactivates when threat leaves
+- Pirate combat always active
+
+### Test 7: Multiple Roles Simultaneously
+
+**Objective:** Verify different roles coexist correctly
+
+**Steps:**
+1. Spawn 3 traders with console: `socket.emit('debug_spawn_npcs', { count: 3 })`
+2. Spawn 2 pirates with console: `socket.emit('debug_spawn_pirates', { count: 2 })`
+3. Observe: Traders navigate to harbors
+4. Observe: Pirates pursue you (not traders)
+5. Attack one trader
+6. Observe: Only attacked trader defends
+
+**Expected Results:**
+- Traders ignore each other
+- Pirates target player, not traders
+- Each NPC maintains independent intent
+- No performance degradation
+
+### Test 8: Edge Case - Trader Fleeing
+
+**Objective:** Verify EVADE intent works correctly
+
+**Steps:**
+1. Spawn a trader with `N`
+2. Reduce trader HP to exactly 50%
+3. Observe: Intent changes to EVADE
+4. Observe: Trader sails away from you
+5. Observe: Trader does NOT fire back while evading
+6. Let trader reach > 50% HP (if regeneration exists) OR stop attacking
+7. Observe: Intent returns to TRAVEL
+
+**Expected Results:**
+- EVADE activates at flee threshold (50% for traders)
+- Combat deactivates during EVADE
+- Trader prioritizes escape over combat
+
+### Test 9: Edge Case - Pirate Loses Target
+
+**Objective:** Verify pirates handle target loss correctly
+
+**Steps:**
+1. Spawn a pirate with `P`
+2. Observe: Pirate pursues you (Intent = ENGAGE)
+3. Enter a harbor (press `H`)
+4. Observe: Pirate stops pursuit
+5. Check console: Intent changes to TRAVEL or despawns
+6. Exit harbor
+7. Observe: Pirate re-acquires you (Intent = ENGAGE)
+
+**Expected Results:**
+- Pirate stops when target enters harbor
+- Pirate doesn't crash or get stuck
+- Pirate re-engages when target becomes valid
+
+### Test 10: Performance Validation
+
+**Objective:** Verify consolidation doesn't degrade performance
+
+**Steps:**
+1. Check server console for baseline tick time
+2. Spawn 5 traders and 3 pirates
+3. Monitor tick time in console
+4. Verify: Average tick time ≤ baseline + 0.5ms per NPC
+
+**Expected Results:**
+- No significant performance degradation
+- Tick time remains < 1ms per NPC
+- No memory leaks over time
+
+### Debug Commands for Testing
+
+```javascript
+// In browser console (F12)
+
+// Inspect specific NPC
+socket.emit('debug_npc_info', { npcId: 'npc_trader_0' });
+
+// Spawn with specific role
+socket.emit('debug_spawn_npc', { role: 'TRADER', x: 10000, y: 10000 });
+socket.emit('debug_spawn_npc', { role: 'PIRATE', x: 10000, y: 10000 });
+
+// Force intent change (if implemented)
+socket.emit('debug_set_intent', { npcId: 'npc_trader_0', intent: 'EVADE' });
+```
+
+### Success Criteria
+
+✅ All roles spawn correctly with proper parameters  
+✅ Intent transitions work as documented  
+✅ Traders defend without pursuing  
+✅ Pirates remain always-hostile  
+✅ Combat overlay activates/deactivates correctly  
+✅ Multiple NPCs coexist without conflicts  
+✅ Edge cases handled gracefully  
+✅ Performance maintained (≤ 1ms per NPC)  
+✅ Console logs are clear and helpful  
 
 ---
 
