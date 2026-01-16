@@ -675,13 +675,9 @@ class NPCShip {
         console.log(`[NPC] ${this.id} took ${amount} damage (${this.flagship.health}/${this.flagship.maxHealth} HP)`);
 
         // Track last attacker for retaliation (Phase 3.5)
-        console.log(`[NPC-DEBUG] takeDamage - damageSource: ${damageSource}, type: ${typeof damageSource}`);
         if (damageSource) {
             this.lastAttacker = damageSource;
             this.lastAttackTime = Date.now() / 1000;
-            console.log(`[NPC-DEBUG] ${this.id} RECORDED lastAttacker: ${damageSource} at time ${this.lastAttackTime}`);
-        } else {
-            console.log(`[NPC-DEBUG] ${this.id} WARNING: takeDamage called with NO damageSource!`);
         }
 
         // Check if flagship sunk

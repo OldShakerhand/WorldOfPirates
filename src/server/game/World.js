@@ -104,13 +104,8 @@ class World {
 
                     // Test rotated rectangle collision
                     if (this.testRotatedRectCollision(entity, proj)) {
-                        // Pass damage source for kill attribution
-                        const damageSource = {
-                            type: 'player',
-                            playerId: proj.ownerId,
-                            timestamp: Date.now()
-                        };
-                        entity.takeDamage(proj.damage, damageSource);
+                        // Pass owner ID as damage source for retaliation tracking
+                        entity.takeDamage(proj.damage, proj.ownerId);
                         proj.toRemove = true;
                         break;
                     }
