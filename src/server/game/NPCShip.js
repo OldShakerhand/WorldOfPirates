@@ -5,6 +5,7 @@ const NavigationConfig = require('./NavigationConfig');
 const CombatConfig = require('./CombatConfig');
 const CombatNPCConfig = require('./CombatNPCConfig');
 const { getRole, getRandomShipClass } = require('./NPCRole');
+const CombatOverlay = require('./CombatOverlay');
 
 /**
  * NPCShip - Non-player ship entity
@@ -101,6 +102,15 @@ class NPCShip {
         // Intent system (Phase 3.5: Consolidation)
         this.intent = this.role.defaultIntent;  // Current objective (TRAVEL, ENGAGE, EVADE, WAIT)
         this.intentData = {};                   // Intent-specific data (e.g., targetId, evadeFrom)
+
+        // Combat overlay (Phase 3.5: Combat as capability)
+        this.combat = new CombatOverlay(this);
+
+        // Activate combat for aggressive roles (pirates)
+        if (this.role.combatAggressive) {
+            // Pirates start with combat active, will set target in selectCombatTarget
+            this.combat.active = true;
+        }
     }
 
     get flagship() {
@@ -188,6 +198,9 @@ class NPCShip {
      * Used by pirates to pursue and attack targets
      */
     executeEngage(world) {
+        // Update combat overlay (validate target, deactivate if needed)
+        this.combat.update(world);
+
         // 1. Select combat target
         this.selectCombatTarget(world);
 
@@ -295,6 +308,29 @@ class NPCShip {
             this.inputs.sailUp = true;
         } else if (this.sailState > 1) {
             this.inputs.sailDown = true;
+        }
+
+        // Defensive combat (Phase 3.5: Traders can defend themselves)
+        if (this.role.combatCapable && !this.role.combatAggressive) {
+            // Update combat overlay state
+            this.combat.update(world);
+
+            // If not currently in combat, check for nearby threats
+            if (!this.combat.active) {
+                const threat = this.detectNearbyThreat(world);
+                if (threat) {
+                    // Activate defensive combat (return fire without pursuing)
+                    this.combat.activate(threat.id, true); // true = defensive mode
+                }
+            }
+
+            // If in defensive combat, attempt to fire back
+            if (this.combat.active) {
+                const target = world.entities[this.combat.target];
+                if (target) {
+                    this.attemptCombatFire(world, target);
+                }
+            }
         }
 
         // Check if reached harbor
@@ -467,6 +503,41 @@ class NPCShip {
         }
 
         this.combatTarget = nearestPlayer ? nearestPlayer.id : null;
+    }
+
+    /**
+     * Detect Nearby Threat (Phase 3.5: Defensive Combat)
+     * Finds nearest hostile entity within defensive range
+     * Used by traders to detect when they're being attacked
+     */
+    detectNearbyThreat(world) {
+        const THREAT_DETECTION_RANGE = 300; // Detect threats within 300px
+
+        let nearestThreat = null;
+        let nearestDist = Infinity;
+
+        for (const id in world.entities) {
+            const entity = world.entities[id];
+
+            // Check for hostile NPCs or players
+            const isHostile = (entity.type === 'NPC' && entity.roleName === 'PIRATE') ||
+                entity.type === 'PLAYER';
+
+            if (isHostile) {
+                const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
+
+                // Check if within threat detection range
+                if (dist < THREAT_DETECTION_RANGE && dist < nearestDist) {
+                    // Validate threat (not in harbor, not sunk)
+                    if (!entity.inHarbor && !entity.isRaft && entity.flagship && !entity.flagship.isSunk) {
+                        nearestDist = dist;
+                        nearestThreat = entity;
+                    }
+                }
+            }
+        }
+
+        return nearestThreat;
     }
 
     /**
