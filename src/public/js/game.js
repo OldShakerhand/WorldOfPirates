@@ -391,14 +391,14 @@ function drawIslandWithShallowWater(island) {
 function drawHarbor(harbor) {
     ctx.save();
 
-    // Draw dock/pier (simple rectangle)
+    // Draw dock/pier (simple rectangle) - Scaled 3x (60x120)
     ctx.fillStyle = '#808080'; // TEMPORARY: Grey for better visualization during testing
-    ctx.fillRect(harbor.x - 10, harbor.y - 20, 20, 40);
+    ctx.fillRect(harbor.x - 30, harbor.y - 60, 60, 120);
 
     // Draw outline
     ctx.strokeStyle = '#654321';
     ctx.lineWidth = 2;
-    ctx.strokeRect(harbor.x - 10, harbor.y - 20, 20, 40);
+    ctx.strokeRect(harbor.x - 30, harbor.y - 60, 60, 120);
 
     // Draw harbor name (small text)
     ctx.fillStyle = 'white';

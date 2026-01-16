@@ -105,8 +105,8 @@ class GameLoop {
             if (entity.type === 'NPC' && !entity.isRaft) {
                 const now = Date.now() / 1000;
 
-                // Handle NPC Left Broadside (Port)
-                if (entity.inputs.shootLeft) {
+                // Handle NPC Left Broadside (Port) - Shields prevent firing
+                if (entity.inputs.shootLeft && !entity.hasShield) {
                     if (now - entity.lastShotTimeLeft >= entity.fireRate) {
                         if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing LEFT (Port) for ${id}`);
 
@@ -116,8 +116,8 @@ class GameLoop {
                     }
                 }
 
-                // Handle NPC Right Broadside (Starboard)
-                if (entity.inputs.shootRight) {
+                // Handle NPC Right Broadside (Starboard) - Shields prevent firing
+                if (entity.inputs.shootRight && !entity.hasShield) {
                     if (now - entity.lastShotTimeRight >= entity.fireRate) {
                         if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing RIGHT (Starboard) for ${id}`);
 
@@ -294,8 +294,8 @@ class GameLoop {
 
             const now = Date.now() / 1000;
 
-            // Handle Broadside Left (Q) - Rafts cannot fire
-            if (inputData.shootLeft && !player.isRaft) {
+            // Handle Broadside Left (Q) - Rafts cannot fire, shields prevent firing
+            if (inputData.shootLeft && !player.isRaft && !player.hasActiveShield()) {
                 if (now - player.lastShotTimeLeft >= player.fireRate) {
                     // DESIGN CONTRACT: Arcade cannon firing
                     // - Projectiles fire exactly perpendicular to ship heading
@@ -308,8 +308,8 @@ class GameLoop {
                 }
             }
 
-            // Handle Broadside Right (E) - Rafts cannot fire
-            if (inputData.shootRight && !player.isRaft) {
+            // Handle Broadside Right (E) - Rafts cannot fire, shields prevent firing
+            if (inputData.shootRight && !player.isRaft && !player.hasActiveShield()) {
                 if (now - player.lastShotTimeRight >= player.fireRate) {
                     // DESIGN CONTRACT: Arcade cannon firing
                     // - Projectiles fire exactly perpendicular to ship heading
@@ -476,6 +476,11 @@ class GameLoop {
         player.speed = 0;
         player.sailState = 0;
 
+        // Grant invulnerability shield while docked (infinite duration)
+        // This prevents attacks while player is in harbor menu
+        player.shieldEndTime = Infinity;
+        console.log(`Player ${player.id} docked at ${harbor.name} with shield`);
+
         // Check if player is on raft - auto-convert to Sloop
         if (player.isRaft) {
             const Ship = require('./Ship');
@@ -551,10 +556,10 @@ class GameLoop {
                 player.x = harbor.x + GameConfig.HARBOR_SPAWN_DISTANCE;
                 player.y = harbor.y;
 
-                // Grant 6-second shield when leaving harbor
+                // Grant 10-second shield when leaving harbor (no firing allowed)
                 player.shieldEndTime = Date.now() / 1000 + CombatConfig.HARBOR_EXIT_SHIELD_DURATION;
 
-                console.log(`Player ${playerId} left ${harbor.name} with 6s shield`);
+                console.log(`Player ${playerId} left ${harbor.name} with 10s shield (no firing)`);
             }
 
             player.inHarbor = false;

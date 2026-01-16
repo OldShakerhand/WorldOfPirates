@@ -31,17 +31,18 @@ const SHIP_CLASSES = {
         turnSpeed: 1.8,
         health: 100,
         cannonsPerSide: 2,
-        // Visual properties
+        // Visual properties (Square rendering to preserve aspect ratio)
         spriteFile: 'sloop.png',
-        spriteWidth: 37.5,
-        spriteHeight: 52.5,
-        spriteRotation: 0, // No correction needed
+        spriteWidth: 92,  // Square rendering
+        spriteHeight: 92, // Square rendering (Visual height ~78px)
+        spriteRotation: 0,
         // Cannon positioning - full control per side
         cannonLateralOffsetPort: 0,
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        hitboxWidthFactor: 0.8,
+        // Hitbox tighter due to square frame
+        hitboxWidthFactor: 0.6,
         hitboxHeightFactor: 0.8
     },
     PINNACE: {
@@ -91,18 +92,19 @@ const SHIP_CLASSES = {
         turnSpeed: 1.1,
         health: 230,
         cannonsPerSide: 4,
-        // Visual properties
+        // Visual properties (Square rendering to preserve aspect ratio)
         spriteFile: 'fluyt.png',
-        spriteWidth: 52,
-        spriteHeight: 72,
-        spriteRotation: 0, // No correction needed
+        spriteWidth: 128,  // Square rendering
+        spriteHeight: 128, // Square rendering (Ship visual height ~108px)
+        spriteRotation: 0,
         // Cannon positioning - full control per side
-        cannonLateralOffsetPort: 10, // Port lateral offset (positive = further from centerline)
-        cannonLateralOffsetStarboard: 10, // Starboard lateral offset (positive = further from centerline)
-        cannonLongitudinalOffsetPort: -10, // Port longitudinal offset (negative = toward stern)
-        cannonLongitudinalOffsetStarboard: -10, // Starboard longitudinal offset (negative = toward stern)
-        hitboxWidthFactor: 0.6,
-        hitboxHeightFactor: 0.8
+        cannonLateralOffsetPort: 15,
+        cannonLateralOffsetStarboard: 15,
+        cannonLongitudinalOffsetPort: -15,
+        cannonLongitudinalOffsetStarboard: -15,
+        // Hitbox must be tighter since sprite contains empty space
+        hitboxWidthFactor: 0.5,  // Ship width is ~50% of frame width
+        hitboxHeightFactor: 0.8  // Ship height is ~80% of frame height
     },
     MERCHANT: {
         id: 6,

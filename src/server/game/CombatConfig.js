@@ -15,7 +15,7 @@ const CombatConfig = {
 
     // Shield/Invulnerability
     FLAGSHIP_SWITCH_SHIELD_DURATION: 10,// Seconds after losing flagship
-    HARBOR_EXIT_SHIELD_DURATION: 10,// Seconds after leaving harbor
+    HARBOR_EXIT_SHIELD_DURATION: 10,// Seconds after leaving harbor (no firing allowed)
 
     // Projectile physics
     PROJECTILE_SPEED: 120,
