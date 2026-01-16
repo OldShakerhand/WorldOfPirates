@@ -319,32 +319,47 @@ class NPCShip {
             // Update combat overlay state
             this.combat.update(world);
 
+            console.log(`[NPC-DEBUG] ${this.id} TRAVEL defensive combat check - combatActive: ${this.combat.active}, lastAttacker: ${this.lastAttacker}`);
+
             // If not currently in combat, check if we were recently attacked
             if (!this.combat.active && this.lastAttacker) {
                 const now = Date.now() / 1000;
                 const RETALIATION_WINDOW = 30; // Retaliate within 30 seconds of being attacked
+                const timeSinceAttack = now - this.lastAttackTime;
+
+                console.log(`[NPC-DEBUG] ${this.id} checking retaliation - timeSinceAttack: ${timeSinceAttack.toFixed(1)}s, window: ${RETALIATION_WINDOW}s`);
 
                 // Only retaliate if attack was recent
-                if (now - this.lastAttackTime < RETALIATION_WINDOW) {
+                if (timeSinceAttack < RETALIATION_WINDOW) {
                     const attacker = world.entities[this.lastAttacker];
+
+                    console.log(`[NPC-DEBUG] ${this.id} attacker ${this.lastAttacker} exists: ${!!attacker}`);
 
                     // Validate attacker still exists and is valid target
                     if (attacker && !attacker.inHarbor && !attacker.isRaft) {
+                        console.log(`[NPC-DEBUG] ${this.id} ACTIVATING defensive combat against ${this.lastAttacker}`);
                         // Activate defensive combat (return fire without pursuing)
-                        this.combat.activate(this.lastAttacker, true); // true = defensive mode
-                        console.log(`[NPC] ${this.id} retaliating against ${this.lastAttacker}`);
+                        const activated = this.combat.activate(this.lastAttacker, true); // true = defensive mode
+                        console.log(`[NPC-DEBUG] ${this.id} combat.activate returned: ${activated}, combat.active: ${this.combat.active}`);
                     } else {
+                        console.log(`[NPC-DEBUG] ${this.id} attacker invalid (inHarbor: ${attacker?.inHarbor}, isRaft: ${attacker?.isRaft}), clearing`);
                         // Attacker is gone, clear last attacker
                         this.lastAttacker = null;
                     }
+                } else {
+                    console.log(`[NPC-DEBUG] ${this.id} attack too old, clearing lastAttacker`);
+                    this.lastAttacker = null;
                 }
             }
 
             // If in defensive combat, attempt to fire back
             if (this.combat.active) {
+                console.log(`[NPC-DEBUG] ${this.id} in combat, target: ${this.combat.target}`);
                 const target = world.entities[this.combat.target];
                 if (target) {
                     this.attemptCombatFire(world, target);
+                } else {
+                    console.log(`[NPC-DEBUG] ${this.id} WARNING: combat target ${this.combat.target} not found in world`);
                 }
             }
         }
@@ -660,9 +675,13 @@ class NPCShip {
         console.log(`[NPC] ${this.id} took ${amount} damage (${this.flagship.health}/${this.flagship.maxHealth} HP)`);
 
         // Track last attacker for retaliation (Phase 3.5)
+        console.log(`[NPC-DEBUG] takeDamage - damageSource: ${damageSource}, type: ${typeof damageSource}`);
         if (damageSource) {
             this.lastAttacker = damageSource;
             this.lastAttackTime = Date.now() / 1000;
+            console.log(`[NPC-DEBUG] ${this.id} RECORDED lastAttacker: ${damageSource} at time ${this.lastAttackTime}`);
+        } else {
+            console.log(`[NPC-DEBUG] ${this.id} WARNING: takeDamage called with NO damageSource!`);
         }
 
         // Check if flagship sunk
