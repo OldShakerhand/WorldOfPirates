@@ -111,6 +111,10 @@ class NPCShip {
             // Pirates start with combat active, will set target in selectCombatTarget
             this.combat.active = true;
         }
+
+        // Damage tracking (Phase 3.5: Retaliation)
+        this.lastAttacker = null;      // ID of entity that last damaged this NPC
+        this.lastAttackTime = 0;       // Timestamp of last attack
     }
 
     get flagship() {
@@ -310,17 +314,29 @@ class NPCShip {
             this.inputs.sailDown = true;
         }
 
-        // Defensive combat (Phase 3.5: Traders can defend themselves)
+        // Defensive combat (Phase 3.5: Damage-based retaliation)
         if (this.role.combatCapable && !this.role.combatAggressive) {
             // Update combat overlay state
             this.combat.update(world);
 
-            // If not currently in combat, check for nearby threats
-            if (!this.combat.active) {
-                const threat = this.detectNearbyThreat(world);
-                if (threat) {
-                    // Activate defensive combat (return fire without pursuing)
-                    this.combat.activate(threat.id, true); // true = defensive mode
+            // If not currently in combat, check if we were recently attacked
+            if (!this.combat.active && this.lastAttacker) {
+                const now = Date.now() / 1000;
+                const RETALIATION_WINDOW = 30; // Retaliate within 30 seconds of being attacked
+
+                // Only retaliate if attack was recent
+                if (now - this.lastAttackTime < RETALIATION_WINDOW) {
+                    const attacker = world.entities[this.lastAttacker];
+
+                    // Validate attacker still exists and is valid target
+                    if (attacker && !attacker.inHarbor && !attacker.isRaft) {
+                        // Activate defensive combat (return fire without pursuing)
+                        this.combat.activate(this.lastAttacker, true); // true = defensive mode
+                        console.log(`[NPC] ${this.id} retaliating against ${this.lastAttacker}`);
+                    } else {
+                        // Attacker is gone, clear last attacker
+                        this.lastAttacker = null;
+                    }
                 }
             }
 
@@ -642,6 +658,12 @@ class NPCShip {
 
         this.flagship.takeDamage(amount);
         console.log(`[NPC] ${this.id} took ${amount} damage (${this.flagship.health}/${this.flagship.maxHealth} HP)`);
+
+        // Track last attacker for retaliation (Phase 3.5)
+        if (damageSource) {
+            this.lastAttacker = damageSource;
+            this.lastAttackTime = Date.now() / 1000;
+        }
 
         // Check if flagship sunk
         if (this.flagship.isSunk) {
