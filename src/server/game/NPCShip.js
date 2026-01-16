@@ -519,9 +519,9 @@ class NPCShip {
         for (const id in world.entities) {
             const entity = world.entities[id];
 
-            // Check for hostile NPCs or players
-            const isHostile = (entity.type === 'NPC' && entity.roleName === 'PIRATE') ||
-                entity.type === 'PLAYER';
+            // Only detect hostile NPCs (pirates), not players
+            // Players are not considered threats for defensive combat
+            const isHostile = (entity.type === 'NPC' && entity.roleName === 'PIRATE');
 
             if (isHostile) {
                 const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
