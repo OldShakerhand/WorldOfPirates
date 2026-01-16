@@ -68,6 +68,46 @@
         </div>
     </div>
 
+    <!-- Controls Legend (Temporary - for testing) -->
+    <div id="controlsLegend">
+        <h3>⚓ Controls</h3>
+
+        <div class="legend-section">
+            <strong>Movement</strong>
+            <div class="control-item"><kbd>A</kbd> / <kbd>D</kbd> - Turn left/right</div>
+            <div class="control-item"><kbd>W</kbd> / <kbd>S</kbd> - Raise/lower sails</div>
+            <div class="control-item-note">Sail levels: None → Half → Full</div>
+        </div>
+
+        <div class="legend-section">
+            <strong>Combat</strong>
+            <div class="control-item"><kbd>Q</kbd> - Fire port (left) broadside</div>
+            <div class="control-item"><kbd>E</kbd> - Fire starboard (right) broadside</div>
+        </div>
+
+        <div class="legend-section">
+            <strong>Harbor</strong>
+            <div class="control-item"><kbd>H</kbd> - Dock in harbor</div>
+            <div class="control-item-note">Get new ships, repair, switch flagship</div>
+        </div>
+
+        <div class="legend-section">
+            <strong>Debug (Testing)</strong>
+            <div class="control-item"><kbd>P</kbd> - Spawn pirate NPC</div>
+            <div class="control-item"><kbd>N</kbd> - Spawn merchant NPC</div>
+            <div class="control-item"><kbd>T</kbd> - Teleport to harbor</div>
+        </div>
+
+        <div class="legend-section">
+            <strong>Wind Mechanics</strong>
+            <div class="control-item-note">Speed varies by wind direction:</div>
+            <div class="control-item-note">• Tailwind (behind): Fastest</div>
+            <div class="control-item-note">• Beam reach (side): Medium</div>
+            <div class="control-item-note">• Headwind (front): Slowest</div>
+        </div>
+    </div>
+
+
 
     <script src="/socket.io/socket.io.js"></script>
     <!-- DEBUG: Harbor teleport system - REMOVE BEFORE PRODUCTION -->
