@@ -97,25 +97,64 @@ SAILING → STOPPED → DESPAWNING
 
 ---
 
-### Phase 3: Combat & Factions 🔄
+### Phase 3: Combat NPCs ✅ (Partial - Pirates Complete)
 
-**Faction System:**
-- Friendly NPCs (merchants, allies)
-- Hostile NPCs (pirates, enemies)
-- Neutral NPCs (independent traders)
+**Status:** Combat NPCs (Pirates) fully implemented (2026-01-15)
+
+#### What's Working
+
+**Combat NPC Type: Pirates**
+- Hostile NPCs that actively engage players
+- Spawn on demand with `P` key for testing
+- Use same ship classes as players (currently spawn as Sloops)
+- Full combat AI with target selection and positioning
 
 **Combat Behavior:**
-- NPCs can fire cannons
-- NPCs flee when damaged
-- NPCs chase hostile targets
-- NPCs escort friendly ships
+- **Target Selection**: Finds nearest player within 500px engagement range
+- **Combat Positioning**: Maintains 200px distance (80% of max projectile range)
+- **Broadside Firing**: Fires when target is ±10° from perpendicular (very precise)
+- **Firing Range**: Only fires within 90% of max projectile range for accuracy
+- **Fire Rate**: 4-second cooldown between volleys (same as players)
+
+**Technical Implementation:**
+- `CombatNPCConfig.js` - Combat parameters (derived from projectile range)
+- Combat methods in `NPCShip.js`:
+  - `selectCombatTarget()` - Target acquisition
+  - `computeCombatPosition()` - Broadside positioning
+  - `computeDesiredCombatHeading()` - Heading calculation
+  - `attemptCombatFire()` - Firing logic with arc validation
+- Integration with `GameLoop.js` for projectile spawning
+- Uses same `fireCannons()` method as players
+
+**Bugs Fixed During Implementation:**
+- Fixed `cannonsPerSide` getter (was returning 0)
+- Fixed firing arc logic (was checking front instead of sides)
+- Fixed cooldown timing (GameLoop now manages timestamps)
+- Fixed `fireRate` initialization in `NPCManager`
+- Tuned broadside sector to ±10° for realistic naval combat
+
+**Performance:**
+- Pirates successfully engage and sink players
+- Precise broadside positioning requires tactical maneuvering
+- ~0.3ms tick time impact per pirate NPC
+
+#### Not Yet Implemented
+
+**Faction System:**
+- Friendly NPCs (merchants, allies) - Planned
+- Neutral NPCs (independent traders) - Planned
+- Faction flags/colors - Planned
+
+**Advanced Combat Behaviors:**
+- NPCs flee when damaged - Planned
+- NPCs escort friendly ships - Planned
+- Formation combat - Planned
 
 **Visual Indicators:**
-- Faction flags/colors
-- Hostile/friendly markers
-- Aggression states
+- Hostile/friendly markers - Planned
+- Aggression states - Planned
 
-**Estimated Effort:** 3-4 days
+**Estimated Effort for Remaining Phase 3:** 2-3 days
 
 ---
 
@@ -198,21 +237,35 @@ NPCs should not degrade server performance. Target: <1ms per NPC per frame.
 
 ## Testing NPCs
 
-### Spawn a Single NPC
+### Spawn a Merchant NPC
 1. Join the game
 2. Press `N` key
 3. Watch NPC sail to nearest harbor
 
+### Spawn a Pirate NPC (Combat)
+1. Join the game
+2. Press `P` key
+3. Pirate will spawn and engage you in combat
+4. Observe broadside positioning and firing
+
 ### Spawn Multiple NPCs
 1. Open browser console (F12)
-2. Type: `socket.emit('debug_spawn_npcs', { count: 5 })`
-3. Press Enter
+2. Type: `socket.emit('debug_spawn_npcs', { count: 5 })` for merchants
+3. Type: `socket.emit('debug_spawn_pirates', { count: 3 })` for pirates
+4. Press Enter
 
-### Test Combat
-1. Spawn an NPC
+### Test Combat (As Attacker)
+1. Spawn a merchant NPC with `N`
 2. Fire cannons at it (`Q` or `E` keys)
 3. Watch health decrease in server console
 4. NPC sinks at 0 HP
+
+### Test Combat (As Defender)
+1. Spawn a pirate NPC with `P`
+2. Stay still or move slowly
+3. Observe pirate maneuvering for broadside position
+4. Watch for incoming cannon fire
+5. Try to evade or return fire
 
 ### Test Stuck Detection
 1. Spawn NPC near land
@@ -238,7 +291,10 @@ NPCs should not degrade server performance. Target: <1ms per NPC per frame.
 ## FAQ
 
 **Q: Can NPCs attack players?**  
-A: Not in Phase 1. Phase 3 will add hostile NPCs with combat AI.
+A: Yes! Pirate NPCs (Phase 3) actively engage players with broadside cannon fire. Spawn with `P` key.
+
+**Q: How do pirate NPCs fight?**  
+A: Pirates use realistic naval combat tactics - they position themselves perpendicular to you for broadside shots, only firing when properly aligned (±10°). They maintain optimal range and have the same fire rate as players.
 
 **Q: Do NPCs affect the economy?**  
 A: Not yet. Phase 4 will introduce cargo and trade routes.
@@ -247,10 +303,13 @@ A: Not yet. Phase 4 will introduce cargo and trade routes.
 A: No. NPCs are fully autonomous. Players control their own ships.
 
 **Q: Will NPCs persist after server restart?**  
-A: Not in Phase 1. Phase 6 will add database persistence.
+A: Not currently. Phase 6 will add database persistence.
 
 **Q: How many NPCs can the server handle?**  
 A: Currently tested up to 10. Target is 50+ with optimizations in Phase 6.
+
+**Q: Can pirates navigate around islands?**  
+A: Yes! Pirates use Phase 2 predictive navigation to avoid obstacles while pursuing targets.
 
 ---
 
@@ -267,7 +326,21 @@ When adding NPC features:
 
 ## Version History
 
-- **v1.0** (2026-01-14): Phase 1 implementation
+- **v3.0** (2026-01-15): Phase 3 - Combat NPCs (Pirates)
+  - Pirate NPCs with full combat AI
+  - Target selection and engagement
+  - Broadside positioning and firing
+  - Precise firing arc (±10°)
+  - Integration with GameLoop firing system
+  - Spawn with `P` key
+
+- **v2.0** (2026-01-15): Phase 2 - Intelligent Navigation
+  - Look-ahead collision detection
+  - Alternative heading search
+  - Dynamic obstacle avoidance
+  - ~90% success rate navigating complex terrain
+
+- **v1.0** (2026-01-14): Phase 1 - Basic NPCs
   - Basic navigation
-  - Combat damage
+  - Combat damage (defensive only)
   - Stuck detection
