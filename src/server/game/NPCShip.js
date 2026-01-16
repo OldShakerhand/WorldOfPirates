@@ -4,6 +4,7 @@ const PhysicsConfig = require('./PhysicsConfig');
 const NavigationConfig = require('./NavigationConfig');
 const CombatConfig = require('./CombatConfig');
 const CombatNPCConfig = require('./CombatNPCConfig');
+const { getRole, getRandomShipClass } = require('./NPCRole');
 
 /**
  * NPCShip - Non-player ship entity
@@ -21,12 +22,15 @@ const CombatNPCConfig = require('./CombatNPCConfig');
  * - Despawn
  */
 class NPCShip {
-    constructor(id, x, y, targetHarborId, npcType = 'TRADER') {
+    constructor(id, x, y, targetHarborId, role = 'TRADER') {
+        // Role system (Phase 3.5)
+        this.roleName = role;              // String for serialization
+        this.role = getRole(role);         // Role configuration object
+
         // Identity
         this.id = id;
-        this.name = this.generateName(npcType);
+        this.name = this.generateName(role);
         this.type = 'NPC';
-        this.npcType = npcType; // 'TRADER', future: 'PATROL', 'PIRATE'
 
         // Spatial (same as Player)
         this.x = x;
@@ -34,8 +38,9 @@ class NPCShip {
         this.rotation = Math.random() * Math.PI * 2;
         this.speed = 0;
 
-        // Ship (FLUYT for traders)
-        this.fleet = [new Ship('FLUYT')];
+        // Ship (selected from role's ship classes)
+        const shipClass = getRandomShipClass(role);
+        this.fleet = [new Ship(shipClass)];
         this.flagshipIndex = 0;
         this.isRaft = false;
 
@@ -65,10 +70,11 @@ class NPCShip {
             shootRight: false
         };
 
-        // Combat (disabled for Phase 1)
+        // Combat (role-based initialization)
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
-        this.fireRate = 999999; // Effectively disabled
+        // fireRate set by role (pirates get combat rate, traders get defensive rate)
+        this.fireRate = this.role.combatCapable ? CombatConfig.CANNON_FIRE_RATE : 999999;
 
         // Harbor state
         this.inHarbor = false;
@@ -91,6 +97,10 @@ class NPCShip {
         this.combatTarget = null;  // Player entity ID or null
         this.combatDistance = CombatConfig.PROJECTILE_MAX_DISTANCE * 0.8;  // 80% of max range
         this.combatSide = CombatNPCConfig.DEFAULT_COMBAT_SIDE;  // 'PORT' or 'STARBOARD'
+
+        // Intent system (Phase 3.5: Consolidation)
+        this.intent = this.role.defaultIntent;  // Current objective (TRAVEL, ENGAGE, EVADE, WAIT)
+        this.intentData = {};                   // Intent-specific data (e.g., targetId, evadeFrom)
     }
 
     get flagship() {
@@ -123,12 +133,13 @@ class NPCShip {
         return this.flagship.shipClass.cannonsPerSide;
     }
 
-    generateName(npcType) {
+    generateName(role) {
         const names = {
             TRADER: ['Merchant Vessel', 'Trading Ship', 'Cargo Runner', 'Supply Ship'],
-            PIRATE: ['Pirate Scourge', 'Black Revenge', 'Sea Wolf', 'Crimson Tide', 'Dark Fortune']
+            PIRATE: ['Pirate Scourge', 'Black Revenge', 'Sea Wolf', 'Crimson Tide', 'Dark Fortune'],
+            PATROL: ['HMS Guardian', 'Royal Defender', 'Vigilant', 'Protector', 'Sentinel']
         };
-        const nameList = names[npcType] || ['NPC Ship'];
+        const nameList = names[role] || ['NPC Ship'];
         return nameList[Math.floor(Math.random() * nameList.length)];
     }
 
@@ -136,6 +147,7 @@ class NPCShip {
      * AI Input Computation
      * Phase 2: Predictive navigation with obstacle avoidance
      * Phase Combat-NPC 1A: Combat behavior for pirates
+     * Phase 3.5: Intent-based behavior selection
      */
     computeAIInputs(world) {
         // Reset inputs
@@ -148,127 +160,162 @@ class NPCShip {
             shootRight: false
         };
 
-        if (this.npcType === 'PIRATE' && this.state === 'SAILING') {
-            // === COMBAT BEHAVIOR ===
-
-            // 1. Select combat target
-            this.selectCombatTarget(world);
-
-            if (!this.combatTarget) {
-                // No target - despawn
-                this.state = 'DESPAWNING';
-                return;
-            }
-
-            const target = world.entities[this.combatTarget];
-            if (!target) {
-                // Target disappeared
-                this.combatTarget = null;
-                this.state = 'DESPAWNING';
-                return;
-            }
-
-            // 2. Compute combat position and heading
-            const combatPos = this.computeCombatPosition(target);
-            const distToPosition = Math.hypot(combatPos.x - this.x, combatPos.y - this.y);
-
-            // Blend movement toward position with rotation for broadside
-            if (distToPosition > CombatNPCConfig.POSITION_THRESHOLD) {
-                // Far from position - move toward it
-                const dx = combatPos.x - this.x;
-                const dy = combatPos.y - this.y;
-                this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2;
-            } else {
-                // Near position - rotate for broadside
-                this.desiredHeading = this.computeDesiredCombatHeading(target);
-            }
-
-            // 3. Update navigation (obstacle avoidance)
-            if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
-                this.navUpdateCounter = 0;
-                this.updateNavigation(world.worldMap);
-            }
-
-            // 4. Steer toward currentHeading
-            let angleDiff = this.currentHeading - this.rotation;
-            while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-            while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-            const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
-            if (angleDiff > TURN_THRESHOLD) {
-                this.inputs.right = true;
-            } else if (angleDiff < -TURN_THRESHOLD) {
-                this.inputs.left = true;
-            }
-
-            // 5. Sail management (use half sails)
-            if (this.sailState < 1) {
-                this.inputs.sailUp = true;
-            } else if (this.sailState > 1) {
-                this.inputs.sailDown = true;
-            }
-
-            // 6. Attempt to fire cannons
-            this.attemptCombatFire(world, target);
+        // Intent-based behavior selection
+        switch (this.intent) {
+            case 'ENGAGE':
+                this.executeEngage(world);
+                break;
+            case 'TRAVEL':
+                this.executeTravel(world);
+                break;
+            case 'WAIT':
+                this.executeWait();
+                break;
+            case 'EVADE':
+                // TODO: Implement in Phase 3
+                this.executeTravel(world); // Fallback to travel for now
+                break;
+            case 'DESPAWNING':
+                // No inputs needed
+                break;
+            default:
+                console.warn(`[NPC] ${this.id} has unknown intent: ${this.intent}`);
         }
-        else if (this.npcType === 'TRADER' && this.state === 'SAILING') {
-            // === TRADER BEHAVIOR ===
+    }
 
-            // Find target harbor
-            const targetHarbor = world.harbors.find(h => h.id === this.targetHarborId);
-            if (!targetHarbor) {
-                console.warn(`[NPC] ${this.id} has invalid target harbor: ${this.targetHarborId}`);
-                this.state = 'DESPAWNING';
-                return;
-            }
+    /**
+     * Execute ENGAGE intent (combat behavior)
+     * Used by pirates to pursue and attack targets
+     */
+    executeEngage(world) {
+        // 1. Select combat target
+        this.selectCombatTarget(world);
 
-            // 1. Compute desired heading (ideal path to target)
-            const dx = targetHarbor.x - this.x;
-            const dy = targetHarbor.y - this.y;
-            this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2; // Convert to ship rotation convention
-
-            // 2. Update navigation (check for obstacles and adjust currentHeading)
-            if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
-                this.navUpdateCounter = 0;
-                this.updateNavigation(world.worldMap);
-            }
-
-            // 3. Steer toward currentHeading (not desiredHeading)
-            let angleDiff = this.currentHeading - this.rotation;
-            // Normalize to [-PI, PI]
-            while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-            while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-            // Steering logic
-            const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
-            if (angleDiff > TURN_THRESHOLD) {
-                this.inputs.right = true;
-            } else if (angleDiff < -TURN_THRESHOLD) {
-                this.inputs.left = true;
-            }
-
-            // Sail management (use half sails)
-            if (this.sailState < 1) {
-                this.inputs.sailUp = true;
-            } else if (this.sailState > 1) {
-                this.inputs.sailDown = true;
-            }
-
-            // Check if reached harbor
-            const distance = Math.hypot(dx, dy);
-            if (distance < GameConfig.HARBOR_INTERACTION_RADIUS * 2) {
-                this.state = 'STOPPED';
-                this.stateTimer = 5.0; // Stop for 5 seconds
-                console.log(`[NPC] ${this.id} arrived at ${targetHarbor.name}`);
-            }
+        if (!this.combatTarget) {
+            // No target - switch to despawning
+            this.intent = 'DESPAWNING';
+            this.state = 'DESPAWNING';
+            return;
         }
-        else if (this.state === 'STOPPED') {
-            // Lower sails
-            if (this.sailState > 0) {
-                this.inputs.sailDown = true;
-            }
+
+        const target = world.entities[this.combatTarget];
+        if (!target) {
+            // Target disappeared
+            this.combatTarget = null;
+            this.intent = 'DESPAWNING';
+            this.state = 'DESPAWNING';
+            return;
         }
-        // DESPAWNING state: no inputs needed
+
+        // 2. Compute combat position and heading
+        const combatPos = this.computeCombatPosition(target);
+        const distToPosition = Math.hypot(combatPos.x - this.x, combatPos.y - this.y);
+
+        // Blend movement toward position with rotation for broadside
+        if (distToPosition > CombatNPCConfig.POSITION_THRESHOLD) {
+            // Far from position - move toward it
+            const dx = combatPos.x - this.x;
+            const dy = combatPos.y - this.y;
+            this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2;
+        } else {
+            // Near position - rotate for broadside
+            this.desiredHeading = this.computeDesiredCombatHeading(target);
+        }
+
+        // 3. Update navigation (obstacle avoidance)
+        if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+            this.navUpdateCounter = 0;
+            this.updateNavigation(world.worldMap);
+        }
+
+        // 4. Steer toward currentHeading
+        let angleDiff = this.currentHeading - this.rotation;
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+        const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
+        if (angleDiff > TURN_THRESHOLD) {
+            this.inputs.right = true;
+        } else if (angleDiff < -TURN_THRESHOLD) {
+            this.inputs.left = true;
+        }
+
+        // 5. Sail management (use half sails)
+        if (this.sailState < 1) {
+            this.inputs.sailUp = true;
+        } else if (this.sailState > 1) {
+            this.inputs.sailDown = true;
+        }
+
+        // 6. Attempt to fire cannons
+        this.attemptCombatFire(world, target);
+    }
+
+    /**
+     * Execute TRAVEL intent (navigation behavior)
+     * Used by traders and patrols to navigate to destinations
+     */
+    executeTravel(world) {
+        // Find target harbor
+        const targetHarbor = world.harbors.find(h => h.id === this.targetHarborId);
+        if (!targetHarbor) {
+            console.warn(`[NPC] ${this.id} has invalid target harbor: ${this.targetHarborId}`);
+            this.intent = 'DESPAWNING';
+            this.state = 'DESPAWNING';
+            return;
+        }
+
+        // 1. Compute desired heading (ideal path to target)
+        const dx = targetHarbor.x - this.x;
+        const dy = targetHarbor.y - this.y;
+        this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2; // Convert to ship rotation convention
+
+        // 2. Update navigation (check for obstacles and adjust currentHeading)
+        if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+            this.navUpdateCounter = 0;
+            this.updateNavigation(world.worldMap);
+        }
+
+        // 3. Steer toward currentHeading (not desiredHeading)
+        let angleDiff = this.currentHeading - this.rotation;
+        // Normalize to [-PI, PI]
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+        // Steering logic
+        const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
+        if (angleDiff > TURN_THRESHOLD) {
+            this.inputs.right = true;
+        } else if (angleDiff < -TURN_THRESHOLD) {
+            this.inputs.left = true;
+        }
+
+        // Sail management (use half sails)
+        if (this.sailState < 1) {
+            this.inputs.sailUp = true;
+        } else if (this.sailState > 1) {
+            this.inputs.sailDown = true;
+        }
+
+        // Check if reached harbor
+        const distance = Math.hypot(dx, dy);
+        if (distance < GameConfig.HARBOR_INTERACTION_RADIUS * 2) {
+            this.intent = 'WAIT';
+            this.state = 'STOPPED';
+            this.stateTimer = 5.0; // Stop for 5 seconds
+            console.log(`[NPC] ${this.id} arrived at ${targetHarbor.name}`);
+        }
+    }
+
+    /**
+     * Execute WAIT intent (stopped behavior)
+     * Used when NPCs are waiting at harbors or waypoints
+     */
+    executeWait() {
+        // Lower sails
+        if (this.sailState > 0) {
+            this.inputs.sailDown = true;
+        }
     }
 
     /**

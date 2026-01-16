@@ -77,7 +77,6 @@ class NPCManager {
 
         // Set combat target
         npc.combatTarget = targetPlayerId;
-        npc.fireRate = CombatConfig.CANNON_FIRE_RATE;
 
         // Register NPC
         this.npcs.set(npcId, npc);
