@@ -299,4 +299,4 @@ const WORLD = {
 - `src/server/game/HarborRegistry.js` - Harbor registry module
 - `tools/import_harbors.js` - CSV → JSON import tool
 - `assets/harbors.json` - Harbor data (104 harbors)
-- `docs/HARBORS.md` - This documentation
+- `docs/gameplay/HARBORS.md` - This documentation

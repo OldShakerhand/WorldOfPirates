@@ -4,11 +4,12 @@ A multiplayer naval combat game built with Node.js and Socket.IO. Command your f
 
 ## 🎮 Features
 
-- **Real-time Multiplayer** - Up to 20 simultaneous players
+- **Real-time Multiplayer** - Up to 20 simultaneous players with player names
 - **Dynamic Wind System** - Tactical sailing with realistic wind mechanics
 - **Fleet Management** - Command multiple ships with different classes and capabilities
 - **Naval Combat** - Broadside cannon battles with physics-based projectiles
 - **10 Ship Classes** - From humble rafts to mighty War Galleons
+- **NPC Ships** - AI-controlled traders and pirates with intelligent navigation and combat
 - **Authentic Caribbean Map** - 141 historic harbors on a 80,000x42,000 world map
 - **Visual Adapter Layer** - Organic rounded coastlines and shallow water transitions
 - **Harbor System** - Repair ships, switch flagships, and manage your fleet
@@ -44,6 +45,7 @@ The game will be available at `http://localhost:3000`
 
 ## 🎯 Controls
 
+### Gameplay
 | Key | Action |
 |-----|--------|
 | **W** | Increase sails (Stop → Half → Full) |
@@ -53,6 +55,13 @@ The game will be available at `http://localhost:3000`
 | **Q** | Fire left broadside |
 | **E** | Fire right broadside |
 | **H** | Enter harbor (when near) |
+
+### Debug Controls
+| Key | Action |
+|-----|--------|
+| **N** | Spawn NPC Trader nearby |
+| **P** | Spawn NPC Pirate nearby |
+| **T** | Harbor teleportation menu |
 
 ## 🏗️ Tech Stack
 
@@ -93,13 +102,13 @@ WorldOfPirates/
 
 ## 📖 Documentation
 
-- [Game Design](docs/GAME_DESIGN.md) - Vision, gameplay concepts, and design pillars
-- [Features](docs/FEATURES.md) - Current vs planned features
-- [Technical Documentation](docs/TECHNICAL.md) - Architecture and technical decisions
-- [Coordinate System](docs/COORDINATE_SYSTEM.md) - Spatial mechanics and physics reference
-- [Ship Assets](docs/SHIP_ASSETS.md) - Asset creation and sprite guidelines
-- [Visual Adapter](docs/visual_adapter/walkthrough.md) - Terrain rendering techniques
-- [Changelog](docs/CHANGELOG.md) - Version history and updates
+- [Documentation Index](docs/index.md) - **Start Here**
+- [Game Design](docs/gameplay/DESIGN.md) - Vision, gameplay concepts, and design pillars
+- [Features](docs/gameplay/FEATURES.md) - Current vs planned features
+- [Technical Overview](docs/architecture/OVERVIEW.md) - Architecture and technical decisions
+- [Coordinate System](docs/architecture/COORDINATE_SYSTEM.md) - Spatial mechanics and physics reference
+- [Ship Assets](docs/assets/SHIPS.md) - Asset creation and sprite guidelines
+- [Changelog](docs/meta/CHANGELOG.md) - Version history and updates
 
 ## 🎨 Ship Classes
 
@@ -126,6 +135,13 @@ npm run dev
 
 Uses `nodemon` for automatic server restarts on file changes.
 
+### Debug Features
+
+- **NPC Spawning**: Press `N` for traders, `P` for pirates
+- **Harbor Teleportation**: Press `T` to teleport to any harbor
+- **Debug Minimap**: Real-time terrain visualization
+- **Performance Monitoring**: Server tick time tracking in console
+
 ### Map Processing
 
 The world map is generated from high-resolution satellite data. Tools in `tools/` handle:
@@ -141,8 +157,10 @@ This is currently a personal project. Documentation and contribution guidelines 
 
 **Active Development**
 - ✅ Core Gameplay Loop (Sailing, Combat, Harbors)
-- ✅ Massive Caribbean Map (50% scale, fully navigable)
+- ✅ Massive Caribbean Map (3230×1702 tiles, fully navigable)
 - ✅ Visual Layer (Rounded coastlines, shallow gradients)
+- ✅ NPC System (AI traders and pirates with combat/navigation)
+- ✅ Player Identity (Names, kill attribution, game events)
 - 🚧 Next: Economy System & Persistent Player Data
 
 ---

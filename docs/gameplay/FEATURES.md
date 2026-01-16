@@ -22,8 +22,8 @@ This document tracks the implementation status of all features in World of Pirat
 
 ### Code Reference Standards
 - All implemented features should reference their primary implementation file
-- Breaking changes must be documented in CHANGELOG.md
-- New features require updates to GAME_DESIGN.md if they affect core mechanics
+- Breaking changes must be documented in [CHANGELOG](../meta/CHANGELOG.md)
+- New features require updates to [DESIGN](DESIGN.md) if they affect core mechanics
 
 ---
 

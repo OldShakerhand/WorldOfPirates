@@ -71,7 +71,7 @@ This document tracks all notable changes to World of Pirates across versions. It
 - **Cannon Clustering** - Configurable spread factor (40%) concentrates cannons at midship
   - See: [`GameLoop.js:fireCannons()`](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)
 - **Coordinate System Documentation** - Comprehensive reference for spatial mechanics
-  - See: [`docs/COORDINATE_SYSTEM.md`](file:///c:/Development/WorldOfPirates/docs/COORDINATE_SYSTEM.md)
+  - See: [`docs/architecture/COORDINATE_SYSTEM.md`](../architecture/COORDINATE_SYSTEM.md)
 
 ### Changed
 - **Projectile Range** - From time-based (2s lifetime) to distance-based (400px)

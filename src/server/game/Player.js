@@ -42,6 +42,7 @@ class Player {
         // - playerId: ID of the player who dealt damage
         // - timestamp: When damage was dealt (for timeout/expiry logic)
         this.lastDamageSource = null;
+        this.lastLoggedHealth = null;  // Last health value we logged (for reducing spam)
 
         // Harbor state
         this.inHarbor = false; // True when docked
@@ -123,21 +124,29 @@ class Player {
     }
 
     takeDamage(amount, damageSource = null) {
-        console.log(`[DAMAGE] ${this.name} takeDamage called: amount=${amount}, isRaft=${this.isRaft}, hasShield=${this.hasActiveShield()}, shieldEndTime=${this.shieldEndTime}, now=${Date.now() / 1000}`);
-
         if (this.isRaft || this.hasActiveShield()) {
-            console.log(`[DAMAGE] ${this.name} is invulnerable (raft or shield)`);
             return; // Invulnerable
         }
 
         // Track damage source for kill attribution
-        // damageSource: { type, playerId, timestamp }
         if (damageSource) {
             this.lastDamageSource = damageSource;
         }
 
+        const oldHealth = this.flagship.health;
         this.flagship.takeDamage(amount);
-        console.log(`[DAMAGE] ${this.name} flagship health: ${this.flagship.health}/${this.flagship.maxHealth}`);
+        const newHealth = this.flagship.health;
+
+        // Log damage only at significant thresholds to reduce spam
+        const shouldLog =
+            this.lastLoggedHealth === null ||  // First hit
+            newHealth === 0 ||  // Sunk
+            Math.floor(newHealth / 50) < Math.floor(this.lastLoggedHealth / 50);  // Crossed a 50 HP threshold
+
+        if (shouldLog) {
+            console.log(`[DAMAGE] ${this.name} took damage (${newHealth}/${this.flagship.maxHealth} HP)`);
+            this.lastLoggedHealth = newHealth;
+        }
 
         // Check if flagship sunk
         if (this.flagship.isSunk) {

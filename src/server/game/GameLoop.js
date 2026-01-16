@@ -2,7 +2,7 @@ const World = require('./World');
 const Player = require('./Player');
 const GameConfig = require('./GameConfig');
 const CombatConfig = require('./CombatConfig');
-const CombatNPCConfig = require('./CombatNPCConfig');
+const NPCCombatOverlay = require('./NPCCombatOverlay');
 
 class GameLoop {
     constructor(io) {
@@ -108,7 +108,7 @@ class GameLoop {
                 // Handle NPC Left Broadside (Port)
                 if (entity.inputs.shootLeft) {
                     if (now - entity.lastShotTimeLeft >= entity.fireRate) {
-                        if (CombatNPCConfig.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing LEFT (Port) for ${id}`);
+                        if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing LEFT (Port) for ${id}`);
 
                         const baseAngle = entity.rotation + Math.PI;
                         this.fireCannons(entity, baseAngle);
@@ -119,7 +119,7 @@ class GameLoop {
                 // Handle NPC Right Broadside (Starboard)
                 if (entity.inputs.shootRight) {
                     if (now - entity.lastShotTimeRight >= entity.fireRate) {
-                        if (CombatNPCConfig.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing RIGHT (Starboard) for ${id}`);
+                        if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing RIGHT (Starboard) for ${id}`);
 
                         const baseAngle = entity.rotation;
                         this.fireCannons(entity, baseAngle);
@@ -328,7 +328,7 @@ class GameLoop {
         const cannonCount = player.cannonsPerSide;
 
         if (cannonCount === 0) {
-            if (CombatNPCConfig.DEBUG_COMBAT) console.warn(`[GAMELOOP] ${player.id} tried to fire but has 0 cannons!`);
+            if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.warn(`[GAMELOOP] ${player.id} tried to fire but has 0 cannons!`);
             return; // No cannons (shouldn't happen, but safety check)
         }
 

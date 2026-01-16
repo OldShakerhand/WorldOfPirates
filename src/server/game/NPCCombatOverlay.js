@@ -1,5 +1,5 @@
 /**
- * CombatOverlay.js - Combat capability overlay for NPCs
+ * NPCCombatOverlay.js - Combat capability overlay for NPCs
  * 
  * Combat is a CAPABILITY, not a role. It can be activated situationally
  * based on intent and role parameters.
@@ -8,9 +8,49 @@
  * - Activates/deactivates combat based on situation
  * - Supports both aggressive (pirates) and defensive (traders) modes
  * - Calls existing combat methods in NPCShip
+ * - Contains combat-related configuration constants
  */
 
-class CombatOverlay {
+const CombatConfig = require('./CombatConfig');
+
+/**
+ * Combat configuration constants
+ * Controls combat positioning, targeting, and firing behavior for NPCs.
+ */
+const NPCCombatConfig = {
+    // Combat positioning (derived from projectile range)
+    COMBAT_DISTANCE_FACTOR: 0.8,    // Percentage of max projectile range (80% = 200px)
+    COMBAT_DISTANCE_TOLERANCE: 30,  // Acceptable variance (pixels)
+
+    // Computed combat distance (do not modify)
+    get COMBAT_DISTANCE() {
+        return CombatConfig.PROJECTILE_MAX_DISTANCE * this.COMBAT_DISTANCE_FACTOR;
+    },
+
+    // Broadside preference
+    DEFAULT_COMBAT_SIDE: 'PORT',    // 'PORT' or 'STARBOARD'
+
+    // Target selection (derived from projectile range)
+    MAX_ENGAGEMENT_RANGE_FACTOR: 2.0,  // Multiple of max projectile range (2x = 500px)
+
+    get MAX_ENGAGEMENT_RANGE() {
+        return CombatConfig.PROJECTILE_MAX_DISTANCE * this.MAX_ENGAGEMENT_RANGE_FACTOR;
+    },
+
+    // Defensive combat range
+    MAX_DEFENSIVE_RANGE: 400,  // Stop defending if attacker leaves range (pixels)
+
+    // Positioning behavior
+    POSITION_THRESHOLD: 50,  // Distance to switch from movement to rotation (pixels)
+
+    // Safety
+    MAX_LAND_PROXIMITY_COUNT: 5,  // Despawn if forced away from land this many times
+
+    // Debug logging for combat (disable in production)
+    DEBUG_COMBAT: false
+};
+
+class NPCCombatOverlay {
     constructor(npc) {
         this.npc = npc;
         this.active = false;
@@ -22,10 +62,15 @@ class CombatOverlay {
      * Activate combat for this NPC
      * @param {string} targetId - Entity ID to target
      * @param {boolean} defensive - If true, only return fire (don't pursue)
-     * @returns {boolean} True if combat was activated
+     * @returns {boolean} True if combat was newly activated
      */
     activate(targetId, defensive = false) {
         if (!this.npc.role.combatCapable) {
+            return false;
+        }
+
+        // If already active with same target, don't re-activate
+        if (this.active && this.target === targetId) {
             return false;
         }
 
@@ -77,9 +122,8 @@ class CombatOverlay {
         // In defensive mode, deactivate if target is too far
         if (this.defensiveMode) {
             const dist = Math.hypot(target.x - this.npc.x, target.y - this.npc.y);
-            const MAX_DEFENSIVE_RANGE = 400; // Stop defending if attacker leaves range
 
-            if (dist > MAX_DEFENSIVE_RANGE) {
+            if (dist > NPCCombatConfig.MAX_DEFENSIVE_RANGE) {
                 return false;
             }
         }
@@ -102,4 +146,6 @@ class CombatOverlay {
     }
 }
 
-module.exports = CombatOverlay;
+// Export both the class and config
+NPCCombatOverlay.Config = NPCCombatConfig;
+module.exports = NPCCombatOverlay;

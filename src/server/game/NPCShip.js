@@ -3,9 +3,8 @@ const GameConfig = require('./GameConfig');
 const PhysicsConfig = require('./PhysicsConfig');
 const NavigationConfig = require('./NavigationConfig');
 const CombatConfig = require('./CombatConfig');
-const CombatNPCConfig = require('./CombatNPCConfig');
 const { getRole, getRandomShipClass } = require('./NPCRole');
-const CombatOverlay = require('./CombatOverlay');
+const NPCCombatOverlay = require('./NPCCombatOverlay');
 
 /**
  * NPCShip - Non-player ship entity
@@ -97,14 +96,14 @@ class NPCShip {
         // Combat state (Phase Combat-NPC 1A: Combat NPCs)
         this.combatTarget = null;  // Player entity ID or null
         this.combatDistance = CombatConfig.PROJECTILE_MAX_DISTANCE * 0.8;  // 80% of max range
-        this.combatSide = CombatNPCConfig.DEFAULT_COMBAT_SIDE;  // 'PORT' or 'STARBOARD'
+        this.combatSide = NPCCombatOverlay.Config.DEFAULT_COMBAT_SIDE;  // 'PORT' or 'STARBOARD'
 
         // Intent system (Phase 3.5: Consolidation)
         this.intent = this.role.defaultIntent;  // Current objective (TRAVEL, ENGAGE, EVADE, WAIT)
         this.intentData = {};                   // Intent-specific data (e.g., targetId, evadeFrom)
 
         // Combat overlay (Phase 3.5: Combat as capability)
-        this.combat = new CombatOverlay(this);
+        this.combat = new NPCCombatOverlay(this);
 
         // Activate combat for aggressive roles (pirates)
         if (this.role.combatAggressive) {
@@ -115,6 +114,7 @@ class NPCShip {
         // Damage tracking (Phase 3.5: Retaliation)
         this.lastAttacker = null;      // ID of entity that last damaged this NPC
         this.lastAttackTime = 0;       // Timestamp of last attack
+        this.lastLoggedHealth = null;  // Last health value we logged (for reducing spam)
     }
 
     get flagship() {
@@ -186,8 +186,7 @@ class NPCShip {
                 this.executeWait();
                 break;
             case 'EVADE':
-                // TODO: Implement in Phase 3
-                this.executeTravel(world); // Fallback to travel for now
+                this.executeEvade(world);
                 break;
             case 'DESPAWNING':
                 // No inputs needed
@@ -229,7 +228,7 @@ class NPCShip {
         const distToPosition = Math.hypot(combatPos.x - this.x, combatPos.y - this.y);
 
         // Blend movement toward position with rotation for broadside
-        if (distToPosition > CombatNPCConfig.POSITION_THRESHOLD) {
+        if (distToPosition > NPCCombatOverlay.Config.POSITION_THRESHOLD) {
             // Far from position - move toward it
             const dx = combatPos.x - this.x;
             const dy = combatPos.y - this.y;
@@ -319,47 +318,39 @@ class NPCShip {
             // Update combat overlay state
             this.combat.update(world);
 
-            console.log(`[NPC-DEBUG] ${this.id} TRAVEL defensive combat check - combatActive: ${this.combat.active}, lastAttacker: ${this.lastAttacker}`);
-
             // If not currently in combat, check if we were recently attacked
             if (!this.combat.active && this.lastAttacker) {
                 const now = Date.now() / 1000;
                 const RETALIATION_WINDOW = 30; // Retaliate within 30 seconds of being attacked
                 const timeSinceAttack = now - this.lastAttackTime;
 
-                console.log(`[NPC-DEBUG] ${this.id} checking retaliation - timeSinceAttack: ${timeSinceAttack.toFixed(1)}s, window: ${RETALIATION_WINDOW}s`);
-
                 // Only retaliate if attack was recent
                 if (timeSinceAttack < RETALIATION_WINDOW) {
                     const attacker = world.entities[this.lastAttacker];
 
-                    console.log(`[NPC-DEBUG] ${this.id} attacker ${this.lastAttacker} exists: ${!!attacker}`);
-
                     // Validate attacker still exists and is valid target
                     if (attacker && !attacker.inHarbor && !attacker.isRaft) {
-                        console.log(`[NPC-DEBUG] ${this.id} ACTIVATING defensive combat against ${this.lastAttacker}`);
                         // Activate defensive combat (return fire without pursuing)
-                        const activated = this.combat.activate(this.lastAttacker, true); // true = defensive mode
-                        console.log(`[NPC-DEBUG] ${this.id} combat.activate returned: ${activated}, combat.active: ${this.combat.active}`);
+                        const wasActivated = this.combat.activate(this.lastAttacker, true); // true = defensive mode
+                        if (wasActivated) {
+                            console.log(`[NPC] ${this.id} retaliating against ${this.lastAttacker}`);
+                            // Clear lastAttacker so we don't keep re-activating
+                            this.lastAttacker = null;
+                        }
                     } else {
-                        console.log(`[NPC-DEBUG] ${this.id} attacker invalid (inHarbor: ${attacker?.inHarbor}, isRaft: ${attacker?.isRaft}), clearing`);
                         // Attacker is gone, clear last attacker
                         this.lastAttacker = null;
                     }
                 } else {
-                    console.log(`[NPC-DEBUG] ${this.id} attack too old, clearing lastAttacker`);
                     this.lastAttacker = null;
                 }
             }
 
             // If in defensive combat, attempt to fire back
             if (this.combat.active) {
-                console.log(`[NPC-DEBUG] ${this.id} in combat, target: ${this.combat.target}`);
                 const target = world.entities[this.combat.target];
                 if (target) {
                     this.attemptCombatFire(world, target);
-                } else {
-                    console.log(`[NPC-DEBUG] ${this.id} WARNING: combat target ${this.combat.target} not found in world`);
                 }
             }
         }
@@ -382,6 +373,70 @@ class NPCShip {
         // Lower sails
         if (this.sailState > 0) {
             this.inputs.sailDown = true;
+        }
+    }
+
+    /**
+     * Execute EVADE intent (flee behavior)
+     * Used when NPCs are damaged below flee threshold
+     */
+    executeEvade(world) {
+        const EVADE_DURATION = 30; // Flee for 30 seconds
+        const SAFE_DISTANCE = 600; // Consider safe when this far from threat
+
+        // Check if evade timeout or safe
+        const now = Date.now() / 1000;
+        const evadeDuration = now - this.intentData.evadeStartTime;
+
+        // Calculate distance to threat
+        let distanceToThreat = Infinity;
+        if (this.intentData.evadeFrom) {
+            const threat = world.entities[this.intentData.evadeFrom];
+            if (threat) {
+                distanceToThreat = Math.hypot(threat.x - this.x, threat.y - this.y);
+            }
+        }
+
+        // Check if safe to return to default intent
+        if (evadeDuration > EVADE_DURATION || distanceToThreat > SAFE_DISTANCE) {
+            console.log(`[NPC] ${this.id} safe, returning to ${this.role.defaultIntent}`);
+            this.intent = this.role.defaultIntent;
+            this.intentData = {};
+            return;
+        }
+
+        // Flee away from threat
+        if (this.intentData.evadeFrom) {
+            const threat = world.entities[this.intentData.evadeFrom];
+            if (threat) {
+                // Calculate direction away from threat
+                const dx = this.x - threat.x;
+                const dy = this.y - threat.y;
+                this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2;
+            }
+        }
+
+        // Update navigation (obstacle avoidance)
+        if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+            this.navUpdateCounter = 0;
+            this.updateNavigation(world.worldMap);
+        }
+
+        // Steer toward desired heading
+        const angleDiff = this.currentHeading - this.desiredHeading;
+        const normalizedDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+
+        if (Math.abs(normalizedDiff) > 0.1) {
+            if (normalizedDiff > 0) {
+                this.inputs.right = true;
+            } else {
+                this.inputs.left = true;
+            }
+        }
+
+        // Full sails to flee quickly
+        if (this.sailState < 2) {
+            this.inputs.sailUp = true;
         }
     }
 
@@ -523,7 +578,7 @@ class NPCShip {
                 const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
 
                 // Check if within engagement range
-                if (dist < CombatNPCConfig.MAX_ENGAGEMENT_RANGE && dist < nearestDist) {
+                if (dist < NPCCombatOverlay.Config.MAX_ENGAGEMENT_RANGE && dist < nearestDist) {
                     // Validate target (not in harbor, not sunk)
                     if (!entity.inHarbor && !entity.isRaft && entity.flagship && !entity.flagship.isSunk) {
                         nearestDist = dist;
@@ -636,10 +691,10 @@ class NPCShip {
                 this.inputs.shootRight = true;
                 // GameLoop handles timestamp update upon actual firing
 
-                if (CombatNPCConfig.DEBUG_COMBAT) {
+                if (NPCCombatOverlay.Config.DEBUG_COMBAT) {
                     console.log(`[COMBAT] ${this.id} firing STARBOARD at ${target.id}`);
                 }
-            } else if (CombatNPCConfig.DEBUG_COMBAT && Math.random() < 0.1) {
+            } else if (NPCCombatOverlay.Config.DEBUG_COMBAT && Math.random() < 0.1) {
                 console.log(`[COMBAT] ${this.id} Starboard cooldown (${(now - this.lastShotTimeRight).toFixed(1)}s < ${CombatConfig.CANNON_FIRE_RATE})`);
             }
         }
@@ -650,14 +705,14 @@ class NPCShip {
                 this.inputs.shootLeft = true;
                 // GameLoop handles timestamp update upon actual firing
 
-                if (CombatNPCConfig.DEBUG_COMBAT) {
+                if (NPCCombatOverlay.Config.DEBUG_COMBAT) {
                     console.log(`[COMBAT] ${this.id} firing PORT at ${target.id}`);
                 }
-            } else if (CombatNPCConfig.DEBUG_COMBAT && Math.random() < 0.1) {
+            } else if (NPCCombatOverlay.Config.DEBUG_COMBAT && Math.random() < 0.1) {
                 console.log(`[COMBAT] ${this.id} Port cooldown (${(now - this.lastShotTimeLeft).toFixed(1)}s < ${CombatConfig.CANNON_FIRE_RATE})`);
             }
         }
-        else if (CombatNPCConfig.DEBUG_COMBAT && Math.random() < 0.05) {
+        else if (NPCCombatOverlay.Config.DEBUG_COMBAT && Math.random() < 0.05) {
             // Log angle mismatch occasionally (5% chance per tick to avoid spam)
             const deg = angleDiff * 180 / Math.PI;
             console.log(`[COMBAT] ${this.id} NO SHOT - Angle: ${deg.toFixed(0)}° (Need ~90° or ~-90°)`);
@@ -671,13 +726,39 @@ class NPCShip {
     takeDamage(amount, damageSource = null) {
         if (this.isRaft) return; // Safety check (NPCs don't become rafts in Phase 1)
 
+        const oldHealth = this.flagship.health;
         this.flagship.takeDamage(amount);
-        console.log(`[NPC] ${this.id} took ${amount} damage (${this.flagship.health}/${this.flagship.maxHealth} HP)`);
+        const newHealth = this.flagship.health;
+
+        // Log damage only at significant thresholds to reduce spam
+        const shouldLog =
+            this.lastLoggedHealth === null ||  // First hit
+            newHealth === 0 ||  // Sunk
+            Math.floor(newHealth / 50) < Math.floor(this.lastLoggedHealth / 50);  // Crossed a 50 HP threshold
+
+        if (shouldLog) {
+            console.log(`[NPC] ${this.id} took damage (${newHealth}/${this.flagship.maxHealth} HP)`);
+            this.lastLoggedHealth = newHealth;
+        }
 
         // Track last attacker for retaliation (Phase 3.5)
         if (damageSource) {
             this.lastAttacker = damageSource;
             this.lastAttackTime = Date.now() / 1000;
+        }
+
+        // Check if should flee (Phase 3.5: EVADE intent)
+        const healthRatio = newHealth / this.flagship.maxHealth;
+        if (healthRatio < this.role.fleeThreshold && this.intent !== 'EVADE') {
+            // Switch to EVADE intent
+            this.intent = 'EVADE';
+            this.intentData = {
+                evadeFrom: this.lastAttacker,  // Flee from whoever damaged us
+                evadeStartTime: Date.now() / 1000
+            };
+            // Deactivate combat when fleeing
+            this.combat.deactivate();
+            console.log(`[NPC] ${this.id} fleeing (${Math.floor(healthRatio * 100)}% HP)`);
         }
 
         // Check if flagship sunk
