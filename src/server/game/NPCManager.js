@@ -46,6 +46,7 @@ class NPCManager {
         // Create NPC
         const npcId = `npc_trader_${this.npcIdCounter++}`;
         const npc = new NPCShip(npcId, spawnX, spawnY, targetHarbor.id, 'TRADER');
+        npc.world = this.world; // Give NPC access to world for mission hooks
 
         // Register NPC
         this.npcs.set(npcId, npc);
@@ -74,6 +75,7 @@ class NPCManager {
         // Create pirate NPC
         const npcId = `npc_pirate_${this.npcIdCounter++}`;
         const npc = new NPCShip(npcId, spawnX, spawnY, null, 'PIRATE');
+        npc.world = this.world; // Give NPC access to world for mission hooks
 
         // Set combat target
         npc.combatTarget = targetPlayerId;

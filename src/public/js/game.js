@@ -259,6 +259,24 @@ function renderGame(state, mapData, myId) {
         }
     }
 
+    // Draw mission area (if active Stay in Area mission)
+    if (myShip && myShip.mission && myShip.mission.type === 'STAY_IN_AREA') {
+        const mission = myShip.mission;
+        if (mission.targetX && mission.targetY && mission.radius) {
+            ctx.save();
+            ctx.strokeStyle = '#FFD700'; // Gold
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.1)'; // Transparent gold
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]); // Dashed line
+            ctx.beginPath();
+            ctx.arc(mission.targetX, mission.targetY, mission.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset dash
+            ctx.restore();
+        }
+    }
+
     // Draw wake effects (before ships)
     wakeRenderer.draw(ctx);
 
@@ -366,6 +384,7 @@ function renderGame(state, mapData, myId) {
     if (myShip) {
         drawSpeedDisplay(myShip);
         drawFleetUI(myShip);
+        drawMissionUI(myShip); // Phase 0: Mission scaffolding
 
         // Show harbor prompt if near a harbor
         if (myShip.nearHarbor) {
@@ -550,6 +569,48 @@ function drawSpeedDisplay(player) {
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 2;
     ctx.stroke();
+
+    ctx.restore();
+}
+
+// Mission UI (Phase 0: Mission scaffolding)
+function drawMissionUI(player) {
+    if (!player.mission) return; // No active mission
+
+    ctx.save();
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'left';
+
+    // Background
+    const boxX = 10;
+    const boxY = 120; // Below fleet UI
+    const boxWidth = 250;
+    const boxHeight = 60;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+    // Mission title
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText('📜 MISSION', boxX + 10, boxY + 20);
+
+    // Mission description
+    ctx.fillStyle = 'white';
+    ctx.font = '12px Arial';
+    ctx.fillText(player.mission.description, boxX + 10, boxY + 40);
+
+    // Mission state
+    const stateColors = {
+        'ACTIVE': '#00FF00',
+        'SUCCESS': '#FFD700',
+        'FAILED': '#FF0000'
+    };
+    ctx.fillStyle = stateColors[player.mission.state] || 'white';
+    ctx.fillText(`Status: ${player.mission.state}`, boxX + 10, boxY + 55);
 
     ctx.restore();
 }

@@ -222,6 +222,21 @@ document.addEventListener('keydown', (e) => {
             socket.emit('spawnCombatNPC');
             console.log('[COMBAT] Requested pirate spawn');
             break;
+        case '1':
+            // Mission: Sail to Harbor
+            socket.emit('debug_start_mission', { type: 'SAIL_TO_HARBOR' });
+            console.log('[Mission] Starting: Sail to Harbor');
+            break;
+        case '2':
+            // Mission: Stay in Area
+            socket.emit('debug_start_mission', { type: 'STAY_IN_AREA' });
+            console.log('[Mission] Starting: Stay in Area');
+            break;
+        case '3':
+            // Mission: Defeat NPCs
+            socket.emit('debug_start_mission', { type: 'DEFEAT_NPCS', count: 3 });
+            console.log('[Mission] Starting: Defeat 3 NPCs');
+            break;
     }
     sendInput();
 });

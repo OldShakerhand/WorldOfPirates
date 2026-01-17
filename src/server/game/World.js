@@ -34,6 +34,10 @@ class World {
         // NPC Manager (Phase 1: Trader NPCs)
         this.npcManager = new NPCManager(this);
 
+        // Mission Manager (Phase 0: Scaffolding)
+        const MissionManager = require('./MissionManager');
+        this.missionManager = new MissionManager(this);
+
         // DEBUG ONLY: Track World creation for early-session collision diagnosis
         // NO gameplay behavior change
         const CombatConfig = require('./CombatConfig');
@@ -62,6 +66,9 @@ class World {
         // Update NPC AI (BEFORE entity movement)
         // NPCs compute inputs, then use same update() as players
         this.npcManager.update(deltaTime);
+
+        // Update Missions (AFTER NPC AI, BEFORE entity movement)
+        this.missionManager.update(deltaTime);
 
         // Update Entities (Players + NPCs use SAME simulation core)
         for (const id in this.entities) {
@@ -202,6 +209,11 @@ class World {
             // NPCs serialize identically to players for client rendering
             if (this.entities[id].type === 'PLAYER' || this.entities[id].type === 'NPC') {
                 state.players[id] = this.entities[id].serialize();
+
+                // Add mission data for players only (Phase 0: Mission scaffolding)
+                if (this.entities[id].type === 'PLAYER') {
+                    state.players[id].mission = this.missionManager.serializeForPlayer(id);
+                }
             }
         }
         return state;

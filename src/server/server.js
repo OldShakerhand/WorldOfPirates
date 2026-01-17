@@ -158,7 +158,100 @@ io.on('connection', (socket) => {
             gameLoop.world.npcManager.spawnPirate(player.x, player.y, socket.id);
         }
     });
+
+    // DEBUG: Start Mission (Phase 0: Mission scaffolding)
+    socket.on('debug_start_mission', (data) => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        const SailToHarborMission = require('./game/missions/SailToHarborMission');
+        const StayInAreaMission = require('./game/missions/StayInAreaMission');
+        const DefeatNPCsMission = require('./game/missions/DefeatNPCsMission');
+
+        let mission = null;
+
+        switch (data.type) {
+            case 'SAIL_TO_HARBOR':
+                // Find next closest harbor (not current one)
+                const targetHarbor = findNextClosestHarbor(player, gameLoop.world);
+                if (targetHarbor) {
+                    mission = new SailToHarborMission(null, socket.id, targetHarbor.id, targetHarbor.name);
+                    console.log(`[Mission] ${player.name}: Sail to ${targetHarbor.name}`);
+                }
+                break;
+
+            case 'STAY_IN_AREA':
+                // Pick a nearby area (500-1000 pixels away)
+                const targetArea = findNearbyArea(player);
+                mission = new StayInAreaMission(
+                    null, socket.id,
+                    targetArea.x, targetArea.y,
+                    200, // radius
+                    10   // duration in seconds
+                );
+                console.log(`[Mission] ${player.name}: Stay in area for 10s`);
+                break;
+
+            case 'DEFEAT_NPCS':
+                mission = new DefeatNPCsMission(null, socket.id, data.count || 3);
+                console.log(`[Mission] ${player.name}: Defeat ${data.count || 3} NPCs`);
+                break;
+        }
+
+        if (mission) {
+            gameLoop.world.missionManager.assignMission(socket.id, mission);
+        }
+    });
 });
+
+// Helper: Find next closest harbor (skip current one)
+function findNextClosestHarbor(player, world) {
+    const harbors = world.harborRegistry.getAllHarbors();
+
+    // Filter out current harbor if docked
+    const availableHarbors = harbors.filter(h =>
+        !player.inHarbor || h.id !== player.dockedHarborId
+    );
+
+    // Sort by distance
+    availableHarbors.sort((a, b) => {
+        const harborAX = a.tileX * require('./game/GameConfig').TILE_SIZE;
+        const harborAY = a.tileY * require('./game/GameConfig').TILE_SIZE;
+        const harborBX = b.tileX * require('./game/GameConfig').TILE_SIZE;
+        const harborBY = b.tileY * require('./game/GameConfig').TILE_SIZE;
+
+        const distA = Math.hypot(harborAX - player.x, harborAY - player.y);
+        const distB = Math.hypot(harborBX - player.x, harborBY - player.y);
+        return distA - distB;
+    });
+
+    // Return second closest (index 1) to avoid picking the one we're at
+    // If we're not in a harbor, return closest (index 0)
+    const targetHarborData = player.inHarbor ? availableHarbors[1] : availableHarbors[0];
+
+    if (targetHarborData) {
+        const GameConfig = require('./game/GameConfig');
+        return {
+            id: targetHarborData.id,
+            name: targetHarborData.name,
+            x: targetHarborData.tileX * GameConfig.TILE_SIZE,
+            y: targetHarborData.tileY * GameConfig.TILE_SIZE
+        };
+    }
+
+    return null;
+}
+
+// Helper: Find nearby area for testing (500-1000 pixels away)
+function findNearbyArea(player) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 500 + Math.random() * 500; // 500-1000 pixels
+
+    return {
+        x: player.x + Math.cos(angle) * distance,
+        y: player.y + Math.sin(angle) * distance
+    };
+}
 
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -764,6 +764,12 @@ class NPCShip {
         // Check if flagship sunk
         if (this.flagship.isSunk) {
             console.log(`[NPC] ${this.id} sunk, despawning`);
+
+            // Notify mission manager (Phase 0: Mission scaffolding)
+            if (this.world && this.world.missionManager) {
+                this.world.missionManager.onNPCDefeated(this.id, damageSource);
+            }
+
             this.state = 'DESPAWNING';
         }
     }
