@@ -10,10 +10,13 @@ Technical overview and system documentation.
 
 ## Gameplay (`gameplay/`)
 Game design, mechanics, and features.
-- [Design](gameplay/DESIGN.md) - Core vision and pillars.
-- [Features](gameplay/FEATURES.md) - Feature status and roadmap.
-- [Harbors](gameplay/HARBORS.md) - Harbor system details.
-- [NPCs](gameplay/NPCs.md) - NPC behavior and combat.
+- [Design Document](gameplay/DESIGN.md) - Core gameplay mechanics and systems
+- [Features](gameplay/FEATURES.md) - Implemented features and roadmap
+- [Ships](gameplay/SHIPS.md) - Ship classes, stats, and combat
+- [Harbors](gameplay/HARBORS.md) - Harbor system and locations
+- [NPCs](gameplay/NPCs.md) - NPC behavior and AI
+- [Missions](gameplay/MISSIONS.md) - Mission system and design
+- [World Map](gameplay/WORLD_MAP.md) - World structure and navigation
 
 ## Assets (`assets/`)
 - [Ships](assets/SHIPS.md) - Ship classes and asset details.
