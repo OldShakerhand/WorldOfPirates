@@ -42,14 +42,13 @@ const SHIELD_CONFIG = {
 const shipImages = {};
 const SHIP_SPRITE_MAP = {
     'Sloop': 'sloop',
-    'Pinnace': 'pinnace',
     'Barque': 'barque',
-    'Fluyt': 'fluyt', // Base name for Fluyt (will load 3 variants)
+    'Fluyt': 'fluyt',
     'Merchant': 'merchant',
     'Frigate': 'frigate',
-    'Fast Galleon': 'fast_galleon',
     'Spanish Galleon': 'spanish_galleon',
-    'War Galleon': 'war_galleon'
+    'War Galleon': 'war_galleon',
+    'Raft': 'raft'
 };
 
 // Preload ship sprites
