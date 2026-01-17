@@ -97,6 +97,10 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ## [0.1.0] - 2025-12-27
 
+> [!NOTE]
+> **Historical Record**: This version documents the original procedural world system and 10 ship classes. 
+> These have since been replaced with a tile-based Caribbean map and 8 ship classes (see later versions).
+
 ### Added
 - **Core Multiplayer Gameplay**
   - Real-time multiplayer with Socket.IO (60 tick/s)

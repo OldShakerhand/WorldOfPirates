@@ -161,10 +161,9 @@ socket.on('gamestate_update', (state) => {
 **Static Map Data** (sent once on connection):
 ```javascript
 socket.emit('map_data', {
-    width: 2000,
-    height: 2000,
-    islands: [...],  // All island data
-    harbors: [...]   // All harbor data
+    width: 80750,
+    height: 42525,
+    harbors: [...]   // All harbor data (141 harbors)
 });
 ```
 
@@ -235,7 +234,7 @@ socket.emit('input', {
 #### Core Systems
 - **[server.js](file:///c:/Development/WorldOfPirates/src/server/server.js)** - Express server, Socket.IO setup, player cap enforcement
 - **[GameLoop.js](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)** - Main game loop, tick management, performance monitoring
-- **[World.js](file:///c:/Development/WorldOfPirates/src/server/game/World.js)** - World state, entity management, island generation
+- **[World.js](file:///c:/Development/WorldOfPirates/src/server/game/World.js)** - World state, entity management, tilemap integration
 
 #### Entities
 - **[Player.js](file:///c:/Development/WorldOfPirates/src/server/game/Player.js)** - Player entity, movement, fleet management, combat
@@ -243,12 +242,13 @@ socket.emit('input', {
 - **[Projectile.js](file:///c:/Development/WorldOfPirates/src/server/game/Projectile.js)** - Cannonball physics and collision
 
 #### World Elements
-- **[Island.js](file:///c:/Development/WorldOfPirates/src/server/game/Island.js)** - Island generation, collision detection
-- **[Harbor.js](file:///c:/Development/WorldOfPirates/src/server/game/Harbor.js)** - Harbor placement and interaction
+- **[WorldMap.js](file:///c:/Development/WorldOfPirates/src/server/game/WorldMap.js)** - Tile-based terrain system
+- **[HarborRegistry.js](file:///c:/Development/WorldOfPirates/src/server/game/HarborRegistry.js)** - Harbor data management
+- **[Harbor.js](file:///c:/Development/WorldOfPirates/src/server/game/Harbor.js)** - Harbor interaction logic
 - **[Wind.js](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js)** - Dynamic wind system
 
 #### Configuration
-- **[GameConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/GameConfig.js)** - World size, tick rate, island generation
+- **[GameConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/GameConfig.js)** - World size, tick rate, tile size, paths
 - **[CombatConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/CombatConfig.js)** - Damage, fire rates, shields, projectiles
 - **[PhysicsConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/PhysicsConfig.js)** - Movement, acceleration, wind effects
 - **[ShipClass.js](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js)** - Ship class definitions and stats
@@ -372,13 +372,13 @@ socket.emit('input', {
 
 ```javascript
 {
-    width: 2000,             // World width
-    height: 2000,            // World height
+    width: 80750,            // World width (pixels)
+    height: 42525,           // World height (pixels)
     entities: {},            // All players (keyed by ID)
     projectiles: [],         // Active cannonballs
-    islands: [],             // Generated islands
-    harbors: [],             // Harbor locations
-    wind: Wind               // Wind system
+    harbors: [],             // Harbor locations (141 total)
+    wind: Wind,              // Wind system
+    worldMap: WorldMap       // Tile-based terrain
 }
 ```
 
@@ -476,25 +476,26 @@ npm run dev  # Nodemon auto-restart on file changes
 
 | Constant | Value | Purpose |
 |----------|-------|---------|
-| `WORLD_WIDTH` | 2000 | World width in units |
-| `WORLD_HEIGHT` | 2000 | World height in units |
+| `WORLD_WIDTH` | 80750 | World width in pixels |
+| `WORLD_HEIGHT` | 42525 | World height in pixels |
 | `CANVAS_WIDTH` | 1024 | Client canvas width |
 | `CANVAS_HEIGHT` | 768 | Client canvas height |
 | `TICK_RATE` | 60 | Server updates per second |
-| `ISLAND_COUNT` | 7 | Number of islands |
-| `ISLAND_MIN_RADIUS` | 60 | Minimum island size |
-| `ISLAND_MAX_RADIUS` | 150 | Maximum island size |
-| `HARBOR_INTERACTION_RADIUS` | 30 | Distance to enter harbor |
+| `TILE_SIZE` | 25 | Pixels per tile |
+| `WORLD_MAP_PATH` | './src/server/assets/world_map.json' | Tilemap file |
+| `HARBORS_PATH` | './assets/harbors.json' | Harbor data file |
+| `HARBOR_INTERACTION_RADIUS` | 80 | Distance to enter harbor |
 
 ### CombatConfig.js
 
 | Constant | Value | Purpose |
 |----------|-------|---------|
-| `CANNON_FIRE_RATE` | 3.0 | Seconds between shots |
-| `CANNON_SPREAD` | 0.1 | Radians between dual cannons |
+| `CANNON_FIRE_RATE` | 4.0 | Seconds between shots |
+| `CANNON_SPREAD` | 0.05 | Radians between dual cannons |
 | `PROJECTILE_DAMAGE` | 10 | Damage per cannonball |
-| `PROJECTILE_SPEED` | 200 | Cannonball velocity |
-| `PROJECTILE_LIFETIME` | 2 | Seconds before despawn |
+| `PROJECTILE_SPEED` | 120 | Cannonball velocity |
+| `PROJECTILE_MAX_DISTANCE` | 250 | Max range in pixels |
+| `PROJECTILE_BALL_RADIUS` | 2 | Visual size |
 | `FLAGSHIP_SWITCH_SHIELD_DURATION` | 10 | Shield when switching ships |
 | `HARBOR_EXIT_SHIELD_DURATION` | 10 | Shield when leaving harbor |
 
@@ -502,11 +503,13 @@ npm run dev  # Nodemon auto-restart on file changes
 
 | Constant | Value | Purpose |
 |----------|-------|---------|
-| `RAFT_SPEED` | 75 | Raft max speed (1.5× Sloop base) |
+| `ACCELERATION` | 20 | Deep water acceleration |
+| `DECELERATION` | 10 | Deep water deceleration |
 | `SHALLOW_WATER_SPEED_MULTIPLIER` | 0.75 | 25% speed reduction |
 | `FLEET_SPEED_PENALTY_PER_SHIP` | 0.05 | 5% penalty per ship |
 | `WIND_CHANGE_INTERVAL_MIN` | 30 | Min seconds between wind changes |
 | `WIND_CHANGE_INTERVAL_MAX` | 60 | Max seconds between wind changes |
+| `SPEED_TO_KNOTS_MULTIPLIER` | 0.1 | Convert pixels/sec to knots |
 
 ---
 

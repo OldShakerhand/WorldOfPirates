@@ -6,6 +6,7 @@ Technical overview and system documentation.
 - [Coordinate System](architecture/COORDINATE_SYSTEM.md) - Spatial mechanics and physics.
 - [World Map](architecture/WORLD_MAP.md) - Map generation and layout.
 - [Events](architecture/EVENTS.md) - Game event system.
+- [Client Rendering](architecture/CLIENT_RENDERING.md) - Visual systems (WakeRenderer, VisualAdapter).
 
 ## Gameplay (`gameplay/`)
 Game design, mechanics, and features.

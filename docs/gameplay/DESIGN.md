@@ -129,6 +129,37 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 - Lose all ships → Respawn on invulnerable raft
 - Fleet size affects overall speed (5% penalty per additional ship)
 
+### NPC Combat System
+
+**NPC Ships** (See: [`NPCShip.js`](file:///c:/Development/WorldOfPirates/src/server/game/NPCShip.js))
+- AI-controlled enemy ships spawn dynamically
+- Multiple NPC roles with distinct behaviors:
+  - **Trader**: Peaceful merchants (Merchant/Fluyt ships)
+  - **Pirate**: Aggressive attackers (Sloop/Barque ships)
+  - **Patrol**: Defensive guards (Frigate ships)
+
+**NPC Behavior** (See: [`NPCIntent.js`](file:///c:/Development/WorldOfPirates/src/server/game/NPCIntent.js))
+- **Intent System**: NPCs use tactical decision-making
+  - WANDER: Explore the world
+  - PURSUE: Chase detected enemies
+  - ATTACK: Engage in broadside combat
+  - EVADE: Flee when heavily damaged
+  - HARBOR: Seek safe zones for repairs
+- **Detection Range**: NPCs detect players/enemies within configurable radius
+- **Combat Overlay**: Aggressive NPCs actively hunt players
+
+**Spawn System** (See: [`NPCManager.js`](file:///c:/Development/WorldOfPirates/src/server/game/NPCManager.js))
+- Dynamic spawning based on player count
+- NPCs spawn away from players to avoid unfair encounters
+- Configurable spawn rates and maximum NPC counts
+- Debug controls: N (spawn Trader), P (spawn Pirate)
+
+**Design Philosophy**:
+- NPCs provide PvE content for solo/learning players
+- Create dynamic world activity even with low player counts
+- Offer practice targets for combat mechanics
+- Add unpredictability to naval encounters
+
 ### Harbor System
 
 **Safe Zones** (See: [`Harbor.js`](file:///c:/Development/WorldOfPirates/src/server/game/Harbor.js))
@@ -148,24 +179,27 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 
 ## 🚢 Ship Progression
 
-### Ship Classes (10 Total)
+### Ship Classes (8 Total)
 
 Ships follow a progression from fast/weak to slow/powerful:
 
-| Tier | Ship | Role | Trade-off |
-|------|------|------|-----------|
-| 0 | **Raft** | Fallback | Invulnerable, no weapons, slow |
-| 1 | **Sloop** | Starter | Fast, fragile, light firepower |
-| 2 | **Pinnace** | Light Combat | Balanced stats |
-| 3 | **Barque** | Versatile | Sturdy with decent firepower |
-| 4 | **Fluyt** | Merchant* | Cargo-focused (future feature) |
-| 5 | **Merchant** | Trade/Combat* | Balanced for trading |
-| 6 | **Frigate** | Warship | Strong combat vessel |
-| 7 | **Fast Galleon** | Heavy Combat | Speed + firepower |
-| 8 | **Spanish Galleon** | Heavy Combat | Tanky with heavy guns |
-| 9 | **War Galleon** | Ultimate | Maximum firepower, slow |
+| Tier | Ship | Cannons/Side | Max Speed | Health | Cost | Role |
+|------|------|--------------|-----------|--------|------|------|
+| 0 | **Raft** | 0 | 14 kn | 50 | 0 | Fallback - Invulnerable, no weapons |
+| 1 | **Sloop** | 2 | 9.2 kn | 100 | 500 | Starter - Fast, fragile, light firepower |
+| 2 | **Barque** | 3 | 8.7 kn | 150 | 1,000 | Light Combat - Narrow hull, decent firepower |
+| 3 | **Fluyt** | 4 | 7.7 kn | 200 | 1,500 | Merchant - Balanced for trading |
+| 4 | **Merchant** | 5 | 7.2 kn | 250 | 2,000 | Trade/Combat - Versatile |
+| 5 | **Frigate** | 6 | 8.4 kn | 300 | 3,000 | Warship - Strong combat vessel |
+| 6 | **Spanish Galleon** | 8 | 6.4 kn | 400 | 5,000 | Heavy Combat - Tanky with heavy guns |
+| 7 | **War Galleon** | 12 | 5.4 kn | 500 | 8,000 | Ultimate - Maximum firepower, slow |
 
-See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js) for detailed stats.
+**Design Notes**:
+- Removed Pinnace and Fast Galleon for clearer progression
+- Logical size scaling: Sloop (92px) → War Galleon (180px)
+- Speed vs firepower trade-off maintained throughout progression
+
+See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js) and [`SHIPS.md`](../assets/SHIPS.md) for detailed stats.
 
 > [!IMPORTANT]
 > **Design Question**: How do players acquire new ships?
@@ -195,10 +229,11 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/Ship
 ## 🌍 World Design
 
 ### Current Implementation
-- **World Size**: 2000×2000 units (See: [`GameConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/GameConfig.js))
-- **Islands**: 7 procedurally generated islands
-- **Harbors**: 1 per island (7 total)
-- **Spawn System**: Random spawn in designated area
+- **World Size**: 80,750×42,525 pixels (3,230×1,701 tiles @ 25px each, 50% scale)
+- **World Map**: Tile-based map of Gulf of Mexico and Caribbean (replaces procedural generation)
+- **Terrain**: Land, shallow water, and deep water tiles loaded from `world_map.json`
+- **Harbors**: 141 historical Caribbean harbors loaded from `harbors.json`
+- **Spawn System**: Random spawn near Nassau (Bahamas area)
 
 ### Future Considerations
 
@@ -300,7 +335,8 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/Ship
 ## 🚀 Future Features (Brainstorm)
 
 ### High Priority
-- [ ] Player names/identification
+- [x] Player names/identification ✅
+- [x] NPC enemy ships ✅
 - [ ] Kill feed / combat log
 - [ ] Minimap
 - [ ] Ship acquisition system
@@ -314,7 +350,6 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/Ship
 - [ ] Customization (flags, colors)
 
 ### Low Priority / Ideas
-- [ ] AI-controlled merchant ships
 - [ ] Treasure hunting
 - [ ] Port trading economy
 - [ ] Ship customization (cannons, sails, hull)

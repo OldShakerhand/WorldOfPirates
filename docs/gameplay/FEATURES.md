@@ -38,7 +38,7 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Raft Fallback** - Invulnerable raft when all ships are lost
 
 ### Ship Classes
-- [x] **10 Ship Classes** - Raft, Sloop, Pinnace, Barque, Fluyt, Merchant, Frigate, Fast Galleon, Spanish Galleon, War Galleon
+- [x] **8 Ship Classes** - Raft, Sloop, Barque, Fluyt, Merchant, Frigate, Spanish Galleon, War Galleon
 - [x] **Unique Stats** - Each class has distinct speed, health, turn rate, and cannons
 - [x] **Sail State Sprites** - Dynamic sprites for no sails, half sails, and full sails
 - [x] **Fleet Speed Penalty** - Additional ships reduce overall speed (5% per ship)
