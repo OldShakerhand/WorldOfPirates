@@ -77,13 +77,23 @@ preloadShipSprites();
 
 // Ship class properties - loaded from server via shipMetadata event
 let SHIP_PROPERTIES = {
-    // Default fallback for Raft (not in SHIP_CLASSES)
-    'Raft': { spriteWidth: 20, spriteHeight: 30, spriteRotation: 0 }
+    'Raft': { spriteWidth: 180, spriteHeight: 180, spriteRotation: 0, hitboxWidthFactor: 0.13 },
+    'Sloop': { spriteWidth: 92, spriteHeight: 92, spriteRotation: 0, hitboxWidthFactor: 0.24 },
+    'Barque': { spriteWidth: 116, spriteHeight: 116, spriteRotation: 0, hitboxWidthFactor: 0.25 },
+    'Fluyt': { spriteWidth: 116, spriteHeight: 116, spriteRotation: 0, hitboxWidthFactor: 0.38 },
+    'Merchant': { spriteWidth: 120, spriteHeight: 120, spriteRotation: 0, hitboxWidthFactor: 0.33 },
+    'Frigate': { spriteWidth: 140, spriteHeight: 140, spriteRotation: 0, hitboxWidthFactor: 0.41 },
+    'Spanish Galleon': { spriteWidth: 160, spriteHeight: 160, spriteRotation: 0, hitboxWidthFactor: 0.32 },
+    'War Galleon': { spriteWidth: 180, spriteHeight: 180, spriteRotation: 0, hitboxWidthFactor: 0.45 }
 };
 
 function getShipProperties(shipClassName) {
     return SHIP_PROPERTIES[shipClassName] || SHIP_PROPERTIES['Raft'];
 }
+
+// Client-side visual systems
+const wakeRenderer = new WakeRenderer();
+
 
 // World dimensions (Gulf of Mexico + Caribbean: 3230×1701 tiles @ 25px = 80,750×42,525 pixels - 50% scale)
 const WORLD_WIDTH = 80750;
@@ -112,6 +122,9 @@ function renderGame(state, mapData, myId) {
 
     // Clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Update visual systems
+    wakeRenderer.update(0.016); // Approx 60fps dt
 
     // Find my ship for camera tracking
     const myShip = state.players[myId];
@@ -246,9 +259,15 @@ function renderGame(state, mapData, myId) {
         }
     }
 
+    // Draw wake effects (before ships)
+    wakeRenderer.draw(ctx);
+
     // Draw players with world wrapping
     for (const id in state.players) {
         const player = state.players[id];
+
+        // Spawn wake particles if moving
+        wakeRenderer.spawnFor(player, getShipProperties(player.shipClassName), 0.016);
 
         // Draw ship at its actual position
         drawShip(player, id === myId);
