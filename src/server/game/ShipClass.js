@@ -13,7 +13,7 @@ const SHIP_CLASSES = {
     RAFT: {
         id: 1,
         name: 'Raft',
-        maxSpeed: 130,
+        maxSpeed: 140,
         turnSpeed: 1.5,
         health: 500,
         cannonsPerSide: 0,

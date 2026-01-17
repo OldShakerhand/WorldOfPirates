@@ -16,8 +16,8 @@ const NPCRoles = {
         name: 'Trader',
         description: 'Peaceful merchant traveling between harbors',
 
-        // Ship preferences (TODO: Add MERCHANT when assets available)
-        shipClasses: ['FLUYT'],
+        // Ship preferences
+        shipClasses: ['MERCHANT'],
 
         // Behavior parameters
         defaultIntent: 'TRAVEL',

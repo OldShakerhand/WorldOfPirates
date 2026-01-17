@@ -14,8 +14,7 @@ const PhysicsConfig = {
     // Speed modifiers
     SHALLOW_WATER_SPEED_MULTIPLIER: 0.75, // 25% reduction
 
-    // Raft (fallback ship)
-    RAFT_SPEED: 75, // 1.5x Sloop base speed (50)
+    // Raft turn speed (maxSpeed comes from ShipClass.RAFT)
     RAFT_TURN_SPEED: 1.5,
 
     // Fleet penalties

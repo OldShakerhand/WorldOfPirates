@@ -62,8 +62,6 @@ class Player {
 
         // Speed tracking
         this.speedInKnots = 0;
-        // Raft properties (if all ships lost)
-        this.raftSpeed = PhysicsConfig.RAFT_SPEED;
         this.isInDeepWater = true;
 
         // Input state
@@ -88,7 +86,8 @@ class Player {
 
     get maxSpeed() {
         if (this.isRaft) {
-            return this.raftSpeed; // 1.5x Sloop speed
+            const { SHIP_CLASSES } = require('./ShipClass');
+            return SHIP_CLASSES.RAFT.maxSpeed;
         }
         return this.flagship.shipClass.maxSpeed;
     }
