@@ -237,6 +237,11 @@ document.addEventListener('keydown', (e) => {
             socket.emit('debug_start_mission', { type: 'DEFEAT_NPCS', count: 3 });
             console.log('[Mission] Starting: Defeat 3 NPCs');
             break;
+        case '4':
+            // Mission: Escort Trader
+            socket.emit('debug_start_mission', { type: 'ESCORT' });
+            console.log('[Mission] Starting: Escort Trader');
+            break;
     }
     sendInput();
 });

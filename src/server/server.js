@@ -196,6 +196,35 @@ io.on('connection', (socket) => {
                 mission = new DefeatNPCsMission(null, socket.id, data.count || 3);
                 console.log(`[Mission] ${player.name}: Defeat ${data.count || 3} NPCs`);
                 break;
+
+            case 'ESCORT':
+                const EscortMission = require('./game/missions/EscortMission');
+
+                // Check if player already has an active mission
+                const existingMission = gameLoop.world.missionManager.getPlayerMission(socket.id);
+                if (existingMission && existingMission.state === 'ACTIVE') {
+                    console.log(`[Mission] ${player.name} already has active mission, cannot start escort`);
+                    return; // Don't spawn NPC if player has active mission
+                }
+
+                // Spawn a trader NPC
+                const trader = gameLoop.world.npcManager.spawnTrader(player.x, player.y);
+                const escortTargetHarbor = findNextClosestHarbor(player, gameLoop.world);
+
+                if (trader && escortTargetHarbor) {
+                    // Override trader's target to mission harbor
+                    trader.targetHarborId = escortTargetHarbor.id;
+
+                    mission = new EscortMission(
+                        null, socket.id,
+                        trader.id,
+                        escortTargetHarbor.id,
+                        escortTargetHarbor.name,
+                        800 // max distance
+                    );
+                    console.log(`[Mission] ${player.name}: Escort ${trader.id} to ${escortTargetHarbor.name}`);
+                }
+                break;
         }
 
         if (mission) {

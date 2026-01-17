@@ -191,6 +191,15 @@ class NPCShip {
             case 'DESPAWNING':
                 // No inputs needed
                 break;
+
+            case 'ARRIVED':
+                // NPC has arrived at destination, do nothing (about to despawn)
+                // Just lower sails and wait for despawn
+                if (this.sailState > 0) {
+                    this.inputs.sailDown = true;
+                }
+                break;
+
             default:
                 console.warn(`[NPC] ${this.id} has unknown intent: ${this.intent}`);
         }
@@ -788,17 +797,26 @@ class NPCShip {
         }
 
         // Update state timer
+        // Decrement state timer
         if (this.stateTimer > 0) {
             this.stateTimer -= deltaTime;
-            if (this.stateTimer <= 0) {
-                // Transition from STOPPED to DESPAWNING
-                if (this.state === 'STOPPED') {
-                    this.state = 'DESPAWNING';
-                    console.log(`[NPC] ${this.id} finished stop, despawning`);
+
+            // When timer expires, set ARRIVED intent
+            if (this.state === 'STOPPED') {
+                if (this.stateTimer <= 0) {
+                    // Set ARRIVED intent (for mission tracking)
+                    if (this.intent !== 'ARRIVED') {
+                        this.intent = 'ARRIVED';
+                        console.log(`[NPC] ${this.id} finished stop, despawning`);
+                        // Give mission system 0.5 seconds to detect ARRIVED before despawning
+                        this.stateTimer = 0.5;
+                    } else {
+                        // Already set ARRIVED, now despawn
+                        this.state = 'DESPAWNING';
+                    }
                 }
             }
         }
-
         // Compute AI inputs based on current state
         this.computeAIInputs(world);
     }

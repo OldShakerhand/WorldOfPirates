@@ -277,6 +277,51 @@ function renderGame(state, mapData, myId) {
         }
     }
 
+    // Draw escort mission indicator (if active Escort mission)
+    if (myShip && myShip.mission && myShip.mission.type === 'ESCORT') {
+        const mission = myShip.mission;
+        const escortNpc = state.players[mission.escortNpcId];
+
+        if (escortNpc) {
+            ctx.save();
+
+            // Draw max distance circle around NPC
+            ctx.strokeStyle = '#00FF00'; // Green
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.05)'; // Very transparent green
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]); // Dashed line
+            ctx.beginPath();
+            ctx.arc(escortNpc.x, escortNpc.y, mission.maxDistance, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset dash
+
+            // Draw line from player to NPC
+            ctx.strokeStyle = '#00FF00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(myShip.x, myShip.y);
+            ctx.lineTo(escortNpc.x, escortNpc.y);
+            ctx.stroke();
+
+            // Draw distance text
+            const distance = Math.hypot(myShip.x - escortNpc.x, myShip.y - escortNpc.y);
+            const midX = (myShip.x + escortNpc.x) / 2;
+            const midY = (myShip.y + escortNpc.y) / 2;
+
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            const distText = `${Math.round(distance)}px`;
+            ctx.strokeText(distText, midX, midY);
+            ctx.fillText(distText, midX, midY);
+
+            ctx.restore();
+        }
+    }
+
     // Draw wake effects (before ships)
     wakeRenderer.draw(ctx);
 
