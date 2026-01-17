@@ -27,9 +27,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        // Hitbox
-        hitboxWidthFactor: 0.5,
-        hitboxHeightFactor: 0.8
+        // Hitbox (small raft, body only)
+        hitboxWidthFactor: 0.13,
+        hitboxHeightFactor: 0.24
     },
     SLOOP: {
         id: 2,
@@ -48,9 +48,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        // Hitbox tighter due to square frame
-        hitboxWidthFactor: 0.6,
-        hitboxHeightFactor: 0.8
+        // Hitbox (narrow hull, excluding sails)
+        hitboxWidthFactor: 0.24,
+        hitboxHeightFactor: 0.68
     },
 
     BARQUE: {
@@ -70,9 +70,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        // Hitbox (narrower ship)
-        hitboxWidthFactor: 0.35,
-        hitboxHeightFactor: 0.85
+        // Hitbox (narrow hull, excluding sails)
+        hitboxWidthFactor: 0.25,
+        hitboxHeightFactor: 0.84
     },
     FLUYT: {
         id: 4,
@@ -91,8 +91,8 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 14,
         cannonLongitudinalOffsetPort: -14,
         cannonLongitudinalOffsetStarboard: -14,
-        // Hitbox (wider ship)
-        hitboxWidthFactor: 0.55,
+        // Hitbox (wider hull, excluding sails)
+        hitboxWidthFactor: 0.38,
         hitboxHeightFactor: 0.85
     },
     MERCHANT: {
@@ -112,8 +112,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        hitboxWidthFactor: 0.8,
-        hitboxHeightFactor: 0.8
+        // Hitbox (medium hull, excluding sails)
+        hitboxWidthFactor: 0.33,
+        hitboxHeightFactor: 0.74
     },
     FRIGATE: {
         id: 6,
@@ -132,8 +133,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        hitboxWidthFactor: 0.8,
-        hitboxHeightFactor: 0.8
+        // Hitbox (wide hull, excluding sails)
+        hitboxWidthFactor: 0.41,
+        hitboxHeightFactor: 0.89
     },
 
     SPANISH_GALLEON: {
@@ -153,8 +155,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        hitboxWidthFactor: 0.8,
-        hitboxHeightFactor: 0.8
+        // Hitbox (narrow hull, excluding sails)
+        hitboxWidthFactor: 0.32,
+        hitboxHeightFactor: 0.98
     },
     WAR_GALLEON: {
         id: 8,
@@ -173,8 +176,9 @@ const SHIP_CLASSES = {
         cannonLateralOffsetStarboard: 0,
         cannonLongitudinalOffsetPort: 0,
         cannonLongitudinalOffsetStarboard: 0,
-        hitboxWidthFactor: 0.8,
-        hitboxHeightFactor: 0.8
+        // Hitbox (wide ship, excluding outlier pixels)
+        hitboxWidthFactor: 0.45,
+        hitboxHeightFactor: 0.96
     }
 };
 
