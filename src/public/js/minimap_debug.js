@@ -44,8 +44,8 @@ const MINIMAP_CONFIG = {
     // Zoom levels
     ZOOM_LEVELS: [
         { name: 'Whole Map', factor: 1 },   // 0 - entire world
-        { name: 'Region', factor: 5 },      // 1 - regional view (1/5 of world)
-        { name: 'Local', factor: 10 }       // 2 - local area (1/10 of world)
+        { name: 'Region', factor: 3 },      // 1 - regional view (1/3 of world)
+        { name: 'Local', factor: 6 }        // 2 - local area (1/6 of world)
     ]
 };
 
