@@ -247,11 +247,12 @@ function findNextClosestHarbor(player, world) {
     );
 
     // Sort by distance
+    const { GAME } = require('./game/config/GameConfig');
     availableHarbors.sort((a, b) => {
-        const harborAX = a.tileX * require('./game/GameConfig').TILE_SIZE;
-        const harborAY = a.tileY * require('./game/GameConfig').TILE_SIZE;
-        const harborBX = b.tileX * require('./game/GameConfig').TILE_SIZE;
-        const harborBY = b.tileY * require('./game/GameConfig').TILE_SIZE;
+        const harborAX = a.tileX * GAME.TILE_SIZE;
+        const harborAY = a.tileY * GAME.TILE_SIZE;
+        const harborBX = b.tileX * GAME.TILE_SIZE;
+        const harborBY = b.tileY * GAME.TILE_SIZE;
 
         const distA = Math.hypot(harborAX - player.x, harborAY - player.y);
         const distB = Math.hypot(harborBX - player.x, harborBY - player.y);
@@ -263,12 +264,11 @@ function findNextClosestHarbor(player, world) {
     const targetHarborData = player.inHarbor ? availableHarbors[1] : availableHarbors[0];
 
     if (targetHarborData) {
-        const GameConfig = require('./game/GameConfig');
         return {
             id: targetHarborData.id,
             name: targetHarborData.name,
-            x: targetHarborData.tileX * GameConfig.TILE_SIZE,
-            y: targetHarborData.tileY * GameConfig.TILE_SIZE
+            x: targetHarborData.tileX * GAME.TILE_SIZE,
+            y: targetHarborData.tileY * GAME.TILE_SIZE
         };
     }
 
