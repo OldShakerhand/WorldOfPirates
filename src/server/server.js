@@ -93,7 +93,7 @@ io.on('connection', (socket) => {
         }
 
         // Clamp to world bounds
-        const GameConfig = require('./game/GameConfig'); // Assuming GameConfig is available or imported
+        const GameConfig = require('./game/config/GameConfig'); // Assuming GameConfig is available or imported
         const clampedX = Math.max(0, Math.min(x, GameConfig.WORLD_WIDTH));
         const clampedY = Math.max(0, Math.min(y, GameConfig.WORLD_HEIGHT));
 
