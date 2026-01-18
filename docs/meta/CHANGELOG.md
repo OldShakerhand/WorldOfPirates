@@ -32,6 +32,16 @@ This document tracks all notable changes to World of Pirates across versions. It
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+---
+
+## [0.3.0] - 2026-01-18
+
+### Added
 - **Rotated Rectangular Hitboxes** - Sprite-based collision detection for accurate hit detection
   - Replaced circular hitboxes with rotated rectangles matching ship sprite dimensions
   - Hitbox dimensions derived from sprite size using configurable factors (default 0.8)
@@ -49,11 +59,22 @@ This document tracks all notable changes to World of Pirates across versions. It
 - Explanatory code comments for all mathematical transformations
 
 ### Changed
+- **Server Codebase Refactoring** - Complete reorganization of server files for better maintainability
+  - Consolidated configuration into `src/server/game/config/GameConfig.js`
+  - Centralized NPC behavior in `src/server/game/npc/NPCBehavior.js`
+  - Structured folders: `entities/`, `world/`, `npc/`, `missions/`, `progression/`
+- **Documentation Updates** - Updated all architecture docs to reflect new file structure
 - **Collision Detection** - From circular to rotated rectangular hitboxes
   - More accurate collision detection matching visual sprite boundaries
   - Per-ship hitbox tuning via width/height factors
 - Improved broadside detection accuracy with explicit sectors
 - Replaced 1.5 radian threshold with precise ±60° zones
+
+### Fixed
+- **Mission Crash** - Resolved `GameConfig` import error in `server.js` helper function
+- **Teleport Debug Crash** - Fixed `NaN` coordinate error by adding validation and correcting config access
+- **Spawn Helper** - Updated `spawn_helper.html` to use `fetch` instead of `require` for browser compatibility
+- **Reward System** - Fixed case-sensitivity bug (`PIRATE` vs `Pirate`) in reward logic
 
 ---
 
