@@ -343,16 +343,43 @@ function drawZoomIndicator() {
     if (!minimapCtx) return;
 
     const zoomLevel = MINIMAP_CONFIG.ZOOM_LEVELS[currentZoom];
+    const text = `Zoom: ${zoomLevel.name}`;
 
-    // Draw semi-transparent background
-    minimapCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    minimapCtx.fillRect(5, 5, 80, 20);
+    // Measure text to get proper width
+    minimapCtx.font = 'bold 14px Arial';
+    const textMetrics = minimapCtx.measureText(text);
+    const textWidth = textMetrics.width;
 
-    // Draw zoom level text
+    // Draw semi-transparent background with padding
+    const padding = 8;
+    const boxWidth = textWidth + padding * 2;
+    const boxHeight = 24;
+
+    minimapCtx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+    minimapCtx.fillRect(5, 5, boxWidth, boxHeight);
+
+    // Draw border
+    minimapCtx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+    minimapCtx.lineWidth = 1;
+    minimapCtx.strokeRect(5, 5, boxWidth, boxHeight);
+
+    // Draw zoom level text with shadow for better readability
+    minimapCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    minimapCtx.shadowBlur = 2;
+    minimapCtx.shadowOffsetX = 1;
+    minimapCtx.shadowOffsetY = 1;
+
     minimapCtx.fillStyle = '#FFD700';
-    minimapCtx.font = '12px Arial';
+    minimapCtx.font = 'bold 14px Arial';
     minimapCtx.textAlign = 'left';
-    minimapCtx.fillText(`Zoom: ${zoomLevel.name}`, 10, 18);
+    minimapCtx.textBaseline = 'middle';
+    minimapCtx.fillText(text, 5 + padding, 5 + boxHeight / 2);
+
+    // Reset shadow
+    minimapCtx.shadowColor = 'transparent';
+    minimapCtx.shadowBlur = 0;
+    minimapCtx.shadowOffsetX = 0;
+    minimapCtx.shadowOffsetY = 0;
 }
 
 // Initialize minimap when DOM is ready
