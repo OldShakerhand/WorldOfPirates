@@ -93,9 +93,9 @@ io.on('connection', (socket) => {
         }
 
         // Clamp to world bounds
-        const GameConfig = require('./game/config/GameConfig'); // Assuming GameConfig is available or imported
-        const clampedX = Math.max(0, Math.min(x, GameConfig.WORLD_WIDTH));
-        const clampedY = Math.max(0, Math.min(y, GameConfig.WORLD_HEIGHT));
+        const { GAME } = require('./game/config/GameConfig'); // Access GAME namespace
+        const clampedX = Math.max(0, Math.min(x, GAME.WORLD_WIDTH));
+        const clampedY = Math.max(0, Math.min(y, GAME.WORLD_HEIGHT));
 
         console.log(`[DEBUG] Teleporting ${player.name} to (${clampedX}, ${clampedY})`);
 
