@@ -186,6 +186,11 @@ function updateMinimap(worldTilemap, mapData, myShip) {
     // Render player marker on top (always centered at higher zooms)
     if (myShip) {
         renderPlayer(myShip, worldTilemap.width, worldTilemap.height);
+
+        // Render mission area marker if active Stay in Area mission
+        if (myShip.mission && myShip.mission.type === 'STAY_IN_AREA' && myShip.mission.state === 'ACTIVE') {
+            renderMissionArea(myShip.mission, worldTilemap.width, worldTilemap.height, myShip);
+        }
     }
 
     // Draw zoom level indicator
@@ -322,6 +327,61 @@ function renderPlayer(myShip, tilemapWidth, tilemapHeight) {
     minimapCtx.beginPath();
     minimapCtx.arc(minimapX, minimapY, MINIMAP_CONFIG.PLAYER_RADIUS, 0, Math.PI * 2);
     minimapCtx.fill();
+}
+
+/**
+ * Render mission area marker (for Stay in Area mission)
+ * 
+ * @param {Object} mission - Mission data {targetX, targetY, radius}
+ * @param {number} tilemapWidth - Tilemap width in tiles
+ * @param {number} tilemapHeight - Tilemap height in tiles
+ * @param {Object} myShip - Player ship (for zoom centering)
+ */
+function renderMissionArea(mission, tilemapWidth, tilemapHeight, myShip) {
+    if (!mission.targetX || !mission.targetY || !mission.radius) return;
+
+    const zoomLevel = MINIMAP_CONFIG.ZOOM_LEVELS[currentZoom];
+    const worldWidth = tilemapWidth * MINIMAP_CONFIG.TILE_SIZE;
+    const worldHeight = tilemapHeight * MINIMAP_CONFIG.TILE_SIZE;
+
+    // Calculate mission area position
+    const normalizedX = mission.targetX / worldWidth;
+    const normalizedY = mission.targetY / worldHeight;
+
+    let minimapX, minimapY, minimapRadius;
+
+    if (currentZoom === 0) {
+        // Zoom 0: Direct mapping
+        minimapX = normalizedX * MINIMAP_CONFIG.WIDTH;
+        minimapY = normalizedY * MINIMAP_CONFIG.HEIGHT;
+        minimapRadius = (mission.radius / worldWidth) * MINIMAP_CONFIG.WIDTH;
+    } else {
+        // Zoom 1-2: Calculate position relative to player-centered view
+        const playerNormalizedX = myShip.x / worldWidth;
+        const playerNormalizedY = myShip.y / worldHeight;
+
+        // Calculate mission area position relative to player
+        const relativeX = (normalizedX - playerNormalizedX) * zoomLevel.factor;
+        const relativeY = (normalizedY - playerNormalizedY) * zoomLevel.factor;
+
+        // Map to minimap coordinates (centered on player)
+        minimapX = (0.5 + relativeX) * MINIMAP_CONFIG.WIDTH;
+        minimapY = (0.5 + relativeY) * MINIMAP_CONFIG.HEIGHT;
+        minimapRadius = (mission.radius / worldWidth) * MINIMAP_CONFIG.WIDTH * zoomLevel.factor;
+    }
+
+    // Draw mission area circle (golden, semi-transparent)
+    minimapCtx.save();
+    minimapCtx.strokeStyle = '#FFD700';
+    minimapCtx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+    minimapCtx.lineWidth = 2;
+    minimapCtx.setLineDash([5, 3]); // Dashed line
+    minimapCtx.beginPath();
+    minimapCtx.arc(minimapX, minimapY, minimapRadius, 0, Math.PI * 2);
+    minimapCtx.fill();
+    minimapCtx.stroke();
+    minimapCtx.setLineDash([]); // Reset dash
+    minimapCtx.restore();
 }
 
 /**
