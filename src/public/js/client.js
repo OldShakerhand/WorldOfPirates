@@ -242,6 +242,12 @@ document.addEventListener('keydown', (e) => {
             socket.emit('debug_start_mission', { type: 'ESCORT' });
             console.log('[Mission] Starting: Escort Trader');
             break;
+        case 'm':
+            // Cycle minimap zoom
+            if (typeof cycleMinimapZoom !== 'undefined') {
+                cycleMinimapZoom();
+            }
+            break;
     }
     sendInput();
 });

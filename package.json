@@ -21,7 +21,7 @@
     "nodemon": "^3.1.11",
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
     "pngjs": "^7.0.0"

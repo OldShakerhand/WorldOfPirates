@@ -39,8 +39,18 @@ const MINIMAP_CONFIG = {
 
     // Marker sizes
     PLAYER_RADIUS: 3,
-    HARBOR_SIZE: 4
+    HARBOR_SIZE: 4,
+
+    // Zoom levels
+    ZOOM_LEVELS: [
+        { name: 'Whole Map', factor: 1 },   // 0 - entire world
+        { name: 'Region', factor: 5 },      // 1 - regional view (1/5 of world)
+        { name: 'Local', factor: 10 }       // 2 - local area (1/10 of world)
+    ]
 };
+
+// Zoom state
+let currentZoom = 0; // Current zoom level (0, 1, or 2)
 
 // Minimap canvas element
 let minimapCanvas = null;
@@ -126,20 +136,60 @@ function updateMinimap(worldTilemap, mapData, myShip) {
     minimapCtx.fillStyle = '#000000';
     minimapCtx.fillRect(0, 0, MINIMAP_CONFIG.WIDTH, MINIMAP_CONFIG.HEIGHT);
 
-    // Blit cached terrain from offscreen canvas (very fast)
+    // Render terrain based on zoom level
     if (terrainRendered) {
-        minimapCtx.drawImage(terrainCanvas, 0, 0);
+        const zoomLevel = MINIMAP_CONFIG.ZOOM_LEVELS[currentZoom];
+
+        if (currentZoom === 0) {
+            // Zoom 0: Draw entire cached terrain (whole map)
+            minimapCtx.drawImage(terrainCanvas, 0, 0);
+        } else {
+            // Zoom 1-2: Crop and scale cached terrain centered on player
+            if (myShip) {
+                const worldWidth = worldTilemap.width * MINIMAP_CONFIG.TILE_SIZE;
+                const worldHeight = worldTilemap.height * MINIMAP_CONFIG.TILE_SIZE;
+
+                // Calculate crop dimensions (in cached terrain canvas coordinates)
+                const cropWidth = MINIMAP_CONFIG.WIDTH / zoomLevel.factor;
+                const cropHeight = MINIMAP_CONFIG.HEIGHT / zoomLevel.factor;
+
+                // Calculate player position in cached terrain canvas coordinates
+                const playerMinimapX = (myShip.x / worldWidth) * MINIMAP_CONFIG.WIDTH;
+                const playerMinimapY = (myShip.y / worldHeight) * MINIMAP_CONFIG.HEIGHT;
+
+                // Calculate crop position (centered on player)
+                let cropX = playerMinimapX - cropWidth / 2;
+                let cropY = playerMinimapY - cropHeight / 2;
+
+                // Clamp crop to canvas bounds
+                cropX = Math.max(0, Math.min(cropX, MINIMAP_CONFIG.WIDTH - cropWidth));
+                cropY = Math.max(0, Math.min(cropY, MINIMAP_CONFIG.HEIGHT - cropHeight));
+
+                // Draw cropped and scaled terrain
+                minimapCtx.drawImage(
+                    terrainCanvas,
+                    cropX, cropY, cropWidth, cropHeight,  // source crop
+                    0, 0, MINIMAP_CONFIG.WIDTH, MINIMAP_CONFIG.HEIGHT  // dest (full minimap)
+                );
+            } else {
+                // No player position, just draw whole map
+                minimapCtx.drawImage(terrainCanvas, 0, 0);
+            }
+        }
     }
 
-    // Render harbor markers on top
+    // Render harbor markers on top (scaled for zoom)
     if (mapData.harbors) {
-        renderHarbors(mapData.harbors, worldTilemap.width, worldTilemap.height);
+        renderHarbors(mapData.harbors, worldTilemap.width, worldTilemap.height, myShip);
     }
 
-    // Render player marker on top
+    // Render player marker on top (always centered at higher zooms)
     if (myShip) {
         renderPlayer(myShip, worldTilemap.width, worldTilemap.height);
     }
+
+    // Draw zoom level indicator
+    drawZoomIndicator();
 }
 
 /**
@@ -189,16 +239,50 @@ function renderTerrain(worldTilemap) {
  * @param {Array} harbors - Array of harbor objects {x, y, name}
  * @param {number} tilemapWidth - Tilemap width in tiles
  * @param {number} tilemapHeight - Tilemap height in tiles
+ * @param {Object} myShip - Player ship (for zoom centering)
  */
-function renderHarbors(harbors, tilemapWidth, tilemapHeight) {
+function renderHarbors(harbors, tilemapWidth, tilemapHeight, myShip) {
+    const zoomLevel = MINIMAP_CONFIG.ZOOM_LEVELS[currentZoom];
+
     harbors.forEach(harbor => {
         // World → Tile
         const tileX = Math.floor(harbor.x / MINIMAP_CONFIG.TILE_SIZE);
         const tileY = Math.floor(harbor.y / MINIMAP_CONFIG.TILE_SIZE);
 
-        // Tile → Minimap
-        const minimapX = (tileX / tilemapWidth) * MINIMAP_CONFIG.WIDTH;
-        const minimapY = (tileY / tilemapHeight) * MINIMAP_CONFIG.HEIGHT;
+        // Tile → Minimap (normalized 0-1)
+        const normalizedX = tileX / tilemapWidth;
+        const normalizedY = tileY / tilemapHeight;
+
+        let minimapX, minimapY;
+
+        if (currentZoom === 0) {
+            // Zoom 0: Direct mapping
+            minimapX = normalizedX * MINIMAP_CONFIG.WIDTH;
+            minimapY = normalizedY * MINIMAP_CONFIG.HEIGHT;
+        } else if (myShip) {
+            // Zoom 1-2: Calculate position relative to player-centered view
+            const worldWidth = tilemapWidth * MINIMAP_CONFIG.TILE_SIZE;
+            const worldHeight = tilemapHeight * MINIMAP_CONFIG.TILE_SIZE;
+
+            const playerNormalizedX = myShip.x / worldWidth;
+            const playerNormalizedY = myShip.y / worldHeight;
+
+            // Calculate harbor position relative to player
+            const relativeX = (normalizedX - playerNormalizedX) * zoomLevel.factor;
+            const relativeY = (normalizedY - playerNormalizedY) * zoomLevel.factor;
+
+            // Map to minimap coordinates (centered on player)
+            minimapX = (0.5 + relativeX) * MINIMAP_CONFIG.WIDTH;
+            minimapY = (0.5 + relativeY) * MINIMAP_CONFIG.HEIGHT;
+
+            // Skip if outside visible area
+            if (minimapX < -10 || minimapX > MINIMAP_CONFIG.WIDTH + 10 ||
+                minimapY < -10 || minimapY > MINIMAP_CONFIG.HEIGHT + 10) {
+                return;
+            }
+        } else {
+            return; // No player position, skip
+        }
 
         // Draw yellow square
         minimapCtx.fillStyle = MINIMAP_CONFIG.COLORS.HARBOR;
@@ -219,19 +303,56 @@ function renderHarbors(harbors, tilemapWidth, tilemapHeight) {
  * @param {number} tilemapHeight - Tilemap height in tiles
  */
 function renderPlayer(myShip, tilemapWidth, tilemapHeight) {
-    // World → Tile
-    const tileX = Math.floor(myShip.x / MINIMAP_CONFIG.TILE_SIZE);
-    const tileY = Math.floor(myShip.y / MINIMAP_CONFIG.TILE_SIZE);
+    let minimapX, minimapY;
 
-    // Tile → Minimap
-    const minimapX = (tileX / tilemapWidth) * MINIMAP_CONFIG.WIDTH;
-    const minimapY = (tileY / tilemapHeight) * MINIMAP_CONFIG.HEIGHT;
+    if (currentZoom === 0) {
+        // Zoom 0: Calculate actual position on whole map
+        const tileX = Math.floor(myShip.x / MINIMAP_CONFIG.TILE_SIZE);
+        const tileY = Math.floor(myShip.y / MINIMAP_CONFIG.TILE_SIZE);
+        minimapX = (tileX / tilemapWidth) * MINIMAP_CONFIG.WIDTH;
+        minimapY = (tileY / tilemapHeight) * MINIMAP_CONFIG.HEIGHT;
+    } else {
+        // Zoom 1-2: Player is always centered
+        minimapX = MINIMAP_CONFIG.WIDTH / 2;
+        minimapY = MINIMAP_CONFIG.HEIGHT / 2;
+    }
 
     // Draw red circle
     minimapCtx.fillStyle = MINIMAP_CONFIG.COLORS.PLAYER;
     minimapCtx.beginPath();
     minimapCtx.arc(minimapX, minimapY, MINIMAP_CONFIG.PLAYER_RADIUS, 0, Math.PI * 2);
     minimapCtx.fill();
+}
+
+/**
+ * Cycle through zoom levels
+ * Called by M keybind
+ */
+function cycleMinimapZoom() {
+    if (!DEBUG_MINIMAP) return;
+
+    currentZoom = (currentZoom + 1) % MINIMAP_CONFIG.ZOOM_LEVELS.length;
+    const zoomLevel = MINIMAP_CONFIG.ZOOM_LEVELS[currentZoom];
+    console.log(`[DEBUG MINIMAP] Zoom level: ${zoomLevel.name} (${zoomLevel.factor}x)`);
+}
+
+/**
+ * Draw zoom level indicator on minimap
+ */
+function drawZoomIndicator() {
+    if (!minimapCtx) return;
+
+    const zoomLevel = MINIMAP_CONFIG.ZOOM_LEVELS[currentZoom];
+
+    // Draw semi-transparent background
+    minimapCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    minimapCtx.fillRect(5, 5, 80, 20);
+
+    // Draw zoom level text
+    minimapCtx.fillStyle = '#FFD700';
+    minimapCtx.font = '12px Arial';
+    minimapCtx.textAlign = 'left';
+    minimapCtx.fillText(`Zoom: ${zoomLevel.name}`, 10, 18);
 }
 
 // Initialize minimap when DOM is ready
