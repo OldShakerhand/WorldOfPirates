@@ -12,13 +12,13 @@ The harbor system provides server-authoritative harbor data with clean separatio
 
 ### WorldMap (Terrain Only)
 - **Responsibility:** Tile-based terrain queries (water/shallow/land)
-- **File:** `src/server/game/WorldMap.js`
+- **File:** `src/server/game/world/WorldMap.js`
 - **Data:** `src/server/assets/world_map.json`
 - **API:** `getTile()`, `isWater()`, `isShallow()`, `isLand()`
 
 ### HarborRegistry (Harbor Metadata)
 - **Responsibility:** Harbor data storage and queries
-- **File:** `src/server/game/HarborRegistry.js`
+- **File:** `src/server/game/world/HarborRegistry.js`
 - **Data:** `assets/harbors.json`
 - **API:** `getAllHarbors()`, `getHarborById()`, `getNearestHarbor()`, `getHarborsByNation()`
 
@@ -296,7 +296,7 @@ const WORLD = {
 
 ## Files
 
-- `src/server/game/HarborRegistry.js` - Harbor registry module
+- `src/server/game/world/HarborRegistry.js` - Harbor registry module
 - `tools/import_harbors.js` - CSV → JSON import tool
 - `assets/harbors.json` - Harbor data (104 harbors)
 - `docs/gameplay/HARBORS.md` - This documentation

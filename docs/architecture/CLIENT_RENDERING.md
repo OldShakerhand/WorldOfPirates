@@ -173,4 +173,4 @@ These properties are used by:
 - **WakeRenderer**: [WakeRenderer.js](file:///c:/Development/WorldOfPirates/src/public/js/WakeRenderer.js)
 - **VisualAdapter**: [visual_adapter.js](file:///c:/Development/WorldOfPirates/src/public/js/visual_adapter.js)
 - **Integration**: [game.js](file:///c:/Development/WorldOfPirates/src/public/js/game.js)
-- **Ship Stats**: [ShipClass.js](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js)
+- **Ship Stats**: [ShipClass.js](file:///c:/Development/WorldOfPirates/src/server/game/entities/ShipClass.js)

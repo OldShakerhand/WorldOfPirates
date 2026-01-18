@@ -89,19 +89,19 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 
 ### Ship Physics & Movement
 
-**Sail States** (See: [`Player.js`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js))
+**Sail States** (See: [`Player.js`](file:///c:/Development/WorldOfPirates/src/server/game/entities/Player.js))
 - **Stop** (0 sails) - Gradual deceleration, maximum maneuverability
 - **Half Sails** - 50% max speed, balanced speed/control
 - **Full Sails** - 100% max speed, reduced turning
 
-**Wind System** (See: [`Wind.js`](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js))
+**Wind System** (See: [`Wind.js`](file:///c:/Development/WorldOfPirates/src/server/game/entities/Wind.js))
 - Wind direction changes every 30-60 seconds
 - **Tailwind** (sailing with wind) - Speed bonus
 - **Headwind** (sailing against wind) - Speed penalty
 - **Crosswind** - Neutral speed
 - Creates tactical positioning opportunities
 
-**Water Depth** (See: [`PhysicsConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/PhysicsConfig.js))
+**Water Depth** (See: [`GameConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/config/GameConfig.js))
 - **Deep Water** - Full speed, normal acceleration
 - **Shallow Water** - 25% speed reduction, faster deceleration
 - **Islands** - Collision damage based on impact speed
@@ -115,12 +115,12 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 - Projectiles have physics (gravity, distance-based range)
 - Velocity compensation (70% default) for arcade-style firing
 
-**Damage Model** (See: [`CombatConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/CombatConfig.js))
+**Damage Model** (See: [`GameConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/config/GameConfig.js))
 - **Cannonball Hit**: 5 damage
 - **Island Collision**: Scales with impact speed (threshold: 20 speed)
 - **Ship Health**: Varies by class (100-500 HP)
 
-**Fleet Mechanics** (See: [`Player.js`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js))
+**Fleet Mechanics** (See: [`Player.js`](file:///c:/Development/WorldOfPirates/src/server/game/entities/Player.js))
 - Players command a fleet of ships
 - Active ship is the "flagship"
 - When flagship sinks:
@@ -131,14 +131,14 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 
 ### NPC Combat System
 
-**NPC Ships** (See: [`NPCShip.js`](file:///c:/Development/WorldOfPirates/src/server/game/NPCShip.js))
+**NPC Ships** (See: [`NPCShip.js`](file:///c:/Development/WorldOfPirates/src/server/game/npc/NPCShip.js))
 - AI-controlled enemy ships spawn dynamically
 - Multiple NPC roles with distinct behaviors:
   - **Trader**: Peaceful merchants (Merchant/Fluyt ships)
   - **Pirate**: Aggressive attackers (Sloop/Barque ships)
   - **Patrol**: Defensive guards (Frigate ships)
 
-**NPC Behavior** (See: [`NPCIntent.js`](file:///c:/Development/WorldOfPirates/src/server/game/NPCIntent.js))
+**NPC Behavior** (See: [`NPCBehavior.js`](file:///c:/Development/WorldOfPirates/src/server/game/npc/NPCBehavior.js))
 - **Intent System**: NPCs use tactical decision-making
   - WANDER: Explore the world
   - PURSUE: Chase detected enemies
@@ -148,7 +148,7 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 - **Detection Range**: NPCs detect players/enemies within configurable radius
 - **Combat Overlay**: Aggressive NPCs actively hunt players
 
-**Spawn System** (See: [`NPCManager.js`](file:///c:/Development/WorldOfPirates/src/server/game/NPCManager.js))
+**Spawn System** (See: [`NPCManager.js`](file:///c:/Development/WorldOfPirates/src/server/game/npc/NPCManager.js))
 - Dynamic spawning based on player count
 - NPCs spawn away from players to avoid unfair encounters
 - Configurable spawn rates and maximum NPC counts
@@ -162,7 +162,7 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 
 ### Harbor System
 
-**Safe Zones** (See: [`Harbor.js`](file:///c:/Development/WorldOfPirates/src/server/game/Harbor.js))
+**Safe Zones** (See: [`Harbor.js`](file:///c:/Development/WorldOfPirates/src/server/game/world/Harbor.js))
 - Harbors located at each island
 - Enter harbor (H key) when in range
 - While docked:
@@ -199,7 +199,7 @@ Ships follow a progression from fast/weak to slow/powerful:
 - Logical size scaling: Sloop (92px) → War Galleon (180px)
 - Speed vs firepower trade-off maintained throughout progression
 
-See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js) and [`SHIPS.md`](../assets/SHIPS.md) for detailed stats.
+See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/entities/ShipClass.js) and [`SHIPS.md`](../assets/SHIPS.md) for detailed stats.
 
 > [!IMPORTANT]
 > **Design Question**: How do players acquire new ships?

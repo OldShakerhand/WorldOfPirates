@@ -290,9 +290,9 @@ WorldOfPirates/
 │   └── convert_map.js         (PNG → JSON conversion)
 ├── src/server/game/
 │   ├── WorldMap.js            (tilemap loader & API)
-│   ├── GameConfig.js          (TERRAIN constants)
-│   ├── World.js               (integrates WorldMap)
-│   └── Player.js              (uses WorldMap for terrain)
+│   ├── config/GameConfig.js   (TERRAIN constants)
+│   ├── world/World.js         (integrates WorldMap)
+│   └── entities/Player.js     (uses WorldMap for terrain)
 └── docs/
     └── WORLD_MAP.md           (this file)
 ```

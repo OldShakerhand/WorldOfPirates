@@ -32,9 +32,9 @@ This document defines the coordinate systems, rotation conventions, and spatial 
 - **Velocity Compensation**: Default 70% (0.7) balances arcade vs realistic physics
 
 ### Code References
-- **Movement**: [`Player.js:update()`](file:///c:/Development/WorldOfPirates/src/server/game/Player.js)
+- **Movement**: [`Player.js:update()`](file:///c:/Development/WorldOfPirates/src/server/game/entities/Player.js)
 - **Cannon Positioning**: [`GameLoop.js:fireCannons()`](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)
-- **Wind Mechanics**: [`Wind.js:getAngleModifier()`](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js)
+- **Wind Mechanics**: [`Wind.js:getAngleModifier()`](file:///c:/Development/WorldOfPirates/src/server/game/entities/Wind.js)
 - **Velocity Compensation**: [`GameLoop.js:compensateForShipVelocity()`](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)
 
 ---

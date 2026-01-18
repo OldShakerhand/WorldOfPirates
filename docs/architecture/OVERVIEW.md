@@ -234,27 +234,25 @@ socket.emit('input', {
 #### Core Systems
 - **[server.js](file:///c:/Development/WorldOfPirates/src/server/server.js)** - Express server, Socket.IO setup, player cap enforcement
 - **[GameLoop.js](file:///c:/Development/WorldOfPirates/src/server/game/GameLoop.js)** - Main game loop, tick management, performance monitoring
-- **[World.js](file:///c:/Development/WorldOfPirates/src/server/game/World.js)** - World state, entity management, tilemap integration
+- **[World.js](file:///c:/Development/WorldOfPirates/src/server/game/world/World.js)** - World state, entity management, tilemap integration
 
 #### Entities
-- **[Player.js](file:///c:/Development/WorldOfPirates/src/server/game/Player.js)** - Player entity, movement, fleet management, combat
-- **[Ship.js](file:///c:/Development/WorldOfPirates/src/server/game/Ship.js)** - Ship instances with health and damage
-- **[Projectile.js](file:///c:/Development/WorldOfPirates/src/server/game/Projectile.js)** - Cannonball physics and collision
+- **[Player.js](file:///c:/Development/WorldOfPirates/src/server/game/entities/Player.js)** - Player entity, movement, fleet management, combat
+- **[Ship.js](file:///c:/Development/WorldOfPirates/src/server/game/entities/Ship.js)** - Ship instances with health and damage
+- **[Projectile.js](file:///c:/Development/WorldOfPirates/src/server/game/entities/Projectile.js)** - Cannonball physics and collision
 
 #### World Elements
-- **[WorldMap.js](file:///c:/Development/WorldOfPirates/src/server/game/WorldMap.js)** - Tile-based terrain system
-- **[HarborRegistry.js](file:///c:/Development/WorldOfPirates/src/server/game/HarborRegistry.js)** - Harbor data management
-- **[Harbor.js](file:///c:/Development/WorldOfPirates/src/server/game/Harbor.js)** - Harbor interaction logic
-- **[Wind.js](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js)** - Dynamic wind system
+- **[WorldMap.js](file:///c:/Development/WorldOfPirates/src/server/game/world/WorldMap.js)** - Tile-based terrain system
+- **[HarborRegistry.js](file:///c:/Development/WorldOfPirates/src/server/game/world/HarborRegistry.js)** - Harbor data management
+- **[Harbor.js](file:///c:/Development/WorldOfPirates/src/server/game/world/Harbor.js)** - Harbor interaction logic
+- **[Wind.js](file:///c:/Development/WorldOfPirates/src/server/game/entities/Wind.js)** - Dynamic wind system
 
 #### Configuration
-- **[GameConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/GameConfig.js)** - World size, tick rate, tile size, paths
-- **[CombatConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/CombatConfig.js)** - Damage, fire rates, shields, projectiles
-- **[PhysicsConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/PhysicsConfig.js)** - Movement, acceleration, wind effects
-- **[ShipClass.js](file:///c:/Development/WorldOfPirates/src/server/game/ShipClass.js)** - Ship class definitions and stats
+- **[GameConfig.js](file:///c:/Development/WorldOfPirates/src/server/game/config/GameConfig.js)** - Centralized game configuration (includes Physics, Combat, Navigation)
+- **[ShipClass.js](file:///c:/Development/WorldOfPirates/src/server/game/entities/ShipClass.js)** - Ship class definitions and stats
 
 #### Utilities
-- **[NavigationSkill.js](file:///c:/Development/WorldOfPirates/src/server/game/NavigationSkill.js)** - Navigation skill system (future feature)
+- **[NavigationSkill.js](file:///c:/Development/WorldOfPirates/src/server/game/progression/NavigationSkill.js)** - Navigation skill system (future feature)
 
 ### Client Modules
 
