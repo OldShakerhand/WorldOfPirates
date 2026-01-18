@@ -1,4 +1,5 @@
-const GameConfig = require('./GameConfig');
+const GameConfig = require('../config/GameConfig');
+const { GAME } = GameConfig;
 
 /**
  * Harbor - represents a port on an island
@@ -7,7 +8,7 @@ class Harbor {
     constructor(id, island, name = null) {
         this.id = id;
         this.island = island;
-        this.radius = GameConfig.HARBOR_INTERACTION_RADIUS;
+        this.radius = GAME.HARBOR_INTERACTION_RADIUS;
 
         // Use exact island position (island stub already at correct tile coordinates)
         // No random offset - harbor IS at the island position

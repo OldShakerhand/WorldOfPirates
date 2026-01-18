@@ -2,7 +2,7 @@
  * DefeatNPCsMission.js - Defeat X NPC ships
  */
 
-const Mission = require('../Mission');
+const Mission = require('./Mission');
 
 class DefeatNPCsMission extends Mission {
     constructor(id, playerId, targetCount) {
@@ -10,9 +10,8 @@ class DefeatNPCsMission extends Mission {
         this.targetCount = targetCount;
         this.defeatedCount = 0;
 
-        // Rewards: Combat mission (higher rewards) (Phase 1)
-        this.goldReward = 200;
-        this.xpReward = 100;
+        // Reward key (centralized)
+        this.rewardKey = 'MISSION.DEFEAT_NPCS';
     }
 
     // Called by MissionManager when NPC is destroyed

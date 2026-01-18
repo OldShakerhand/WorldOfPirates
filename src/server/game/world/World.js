@@ -1,15 +1,17 @@
-const Projectile = require('./Projectile');
-const Wind = require('./Wind');
+const Projectile = require('../entities/Projectile');
+const Wind = require('../entities/Wind');
 const Harbor = require('./Harbor');
-const GameConfig = require('./GameConfig');
+const GameConfig = require('../config/GameConfig');
+const { GAME, COMBAT } = GameConfig;
 const WorldMap = require('./WorldMap');
 const HarborRegistry = require('./HarborRegistry');
-const NPCManager = require('./NPCManager');
+const NPCManager = require('../npc/NPCManager');
+const RewardSystem = require('../progression/RewardSystem');
 
 class World {
     constructor() {
         // Load tile-based world map (replaces procedural generation)
-        this.worldMap = new WorldMap(GameConfig.WORLD_MAP_PATH);
+        this.worldMap = new WorldMap(GAME.WORLD_MAP_PATH);
 
         // Get world dimensions from tilemap
         const dimensions = this.worldMap.getWorldDimensions();
@@ -24,7 +26,7 @@ class World {
         this.wind = new Wind();
 
         // Load harbor registry (replaces hardcoded positions)
-        this.harborRegistry = new HarborRegistry(GameConfig.HARBORS_PATH);
+        this.harborRegistry = new HarborRegistry(GAME.HARBORS_PATH);
 
         // Create Harbor instances from registry data
         this.harbors = this.harborRegistry.getAllHarbors().map(data =>
@@ -34,14 +36,16 @@ class World {
         // NPC Manager (Phase 1: Trader NPCs)
         this.npcManager = new NPCManager(this);
 
+        // Reward System (Phase 2: Centralized rewards)
+        this.rewardSystem = new RewardSystem(this);
+
         // Mission Manager (Phase 0: Scaffolding)
-        const MissionManager = require('./MissionManager');
+        const MissionManager = require('../missions/MissionManager');
         this.missionManager = new MissionManager(this);
 
         // DEBUG ONLY: Track World creation for early-session collision diagnosis
         // NO gameplay behavior change
-        const CombatConfig = require('./CombatConfig');
-        if (CombatConfig.DEBUG_INITIALIZATION) {
+        if (COMBAT.DEBUG_INITIALIZATION) {
             console.log(`[INIT] World created | Islands: 0 (tile-based) | Harbors: ${this.harbors.length} | Timestamp: ${Date.now()}`);
         }
     }
@@ -53,8 +57,8 @@ class World {
     createIslandStub(harborData) {
         return {
             id: harborData.id,
-            x: harborData.tileX * GameConfig.TILE_SIZE,
-            y: harborData.tileY * GameConfig.TILE_SIZE,
+            x: harborData.tileX * GAME.TILE_SIZE,
+            y: harborData.tileY * GAME.TILE_SIZE,
             radius: 50
         };
     }
@@ -94,7 +98,6 @@ class World {
                     // DEBUG ONLY: Bounding circle precheck for proximity detection
                     // Used to detect near-misses and log hitbox dimensions
                     // NO gameplay behavior change - this is observation only
-                    const CombatConfig = require('./CombatConfig');
                     const dx = proj.x - entity.x;
                     const dy = proj.y - entity.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -104,7 +107,7 @@ class World {
                     const isNearShip = distance < boundingRadius;
 
                     // DEBUG ONLY: Log hitbox dimensions when projectile is near
-                    if (CombatConfig.DEBUG_COLLISION && isNearShip) {
+                    if (COMBAT.DEBUG_COLLISION && isNearShip) {
                         const hitbox = entity.flagship.getHitbox();
                         console.log(`[DEBUG] Near ship: dist=${distance.toFixed(2)}px | Hitbox: ${hitbox.width.toFixed(1)}x${hitbox.height.toFixed(1)} | Rotation=${entity.rotation.toFixed(2)} | Ship pos=(${entity.x.toFixed(1)}, ${entity.y.toFixed(1)}) | Proj prev=(${proj.prevX.toFixed(1)}, ${proj.prevY.toFixed(1)}) curr=(${proj.x.toFixed(1)}, ${proj.y.toFixed(1)})`);
                     }
@@ -118,7 +121,7 @@ class World {
                     }
 
                     // DEBUG ONLY: Log near-miss if projectile passed through bounding area
-                    if (CombatConfig.DEBUG_COLLISION && isNearShip) {
+                    if (COMBAT.DEBUG_COLLISION && isNearShip) {
                         console.log(`[DEBUG] Near-miss: projectile crossed ship bounding area but no hit registered`);
                     }
                 }
@@ -183,8 +186,7 @@ class World {
 
         // DEBUG ONLY: Track entity registration for early-session collision diagnosis
         // NO gameplay behavior change
-        const CombatConfig = require('./CombatConfig');
-        if (CombatConfig.DEBUG_INITIALIZATION) {
+        if (COMBAT.DEBUG_INITIALIZATION) {
             const totalEntities = Object.keys(this.entities).length;
             console.log(`[INIT] Entity added to world | Type: ${entity.type} | ID: ${entity.id} | Total entities: ${totalEntities}`);
         }

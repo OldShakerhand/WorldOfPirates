@@ -1,15 +1,15 @@
-const World = require('./World');
-const Player = require('./Player');
-const GameConfig = require('./GameConfig');
-const CombatConfig = require('./CombatConfig');
-const NPCCombatOverlay = require('./NPCCombatOverlay');
+const World = require('./world/World');
+const Player = require('./entities/Player');
+const GameConfig = require('./config/GameConfig');
+const { GAME, COMBAT } = GameConfig;
+const { NPCCombatOverlay } = require('./npc/NPCBehavior');
 
 class GameLoop {
     constructor(io) {
         this.io = io;
         this.world = new World();
         this.lastTime = Date.now();
-        this.tickRate = GameConfig.TICK_RATE;
+        this.tickRate = GAME.TICK_RATE;
         this.interval = null;
 
         // Performance monitoring
@@ -89,8 +89,7 @@ class GameLoop {
 
         // DEBUG ONLY: Track first tick for early-session collision diagnosis
         // NO gameplay behavior change
-        const CombatConfig = require('./CombatConfig');
-        if (CombatConfig.DEBUG_INITIALIZATION && !this.firstTickLogged) {
+        if (COMBAT.DEBUG_INITIALIZATION && !this.firstTickLogged) {
             const entityCount = Object.keys(this.world.entities).length;
             const projectileCount = this.world.projectiles.length;
             console.log(`[INIT] First tick executed | DeltaTime: ${deltaTime.toFixed(4)} | Entities: ${entityCount} | Projectiles: ${projectileCount}`);
@@ -159,8 +158,7 @@ class GameLoop {
 
         // DEBUG ONLY: Track player join for early-session collision diagnosis
         // NO gameplay behavior change
-        const CombatConfig = require('./CombatConfig');
-        if (CombatConfig.DEBUG_INITIALIZATION) {
+        if (COMBAT.DEBUG_INITIALIZATION) {
             const entityCount = Object.keys(this.world.entities).length;
             console.log(`[INIT] Player joined | ID: ${socket.id} | Name: ${playerName} | Entities in world: ${entityCount}`);
         }
@@ -190,7 +188,7 @@ class GameLoop {
     }
 
     sendShipMetadata(socket) {
-        const { SHIP_CLASSES } = require('./ShipClass');
+        const { SHIP_CLASSES } = require('./entities/ShipClass');
 
         // Extract only visual properties needed by client
         const shipMetadata = {};
@@ -212,12 +210,10 @@ class GameLoop {
     }
 
     sendCombatConfig(socket) {
-        const CombatConfig = require('./CombatConfig');
-
         // Extract only visual properties needed by client
         const combatVisuals = {
-            projectileBallRadius: CombatConfig.PROJECTILE_BALL_RADIUS,
-            projectileShadowRadius: CombatConfig.PROJECTILE_SHADOW_RADIUS
+            projectileBallRadius: COMBAT.PROJECTILE_BALL_RADIUS,
+            projectileShadowRadius: COMBAT.PROJECTILE_SHADOW_RADIUS
         };
 
         socket.emit('combatConfig', combatVisuals);
@@ -483,7 +479,7 @@ class GameLoop {
 
         // Check if player is on raft - auto-convert to Sloop
         if (player.isRaft) {
-            const Ship = require('./Ship');
+            const Ship = require('./entities/Ship');
             player.fleet = [new Ship('SLOOP')];
             player.flagshipIndex = 0;
             player.isRaft = false;
@@ -521,7 +517,7 @@ class GameLoop {
         const player = this.world.getEntity(playerId);
         if (!player || !player.inHarbor) return;
 
-        const Ship = require('./Ship');
+        const Ship = require('./entities/Ship');
 
         // Create new ship with selected class
         const newShip = new Ship(shipClass);
@@ -553,11 +549,11 @@ class GameLoop {
             if (harbor && harbor.island) {
                 // Spawn player at fixed offset from harbor (east side)
                 // Harbor is now at exact tile position, no random offset
-                player.x = harbor.x + GameConfig.HARBOR_SPAWN_DISTANCE;
+                player.x = harbor.x + GAME.HARBOR_SPAWN_DISTANCE;
                 player.y = harbor.y;
 
                 // Grant 10-second shield when leaving harbor (no firing allowed)
-                player.shieldEndTime = Date.now() / 1000 + CombatConfig.HARBOR_EXIT_SHIELD_DURATION;
+                player.shieldEndTime = Date.now() / 1000 + COMBAT.HARBOR_EXIT_SHIELD_DURATION;
 
                 console.log(`Player ${playerId} left ${harbor.name} with 10s shield (no firing)`);
             }
@@ -582,7 +578,7 @@ class GameLoop {
         }
 
         // Get ship class definition
-        const { getShipClass } = require('./ShipClass');
+        const { getShipClass } = require('./entities/ShipClass');
         const shipClass = getShipClass(targetShipClass);
         if (!shipClass) {
             console.log(`[Harbor] ${player.name}: Invalid ship class ${targetShipClass}`);
@@ -601,7 +597,7 @@ class GameLoop {
         player.gold -= shipClass.goldCost;
 
         // Replace flagship (simple swap, no resale)
-        const Ship = require('./Ship');
+        const Ship = require('./entities/Ship');
         player.fleet = [new Ship(targetShipClass)];
         player.flagshipIndex = 0;
 

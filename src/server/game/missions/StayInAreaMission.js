@@ -2,7 +2,7 @@
  * StayInAreaMission.js - Stay in a specific area for X seconds
  */
 
-const Mission = require('../Mission');
+const Mission = require('./Mission');
 
 class StayInAreaMission extends Mission {
     constructor(id, playerId, targetX, targetY, radius, duration) {
@@ -13,9 +13,8 @@ class StayInAreaMission extends Mission {
         this.duration = duration; // seconds
         this.timeInArea = 0;
 
-        // Rewards: Patrol/guard mission (Phase 1)
-        this.goldReward = 150;
-        this.xpReward = 75;
+        // Reward key (centralized)
+        this.rewardKey = 'MISSION.STAY_IN_AREA';
     }
 
     onUpdate(world, deltaTime) {

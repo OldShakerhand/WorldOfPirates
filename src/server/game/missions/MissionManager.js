@@ -38,9 +38,15 @@ class MissionManager {
             const previousState = mission.state;
             mission.update(this.world, deltaTime);
 
-            // Apply rewards on success (Phase 1)
+            // Apply rewards on success (Phase 2: Centralized)
             if (previousState === 'ACTIVE' && mission.state === 'SUCCESS') {
-                this.applyMissionRewards(mission.playerId, mission);
+                if (mission.rewardKey) {
+                    this.world.rewardSystem.grant(
+                        mission.playerId,
+                        mission.rewardKey,
+                        { source: `Mission: ${mission.type}` }
+                    );
+                }
             }
 
             // Clean up completed missions (Phase 0: Auto-clear after 3 seconds)
@@ -53,26 +59,6 @@ class MissionManager {
                 }
             }
         }
-    }
-
-    /**
-     * Apply mission rewards to player (Phase 1)
-     * @param {string} playerId - Player ID
-     * @param {Mission} mission - Completed mission
-     */
-    applyMissionRewards(playerId, mission) {
-        const player = this.world.getEntity(playerId);
-        if (!player) return;
-
-        // Apply gold and XP
-        if (mission.goldReward > 0) {
-            player.addGold(mission.goldReward);
-        }
-        if (mission.xpReward > 0) {
-            player.addXP(mission.xpReward);
-        }
-
-        console.log(`[Mission] ${player.name} earned: ${mission.goldReward} gold, ${mission.xpReward} XP`);
     }
 
     // Get player's current mission

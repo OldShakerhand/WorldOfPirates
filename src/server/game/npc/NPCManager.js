@@ -1,6 +1,6 @@
 const NPCShip = require('./NPCShip');
-const GameConfig = require('./GameConfig');
-const CombatConfig = require('./CombatConfig');
+const GameConfig = require('../config/GameConfig');
+const { GAME, COMBAT } = GameConfig;
 
 /**
  * NPCManager - Handles NPC lifecycle and spawning

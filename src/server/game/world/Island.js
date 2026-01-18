@@ -1,4 +1,5 @@
-const GameConfig = require('./GameConfig');
+const GameConfig = require('../config/GameConfig');
+const { GAME } = GameConfig;
 
 /**
  * Island - represents landmass with surrounding shallow water
@@ -9,7 +10,7 @@ class Island {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.shallowWaterRadius = radius + GameConfig.ISLAND_SHALLOW_WATER_EXTENSION;
+        this.shallowWaterRadius = radius + GAME.ISLAND_SHALLOW_WATER_EXTENSION;
     }
 
     /**

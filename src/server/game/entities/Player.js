@@ -1,8 +1,7 @@
 const Ship = require('./Ship');
-const NavigationSkill = require('./NavigationSkill');
-const GameConfig = require('./GameConfig');
-const PhysicsConfig = require('./PhysicsConfig');
-const CombatConfig = require('./CombatConfig');
+const NavigationSkill = require('../progression/NavigationSkill');
+const GameConfig = require('../config/GameConfig');
+const { GAME, PHYSICS, COMBAT } = GameConfig;
 
 class Player {
     constructor(id, name = 'Anonymous', startingShipClass = 'FLUYT', io = null, world = null) {
@@ -16,8 +15,8 @@ class Player {
         // this.lastSaveTime = null;  // For auto-save functionality
 
         this.type = 'PLAYER';
-        this.x = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
-        this.y = GameConfig.PLAYER_SPAWN_MIN + Math.random() * GameConfig.PLAYER_SPAWN_RANGE;
+        this.x = GAME.PLAYER_SPAWN_MIN + Math.random() * GAME.PLAYER_SPAWN_RANGE;
+        this.y = GAME.PLAYER_SPAWN_MIN + Math.random() * GAME.PLAYER_SPAWN_RANGE;
 
         // DESIGN CONTRACT: Rotation convention
         // - 0 radians = north (up, -Y direction)
@@ -71,7 +70,7 @@ class Player {
         // Combat stats from flagship
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
-        this.fireRate = CombatConfig.CANNON_FIRE_RATE;
+        this.fireRate = COMBAT.CANNON_FIRE_RATE;
 
         // Speed tracking
         this.speedInKnots = 0;
@@ -106,7 +105,7 @@ class Player {
     }
 
     get turnSpeed() {
-        if (this.isRaft) return PhysicsConfig.RAFT_TURN_SPEED;
+        if (this.isRaft) return PHYSICS.RAFT_TURN_SPEED;
         return this.flagship.shipClass.turnSpeed;
     }
 
@@ -127,8 +126,8 @@ class Player {
 
     getFleetSpeedPenalty() {
         // More ships = slower (simple version)
-        const penalty = 1.0 - ((this.fleet.length - 1) * PhysicsConfig.FLEET_SPEED_PENALTY_PER_SHIP);
-        return Math.max(PhysicsConfig.MAX_FLEET_SPEED_PENALTY, penalty);
+        const penalty = 1.0 - ((this.fleet.length - 1) * PHYSICS.FLEET_SPEED_PENALTY_PER_SHIP);
+        return Math.max(PHYSICS.MAX_FLEET_SPEED_PENALTY, penalty);
     }
 
     // Progression Methods (Phase 1)
@@ -294,8 +293,8 @@ class Player {
             }
 
             // Grant shield when switching flagship
-            this.shieldEndTime = Date.now() / 1000 + CombatConfig.FLAGSHIP_SWITCH_SHIELD_DURATION;
-            console.log(`Player ${this.id} switched to ${newShipClass} with ${CombatConfig.FLAGSHIP_SWITCH_SHIELD_DURATION}s shield`);
+            this.shieldEndTime = Date.now() / 1000 + COMBAT.FLAGSHIP_SWITCH_SHIELD_DURATION;
+            console.log(`Player ${this.id} switched to ${newShipClass} with ${COMBAT.FLAGSHIP_SWITCH_SHIELD_DURATION}s shield`);
         } else {
             // PLAYER_RAFTED EVENT: Player lost their last active ship
             // Create player_rafted event (semantic gameplay event)
@@ -351,11 +350,11 @@ class Player {
         if (this.sailChangeCooldown <= 0) {
             if (this.inputs.sailUp && this.sailState < 2) {
                 this.sailState++;
-                this.sailChangeCooldown = PhysicsConfig.SAIL_CHANGE_COOLDOWN;
+                this.sailChangeCooldown = PHYSICS.SAIL_CHANGE_COOLDOWN;
             }
             if (this.inputs.sailDown && this.sailState > 0) {
                 this.sailState--;
-                this.sailChangeCooldown = PhysicsConfig.SAIL_CHANGE_COOLDOWN;
+                this.sailChangeCooldown = PHYSICS.SAIL_CHANGE_COOLDOWN;
             }
         }
 
@@ -377,7 +376,7 @@ class Player {
                 targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier;
             } else {
                 // Shallow water: speed reduction based on config
-                targetSpeed = this.maxSpeed * sailModifier * PhysicsConfig.SHALLOW_WATER_SPEED_MULTIPLIER;
+                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER;
             }
         }
 
@@ -387,10 +386,10 @@ class Player {
         // Accelerate/Decelerate
         // TODO: Make shallow water physics multipliers configurable (TECH_DEBT_006)
         // WHY: Hardcoded 0.5 accel and 1.5 decel in shallow water are magic numbers
-        // REFACTOR: Move to PhysicsConfig.SHALLOW_WATER_ACCEL_MULTIPLIER
+        // REFACTOR: Move to PHYSICS.SHALLOW_WATER_ACCEL_MULTIPLIER
         // WHEN: When adding different water depth levels or ship draft mechanics
-        const accel = this.isInDeepWater ? PhysicsConfig.ACCELERATION : PhysicsConfig.ACCELERATION * 0.5;
-        const decel = this.isInDeepWater ? PhysicsConfig.DECELERATION : PhysicsConfig.DECELERATION * 1.5;
+        const accel = this.isInDeepWater ? PHYSICS.ACCELERATION : PHYSICS.ACCELERATION * 0.5;
+        const decel = this.isInDeepWater ? PHYSICS.DECELERATION : PHYSICS.DECELERATION * 1.5;
 
         if (this.speed < targetSpeed) {
             this.speed += accel * deltaTime;
@@ -399,7 +398,7 @@ class Player {
         }
 
         this.speed = Math.max(0, Math.min(this.speed, this.maxSpeed));
-        this.speedInKnots = Math.round(this.speed * PhysicsConfig.SPEED_TO_KNOTS_MULTIPLIER);
+        this.speedInKnots = Math.round(this.speed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER);
 
         // Turning
         if (this.inputs.left) {
@@ -433,8 +432,8 @@ class Player {
             canMove = false;
 
             // Apply collision damage based on speed
-            if (this.speed > CombatConfig.COLLISION_DAMAGE_THRESHOLD) {
-                const damage = (this.speed - CombatConfig.COLLISION_DAMAGE_THRESHOLD) * CombatConfig.COLLISION_DAMAGE_MULTIPLIER;
+            if (this.speed > COMBAT.COLLISION_DAMAGE_THRESHOLD) {
+                const damage = (this.speed - COMBAT.COLLISION_DAMAGE_THRESHOLD) * COMBAT.COLLISION_DAMAGE_MULTIPLIER;
                 this.takeDamage(damage);
                 console.log(`Ship "${this.name}" (${this.id}) hit land at speed ${this.speed.toFixed(0)}, damage: ${damage.toFixed(1)}`);
             }
@@ -450,10 +449,10 @@ class Player {
         }
 
         // Wrap around world
-        if (this.x < 0) this.x += GameConfig.WORLD_WIDTH;
-        if (this.x > GameConfig.WORLD_WIDTH) this.x -= GameConfig.WORLD_WIDTH;
-        if (this.y < 0) this.y += GameConfig.WORLD_HEIGHT;
-        if (this.y > GameConfig.WORLD_HEIGHT) this.y -= GameConfig.WORLD_HEIGHT;
+        if (this.x < 0) this.x += GAME.WORLD_WIDTH;
+        if (this.x > GAME.WORLD_WIDTH) this.x -= GAME.WORLD_WIDTH;
+        if (this.y < 0) this.y += GAME.WORLD_HEIGHT;
+        if (this.y > GAME.WORLD_HEIGHT) this.y -= GAME.WORLD_HEIGHT;
     }
 
     serialize() {
@@ -467,7 +466,7 @@ class Player {
             maxHealth: this.maxHealth,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
-            maxSpeedInKnots: Math.round(this.maxSpeed * PhysicsConfig.SPEED_TO_KNOTS_MULTIPLIER),
+            maxSpeedInKnots: Math.round(this.maxSpeed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER),
             windEfficiency: this.windEfficiency || 0,
             isInDeepWater: this.isInDeepWater,
             shipClassName: this.isRaft ? 'Raft' : this.flagship.shipClass.name,

@@ -1,4 +1,5 @@
-const CombatConfig = require('./CombatConfig');
+const GameConfig = require('../config/GameConfig');
+const { COMBAT } = GameConfig;
 
 /**
  * DESIGN CONTRACT: Arcade Projectile Physics
@@ -23,12 +24,12 @@ class Projectile {
         this.y = y;
         this.startX = x; // Track starting position for distance calculation
         this.startY = y;
-        this.z = CombatConfig.PROJECTILE_INITIAL_Z;
+        this.z = COMBAT.PROJECTILE_INITIAL_Z;
         this.rotation = rotation;
-        this.speed = speed || CombatConfig.PROJECTILE_SPEED;
-        this.radius = CombatConfig.PROJECTILE_BALL_RADIUS * CombatConfig.PROJECTILE_COLLISION_MULTIPLIER;
-        this.damage = CombatConfig.PROJECTILE_DAMAGE;
-        this.maxDistance = CombatConfig.PROJECTILE_MAX_DISTANCE;
+        this.speed = speed || COMBAT.PROJECTILE_SPEED;
+        this.radius = COMBAT.PROJECTILE_BALL_RADIUS * COMBAT.PROJECTILE_COLLISION_MULTIPLIER;
+        this.damage = COMBAT.PROJECTILE_DAMAGE;
+        this.maxDistance = COMBAT.PROJECTILE_MAX_DISTANCE;
         this.toRemove = false;
 
         // DESIGN CONTRACT: Gravity calculation for perfect parabolic arc
@@ -50,8 +51,8 @@ class Projectile {
         //   gravity = 2*(initialZ + initialZSpeed*t) / t²
         //
         // This ensures the projectile ALWAYS hits water at maxDistance
-        const initialZ = CombatConfig.PROJECTILE_INITIAL_Z;
-        const initialZSpeed = CombatConfig.PROJECTILE_INITIAL_Z_SPEED || 10;
+        const initialZ = COMBAT.PROJECTILE_INITIAL_Z;
+        const initialZSpeed = COMBAT.PROJECTILE_INITIAL_Z_SPEED || 10;
         const timeToMaxDistance = this.maxDistance / this.speed;
 
         this.zSpeed = initialZSpeed;
@@ -77,7 +78,7 @@ class Projectile {
 
         // DEBUG ONLY: Log projectile movement delta
         // Helps diagnose if projectiles are "jumping" over hitboxes
-        if (CombatConfig.DEBUG_COLLISION) {
+        if (COMBAT.DEBUG_COLLISION) {
             const dx = this.x - this.prevX;
             const dy = this.y - this.prevY;
             const distancePerTick = Math.sqrt(dx * dx + dy * dy);

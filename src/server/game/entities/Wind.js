@@ -2,7 +2,8 @@
  * Wind System
  * Manages global wind direction and strength that affects all ships
  */
-const PhysicsConfig = require('./PhysicsConfig');
+const GameConfig = require('../config/GameConfig');
+const { PHYSICS } = GameConfig;
 
 class Wind {
     constructor() {
@@ -15,8 +16,8 @@ class Wind {
         this.direction = Math.random() * Math.PI * 2; // 0 to 2π radians
         this.strength = this.randomStrength();
         this.changeTimer = 0;
-        this.changeInterval = PhysicsConfig.WIND_CHANGE_INTERVAL_MIN +
-            Math.random() * (PhysicsConfig.WIND_CHANGE_INTERVAL_MAX - PhysicsConfig.WIND_CHANGE_INTERVAL_MIN);
+        this.changeInterval = PHYSICS.WIND_CHANGE_INTERVAL_MIN +
+            Math.random() * (PHYSICS.WIND_CHANGE_INTERVAL_MAX - PHYSICS.WIND_CHANGE_INTERVAL_MIN);
     }
 
     randomStrength() {
@@ -33,7 +34,7 @@ class Wind {
     getStrengthModifier() {
         // TODO: Make wind strength modifiers configurable (TECH_DEBT_008)
         // WHY: 0.6/0.8/1.0 multipliers are magic numbers, not balanced
-        // REFACTOR: Move to PhysicsConfig.WIND_STRENGTH_MULTIPLIERS
+        // REFACTOR: Move to PHYSICS.WIND_STRENGTH_MULTIPLIERS
         // WHEN: When balancing wind impact on gameplay
         switch (this.strength) {
             case 'LOW': return 0.6;
@@ -48,11 +49,11 @@ class Wind {
 
         if (this.changeTimer >= this.changeInterval) {
             // Change wind gradually
-            this.direction += (Math.random() - 0.5) * PhysicsConfig.WIND_CHANGE_RATE;
+            this.direction += (Math.random() - 0.5) * PHYSICS.WIND_CHANGE_RATE;
             this.strength = this.randomStrength();
             this.changeTimer = 0;
-            this.changeInterval = PhysicsConfig.WIND_CHANGE_INTERVAL_MIN +
-                Math.random() * (PhysicsConfig.WIND_CHANGE_INTERVAL_MAX - PhysicsConfig.WIND_CHANGE_INTERVAL_MIN);
+            this.changeInterval = PHYSICS.WIND_CHANGE_INTERVAL_MIN +
+                Math.random() * (PHYSICS.WIND_CHANGE_INTERVAL_MAX - PHYSICS.WIND_CHANGE_INTERVAL_MIN);
 
             console.log(`Wind changed: ${this.strength} at ${(this.direction * 180 / Math.PI).toFixed(0)}°`);
         }
@@ -95,34 +96,34 @@ class Wind {
         const absAngle = Math.abs(windRelativeBearingRad);
 
         // Convert angle thresholds from config (degrees) to radians for comparison
-        const poorMax = PhysicsConfig.WIND_ANGLE_POOR_MAX * Math.PI / 180;
-        const moderateMax = PhysicsConfig.WIND_ANGLE_MODERATE_MAX * Math.PI / 180;
-        const goodMax = PhysicsConfig.WIND_ANGLE_GOOD_MAX * Math.PI / 180;
+        const poorMax = PHYSICS.WIND_ANGLE_POOR_MAX * Math.PI / 180;
+        const moderateMax = PHYSICS.WIND_ANGLE_MODERATE_MAX * Math.PI / 180;
+        const goodMax = PHYSICS.WIND_ANGLE_GOOD_MAX * Math.PI / 180;
 
         // WIND EFFICIENCY ZONES (based on absAngle from wind source):
         // POOR (0-60°): Headwind - sailing into the wind
         //   - Historically impossible for square-rigged ships
         //   - Game allows it with severe penalty for accessibility
         if (absAngle < poorMax) {
-            return PhysicsConfig.WIND_EFFICIENCY_POOR;
+            return PHYSICS.WIND_EFFICIENCY_POOR;
         }
 
         // MODERATE (60-90°): Close reach - perpendicular to wind
         //   - Challenging but manageable sailing angle
         else if (absAngle < moderateMax) {
-            return PhysicsConfig.WIND_EFFICIENCY_MODERATE;
+            return PHYSICS.WIND_EFFICIENCY_MODERATE;
         }
 
         // GOOD (90-150°): Broad reach - favorable sailing angle
         //   - Sweet spot for most sailing ships
         else if (absAngle < goodMax) {
-            return PhysicsConfig.WIND_EFFICIENCY_GOOD;
+            return PHYSICS.WIND_EFFICIENCY_GOOD;
         }
 
         // EXCELLENT (150-180°): Tailwind - wind directly behind
         //   - Maximum speed, easiest sailing
         else {
-            return PhysicsConfig.WIND_EFFICIENCY_EXCELLENT;
+            return PHYSICS.WIND_EFFICIENCY_EXCELLENT;
         }
     }
 

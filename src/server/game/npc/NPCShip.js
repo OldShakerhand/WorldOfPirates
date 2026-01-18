@@ -1,10 +1,7 @@
-const Ship = require('./Ship');
-const GameConfig = require('./GameConfig');
-const PhysicsConfig = require('./PhysicsConfig');
-const NavigationConfig = require('./NavigationConfig');
-const CombatConfig = require('./CombatConfig');
-const { getRole, getRandomShipClass } = require('./NPCRole');
-const NPCCombatOverlay = require('./NPCCombatOverlay');
+const Ship = require('../entities/Ship');
+const GameConfig = require('../config/GameConfig');
+const { GAME, PHYSICS, COMBAT, NAVIGATION } = GameConfig;
+const { getRole, getRandomShipClass, NPCCombatOverlay } = require('./NPCBehavior');
 
 /**
  * NPCShip - Non-player ship entity
@@ -74,7 +71,7 @@ class NPCShip {
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
         // fireRate set by role (pirates get combat rate, traders get defensive rate)
-        this.fireRate = this.role.combatCapable ? CombatConfig.CANNON_FIRE_RATE : 999999;
+        this.fireRate = this.role.combatCapable ? COMBAT.CANNON_FIRE_RATE : 999999;
 
         // Harbor state
         this.inHarbor = false;
@@ -95,7 +92,7 @@ class NPCShip {
 
         // Combat state (Phase Combat-NPC 1A: Combat NPCs)
         this.combatTarget = null;  // Player entity ID or null
-        this.combatDistance = CombatConfig.PROJECTILE_MAX_DISTANCE * 0.8;  // 80% of max range
+        this.combatDistance = COMBAT.PROJECTILE_MAX_DISTANCE * 0.8;  // 80% of max range
         this.combatSide = NPCCombatOverlay.Config.DEFAULT_COMBAT_SIDE;  // 'PORT' or 'STARBOARD'
 
         // Intent system (Phase 3.5: Consolidation)
@@ -123,12 +120,12 @@ class NPCShip {
     }
 
     get maxSpeed() {
-        if (this.isRaft) return PhysicsConfig.RAFT_SPEED;
+        if (this.isRaft) return PHYSICS.RAFT_SPEED;
         return this.flagship.shipClass.maxSpeed;
     }
 
     get turnSpeed() {
-        if (this.isRaft) return PhysicsConfig.RAFT_TURN_SPEED;
+        if (this.isRaft) return PHYSICS.RAFT_TURN_SPEED;
         return this.flagship.shipClass.turnSpeed;
     }
 
@@ -248,7 +245,7 @@ class NPCShip {
         }
 
         // 3. Update navigation (obstacle avoidance)
-        if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+        if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
             this.navUpdateCounter = 0;
             this.updateNavigation(world.worldMap);
         }
@@ -296,7 +293,7 @@ class NPCShip {
         this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2; // Convert to ship rotation convention
 
         // 2. Update navigation (check for obstacles and adjust currentHeading)
-        if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+        if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
             this.navUpdateCounter = 0;
             this.updateNavigation(world.worldMap);
         }
@@ -366,7 +363,7 @@ class NPCShip {
 
         // Check if reached harbor
         const distance = Math.hypot(dx, dy);
-        if (distance < GameConfig.HARBOR_INTERACTION_RADIUS * 2) {
+        if (distance < GAME.HARBOR_INTERACTION_RADIUS * 2) {
             this.intent = 'WAIT';
             this.state = 'STOPPED';
             this.stateTimer = 5.0; // Stop for 5 seconds
@@ -426,7 +423,7 @@ class NPCShip {
         }
 
         // Update navigation (obstacle avoidance)
-        if (this.navUpdateCounter++ >= NavigationConfig.NAV_UPDATE_INTERVAL) {
+        if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
             this.navUpdateCounter = 0;
             this.updateNavigation(world.worldMap);
         }
@@ -454,7 +451,7 @@ class NPCShip {
      * Checks for obstacles ahead and adjusts currentHeading accordingly
      */
     updateNavigation(worldMap) {
-        const lookAhead = NavigationConfig.LOOK_AHEAD_TILES * GameConfig.TILE_SIZE;
+        const lookAhead = NAVIGATION.LOOK_AHEAD_TILES * GAME.TILE_SIZE;
 
         // Check both current and desired headings
         const currentIsClear = this.isHeadingClear(this.currentHeading, lookAhead, worldMap);
@@ -465,10 +462,10 @@ class NPCShip {
             this.currentHeading = this.smoothInterpolate(
                 this.currentHeading,
                 this.desiredHeading,
-                NavigationConfig.NPC_TURN_SMOOTHING * (1 / 60)
+                NAVIGATION.NPC_TURN_SMOOTHING * (1 / 60)
             );
 
-            if (NavigationConfig.DEBUG_NAVIGATION) {
+            if (NAVIGATION.DEBUG_NAVIGATION) {
                 console.log(`[NAV] ${this.id} | Both clear, converging to desired`);
             }
         } else if (!currentIsClear && desiredIsClear) {
@@ -476,10 +473,10 @@ class NPCShip {
             this.currentHeading = this.smoothInterpolate(
                 this.currentHeading,
                 this.desiredHeading,
-                NavigationConfig.NPC_TURN_SMOOTHING * (1 / 60)
+                NAVIGATION.NPC_TURN_SMOOTHING * (1 / 60)
             );
 
-            if (NavigationConfig.DEBUG_NAVIGATION) {
+            if (NAVIGATION.DEBUG_NAVIGATION) {
                 console.log(`[NAV] ${this.id} | Re-acquiring direct path`);
             }
         } else if (!currentIsClear) {
@@ -488,7 +485,7 @@ class NPCShip {
             if (alternative !== null) {
                 this.currentHeading = alternative;
 
-                if (NavigationConfig.DEBUG_NAVIGATION) {
+                if (NAVIGATION.DEBUG_NAVIGATION) {
                     const altDeg = (alternative * 180 / Math.PI).toFixed(0);
                     console.log(`[NAV] ${this.id} | Avoiding obstacle, new heading: ${altDeg}°`);
                 }
@@ -511,10 +508,10 @@ class NPCShip {
      * @returns {boolean} True if path is clear
      */
     isHeadingClear(heading, lookAheadDistance, worldMap) {
-        const samples = Math.ceil(lookAheadDistance / GameConfig.TILE_SIZE);
+        const samples = Math.ceil(lookAheadDistance / GAME.TILE_SIZE);
 
         for (let i = 1; i <= samples; i++) {
-            const dist = i * GameConfig.TILE_SIZE;
+            const dist = i * GAME.TILE_SIZE;
             // Convert heading to world coordinates (heading - PI/2 for ship convention)
             const x = this.x + Math.cos(heading - Math.PI / 2) * dist;
             const y = this.y + Math.sin(heading - Math.PI / 2) * dist;
@@ -535,7 +532,7 @@ class NPCShip {
      * @returns {number|null} Clear heading or null if none found
      */
     findClearHeading(worldMap, lookAheadDistance) {
-        for (const angle of NavigationConfig.SEARCH_ANGLES) {
+        for (const angle of NAVIGATION.SEARCH_ANGLES) {
             const testHeading = this.desiredHeading + angle;
 
             // Check if heading is clear
@@ -543,7 +540,7 @@ class NPCShip {
                 // Check if still making forward progress toward target
                 const progressDot = Math.cos(testHeading - this.desiredHeading);
 
-                if (progressDot >= NavigationConfig.MIN_PROGRESS_DOT) {
+                if (progressDot >= NAVIGATION.MIN_PROGRESS_DOT) {
                     return testHeading; // Found a good alternative
                 }
             }
@@ -678,7 +675,7 @@ class NPCShip {
         const dist = Math.hypot(target.x - this.x, target.y - this.y);
 
         // Check range (Limit to 90% of max range to ensure better hit probability)
-        if (dist > CombatConfig.PROJECTILE_MAX_DISTANCE * 0.9) {
+        if (dist > COMBAT.PROJECTILE_MAX_DISTANCE * 0.9) {
             return; // Out of effective range
         }
 
@@ -696,7 +693,7 @@ class NPCShip {
         // Starboard firing check (Target must be approx +90° / +PI/2 relative to bow)
         // angleDiff is (TargetDir - ShipDir). If Target is Right, angleDiff ~= PI/2
         if (Math.abs(angleDiff - Math.PI / 2) < BROADSIDE_SECTOR) {
-            if (now - this.lastShotTimeRight >= CombatConfig.CANNON_FIRE_RATE) {
+            if (now - this.lastShotTimeRight >= COMBAT.CANNON_FIRE_RATE) {
                 this.inputs.shootRight = true;
                 // GameLoop handles timestamp update upon actual firing
 
@@ -704,13 +701,13 @@ class NPCShip {
                     console.log(`[COMBAT] ${this.id} firing STARBOARD at ${target.id}`);
                 }
             } else if (NPCCombatOverlay.Config.DEBUG_COMBAT && Math.random() < 0.1) {
-                console.log(`[COMBAT] ${this.id} Starboard cooldown (${(now - this.lastShotTimeRight).toFixed(1)}s < ${CombatConfig.CANNON_FIRE_RATE})`);
+                console.log(`[COMBAT] ${this.id} Starboard cooldown (${(now - this.lastShotTimeRight).toFixed(1)}s < ${COMBAT.CANNON_FIRE_RATE})`);
             }
         }
         // Port firing check (Target must be approx -90° / -PI/2 relative to bow)
         // angleDiff is (TargetDir - ShipDir). If Target is Left, angleDiff ~= -PI/2
         else if (Math.abs(angleDiff + Math.PI / 2) < BROADSIDE_SECTOR) {
-            if (now - this.lastShotTimeLeft >= CombatConfig.CANNON_FIRE_RATE) {
+            if (now - this.lastShotTimeLeft >= COMBAT.CANNON_FIRE_RATE) {
                 this.inputs.shootLeft = true;
                 // GameLoop handles timestamp update upon actual firing
 
@@ -718,7 +715,7 @@ class NPCShip {
                     console.log(`[COMBAT] ${this.id} firing PORT at ${target.id}`);
                 }
             } else if (NPCCombatOverlay.Config.DEBUG_COMBAT && Math.random() < 0.1) {
-                console.log(`[COMBAT] ${this.id} Port cooldown (${(now - this.lastShotTimeLeft).toFixed(1)}s < ${CombatConfig.CANNON_FIRE_RATE})`);
+                console.log(`[COMBAT] ${this.id} Port cooldown (${(now - this.lastShotTimeLeft).toFixed(1)}s < ${COMBAT.CANNON_FIRE_RATE})`);
             }
         }
         else if (NPCCombatOverlay.Config.DEBUG_COMBAT && Math.random() < 0.05) {
@@ -773,6 +770,24 @@ class NPCShip {
         // Check if flagship sunk
         if (this.flagship.isSunk) {
             console.log(`[NPC] ${this.id} sunk, despawning`);
+
+            // Grant combat reward to killer (Phase 2: Combat rewards)
+            if (damageSource && this.world && this.world.rewardSystem) {
+                const killer = this.world.getEntity(damageSource);
+                if (killer && killer.type === 'PLAYER') {
+                    // Map NPC role to reward key
+                    // Map NPC role to reward key
+                    const rewardKey = this.roleName === 'PIRATE'
+                        ? 'COMBAT.PIRATE_SUNK'
+                        : 'COMBAT.TRADER_SUNK';
+
+                    this.world.rewardSystem.grant(
+                        damageSource,
+                        rewardKey,
+                        { source: `NPC: ${this.role.name}` }
+                    );
+                }
+            }
 
             // Notify mission manager (Phase 0: Mission scaffolding)
             if (this.world && this.world.missionManager) {
@@ -841,11 +856,11 @@ class NPCShip {
         if (this.sailChangeCooldown <= 0) {
             if (this.inputs.sailUp && this.sailState < 2) {
                 this.sailState++;
-                this.sailChangeCooldown = PhysicsConfig.SAIL_CHANGE_COOLDOWN;
+                this.sailChangeCooldown = PHYSICS.SAIL_CHANGE_COOLDOWN;
             }
             if (this.inputs.sailDown && this.sailState > 0) {
                 this.sailState--;
-                this.sailChangeCooldown = PhysicsConfig.SAIL_CHANGE_COOLDOWN;
+                this.sailChangeCooldown = PHYSICS.SAIL_CHANGE_COOLDOWN;
             }
         }
 
@@ -861,15 +876,15 @@ class NPCShip {
                 windAngleModifier = wind.getAngleModifier(this.rotation, this.sailState);
                 targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier;
             } else {
-                targetSpeed = this.maxSpeed * sailModifier * PhysicsConfig.SHALLOW_WATER_SPEED_MULTIPLIER;
+                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER;
             }
         }
 
         this.windEfficiency = windAngleModifier;
 
         // Accelerate/Decelerate (same as Player)
-        const accel = this.isInDeepWater ? PhysicsConfig.ACCELERATION : PhysicsConfig.ACCELERATION * 0.5;
-        const decel = this.isInDeepWater ? PhysicsConfig.DECELERATION : PhysicsConfig.DECELERATION * 1.5;
+        const accel = this.isInDeepWater ? PHYSICS.ACCELERATION : PHYSICS.ACCELERATION * 0.5;
+        const decel = this.isInDeepWater ? PHYSICS.DECELERATION : PHYSICS.DECELERATION * 1.5;
 
         if (this.speed < targetSpeed) {
             this.speed += accel * deltaTime;
@@ -878,7 +893,7 @@ class NPCShip {
         }
 
         this.speed = Math.max(0, Math.min(this.speed, this.maxSpeed));
-        this.speedInKnots = Math.round(this.speed * PhysicsConfig.SPEED_TO_KNOTS_MULTIPLIER);
+        this.speedInKnots = Math.round(this.speed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER);
 
         // Turning (same as Player)
         if (this.inputs.left) {
@@ -924,10 +939,10 @@ class NPCShip {
         }
 
         // Wrap around world (same as Player)
-        if (this.x < 0) this.x += GameConfig.WORLD_WIDTH;
-        if (this.x > GameConfig.WORLD_WIDTH) this.x -= GameConfig.WORLD_WIDTH;
-        if (this.y < 0) this.y += GameConfig.WORLD_HEIGHT;
-        if (this.y > GameConfig.WORLD_HEIGHT) this.y -= GameConfig.WORLD_HEIGHT;
+        if (this.x < 0) this.x += GAME.WORLD_WIDTH;
+        if (this.x > GAME.WORLD_WIDTH) this.x -= GAME.WORLD_WIDTH;
+        if (this.y < 0) this.y += GAME.WORLD_HEIGHT;
+        if (this.y > GAME.WORLD_HEIGHT) this.y -= GAME.WORLD_HEIGHT;
     }
 
     /**
@@ -945,7 +960,7 @@ class NPCShip {
             maxHealth: this.maxHealth,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
-            maxSpeedInKnots: Math.round(this.maxSpeed * PhysicsConfig.SPEED_TO_KNOTS_MULTIPLIER),
+            maxSpeedInKnots: Math.round(this.maxSpeed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER),
             windEfficiency: this.windEfficiency || 0,
             isInDeepWater: this.isInDeepWater,
             shipClassName: this.isRaft ? 'Raft' : this.flagship.shipClass.name,

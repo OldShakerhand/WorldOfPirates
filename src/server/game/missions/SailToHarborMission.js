@@ -2,7 +2,7 @@
  * SailToHarborMission.js - Reach a specific harbor
  */
 
-const Mission = require('../Mission');
+const Mission = require('./Mission');
 
 class SailToHarborMission extends Mission {
     constructor(id, playerId, targetHarborId, targetHarborName) {
@@ -10,9 +10,8 @@ class SailToHarborMission extends Mission {
         this.targetHarborId = targetHarborId;
         this.targetHarborName = targetHarborName || targetHarborId;
 
-        // Rewards: Simple delivery mission (Phase 1)
-        this.goldReward = 100;
-        this.xpReward = 50;
+        // Reward key (centralized)
+        this.rewardKey = 'MISSION.SAIL_TO_HARBOR';
     }
 
     onUpdate(world, deltaTime) {

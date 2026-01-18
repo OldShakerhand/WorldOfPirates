@@ -12,9 +12,10 @@ class Mission {
         this.startTime = null;
         this.endTime = null;
 
-        // Rewards (Phase 1: Gold & XP)
-        this.goldReward = 0;
-        this.xpReward = 0;
+        // Reward key (Phase 2: Centralized rewards)
+        // Subclasses MUST set this to a valid RewardConfig key
+        // e.g., "MISSION.ESCORT", "MISSION.SAIL_TO_HARBOR"
+        this.rewardKey = null;
 
         // FUTURE: Item rewards
         // this.itemRewards = [];  // e.g., ['map_fragment', 'rare_cargo']
@@ -65,8 +66,7 @@ class Mission {
             type: this.type,
             state: this.state,
             description: this.getDescription(),
-            goldReward: this.goldReward,
-            xpReward: this.xpReward
+            rewardKey: this.rewardKey  // Client can look up preview if needed
         };
     }
 

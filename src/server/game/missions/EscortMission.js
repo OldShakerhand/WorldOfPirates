@@ -2,7 +2,7 @@
  * EscortMission.js - Protect an NPC trader while it travels to a harbor
  */
 
-const Mission = require('../Mission');
+const Mission = require('./Mission');
 
 class EscortMission extends Mission {
     constructor(id, playerId, escortNpcId, targetHarborId, targetHarborName, maxDistance) {
@@ -12,9 +12,8 @@ class EscortMission extends Mission {
         this.targetHarborName = targetHarborName || targetHarborId;
         this.maxDistance = maxDistance || 800; // Max distance before fail
 
-        // Rewards: Complex mission (highest rewards) (Phase 1)
-        this.goldReward = 300;
-        this.xpReward = 150;
+        // Reward key (centralized)
+        this.rewardKey = 'MISSION.ESCORT';
     }
 
     onUpdate(world, deltaTime) {
