@@ -293,7 +293,47 @@ function switchFlagship() {
     socket.emit('switchFlagship', selectedShip);
 }
 
+// Ship upgrade function (Phase 1: Progression)
+function upgradeShip() {
+    const upgradeSelector = document.getElementById('upgradeShipSelector');
+    const selectedShip = upgradeSelector.value;
+    const upgradeStatus = document.getElementById('upgradeStatus');
+
+    // Get player data from game state
+    const player = window.gameState.players[socket.id];
+    if (!player) return;
+
+    // Ship costs and requirements (must match ShipClass.js)
+    const shipCosts = {
+        SLOOP: { gold: 500, level: 1 },
+        BARQUE: { gold: 1000, level: 2 },
+        FLUYT: { gold: 1500, level: 3 },
+        MERCHANT: { gold: 2000, level: 4 },
+        FRIGATE: { gold: 3000, level: 5 },
+        SPANISH_GALLEON: { gold: 5000, level: 7 },
+        WAR_GALLEON: { gold: 8000, level: 10 }
+    };
+
+    const cost = shipCosts[selectedShip];
+    if (!cost) {
+        upgradeStatus.textContent = 'Invalid ship selection';
+        return;
+    }
+
+    // Client-side validation (server will validate again)
+    if (player.gold < cost.gold || player.level < cost.level) {
+        upgradeStatus.textContent = `Insufficient resources! Need ${cost.gold} gold and level ${cost.level}`;
+        setTimeout(() => { upgradeStatus.textContent = ''; }, 3000);
+        return;
+    }
+
+    // Clear status and send request
+    upgradeStatus.textContent = '';
+    socket.emit('upgradeShip', selectedShip);
+}
+
 // Make functions global for HTML onclick
 window.repairShip = repairShip;
 window.closeHarbor = closeHarbor;
 window.switchFlagship = switchFlagship;
+window.upgradeShip = upgradeShip;

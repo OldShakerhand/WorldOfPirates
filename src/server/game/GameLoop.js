@@ -566,6 +566,57 @@ class GameLoop {
             player.dockedHarborId = null;
         }
     }
+
+    /**
+     * Handle ship upgrade in harbor (Phase 1: Progression)
+     * Server-authoritative: validates gold, level, and harbor requirements
+     */
+    handleUpgradeShip(socketId, targetShipClass) {
+        const player = this.world.getEntity(socketId);
+        if (!player) return;
+
+        // Validation: Must be in harbor
+        if (!player.inHarbor) {
+            console.log(`[Harbor] ${player.name}: Cannot upgrade ship (not in harbor)`);
+            return;
+        }
+
+        // Get ship class definition
+        const { getShipClass } = require('./ShipClass');
+        const shipClass = getShipClass(targetShipClass);
+        if (!shipClass) {
+            console.log(`[Harbor] ${player.name}: Invalid ship class ${targetShipClass}`);
+            return;
+        }
+
+        // Validation: Check affordability (gold + level)
+        if (!player.canAffordShip(shipClass)) {
+            const cost = shipClass.goldCost || 0;
+            const levelReq = shipClass.levelRequirement || 1;
+            console.log(`[Harbor] ${player.name}: Cannot afford ${shipClass.name} (need ${cost} gold, level ${levelReq})`);
+            return;
+        }
+
+        // Deduct cost
+        player.gold -= shipClass.goldCost;
+
+        // Replace flagship (simple swap, no resale)
+        const Ship = require('./Ship');
+        player.fleet = [new Ship(targetShipClass)];
+        player.flagshipIndex = 0;
+
+        console.log(`[Harbor] ${player.name}: Upgraded to ${shipClass.name} for ${shipClass.goldCost} gold (${player.gold} remaining)`);
+
+        // Send updated harbor data
+        const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
+        if (harbor) {
+            const harborData = {
+                harborName: harbor.name,
+                fleet: player.fleet.map(ship => ship.serialize())
+            };
+            this.io.to(socketId).emit('harborData', harborData);
+        }
+    }
 }
 
 module.exports = GameLoop;

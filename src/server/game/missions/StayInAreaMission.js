@@ -12,6 +12,10 @@ class StayInAreaMission extends Mission {
         this.radius = radius;
         this.duration = duration; // seconds
         this.timeInArea = 0;
+
+        // Rewards: Patrol/guard mission (Phase 1)
+        this.goldReward = 150;
+        this.xpReward = 75;
     }
 
     onUpdate(world, deltaTime) {

@@ -11,6 +11,10 @@ class EscortMission extends Mission {
         this.targetHarborId = targetHarborId; // Destination
         this.targetHarborName = targetHarborName || targetHarborId;
         this.maxDistance = maxDistance || 800; // Max distance before fail
+
+        // Rewards: Complex mission (highest rewards) (Phase 1)
+        this.goldReward = 300;
+        this.xpReward = 150;
     }
 
     onUpdate(world, deltaTime) {

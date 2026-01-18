@@ -17,6 +17,9 @@ const SHIP_CLASSES = {
         turnSpeed: 1.5,
         health: 500,
         cannonsPerSide: 0,
+        // Progression (Phase 1)
+        goldCost: 0,
+        levelRequirement: 1,
         // Visual properties (Square rendering, 3x scale)
         spriteFile: 'raft.png',
         spriteWidth: 180,
@@ -38,6 +41,9 @@ const SHIP_CLASSES = {
         turnSpeed: 1.8,
         health: 100,
         cannonsPerSide: 2,
+        // Progression (Phase 1)
+        goldCost: 500,
+        levelRequirement: 1,
         // Visual properties (Square rendering to preserve aspect ratio)
         spriteFile: 'sloop.png',
         spriteWidth: 92,  // Square rendering
@@ -60,6 +66,9 @@ const SHIP_CLASSES = {
         turnSpeed: 1.2,
         health: 200,
         cannonsPerSide: 3,
+        // Progression (Phase 1)
+        goldCost: 1000,
+        levelRequirement: 2,
         // Visual properties (Square rendering)
         spriteFile: 'barque.png',
         spriteWidth: 116,
@@ -81,6 +90,9 @@ const SHIP_CLASSES = {
         turnSpeed: 1.1,
         health: 250,
         cannonsPerSide: 4,
+        // Progression (Phase 1)
+        goldCost: 1500,
+        levelRequirement: 3,
         // Visual properties (Square rendering)
         spriteFile: 'fluyt.png',
         spriteWidth: 116,
@@ -102,6 +114,9 @@ const SHIP_CLASSES = {
         turnSpeed: 1.0,
         health: 300,
         cannonsPerSide: 5,
+        // Progression (Phase 1)
+        goldCost: 2000,
+        levelRequirement: 4,
         // Visual properties (Square rendering)
         spriteFile: 'merchant.png',
         spriteWidth: 120,
@@ -123,6 +138,9 @@ const SHIP_CLASSES = {
         turnSpeed: 1.1,
         health: 350,
         cannonsPerSide: 6,
+        // Progression (Phase 1)
+        goldCost: 3000,
+        levelRequirement: 5,
         // Visual properties (Square rendering)
         spriteFile: 'frigate.png',
         spriteWidth: 140,
@@ -145,6 +163,9 @@ const SHIP_CLASSES = {
         turnSpeed: 0.8,
         health: 450,
         cannonsPerSide: 8,
+        // Progression (Phase 1)
+        goldCost: 5000,
+        levelRequirement: 7,
         // Visual properties (Square rendering)
         spriteFile: 'spanish_galleon.png',
         spriteWidth: 160,
@@ -166,6 +187,9 @@ const SHIP_CLASSES = {
         turnSpeed: 0.7,
         health: 600,
         cannonsPerSide: 12,
+        // Progression (Phase 1)
+        goldCost: 8000,
+        levelRequirement: 10,
         // Visual properties (Square rendering)
         spriteFile: 'war_galleon.png',
         spriteWidth: 180,

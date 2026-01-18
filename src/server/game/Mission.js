@@ -11,6 +11,16 @@ class Mission {
         this.state = 'INACTIVE';         // INACTIVE, ACTIVE, SUCCESS, FAILED
         this.startTime = null;
         this.endTime = null;
+
+        // Rewards (Phase 1: Gold & XP)
+        this.goldReward = 0;
+        this.xpReward = 0;
+
+        // FUTURE: Item rewards
+        // this.itemRewards = [];  // e.g., ['map_fragment', 'rare_cargo']
+
+        // FUTURE: Reputation
+        // this.reputationReward = { faction: 'PIRATES', amount: 10 };
     }
 
     // Lifecycle
@@ -54,7 +64,9 @@ class Mission {
             id: this.id,
             type: this.type,
             state: this.state,
-            description: this.getDescription()
+            description: this.getDescription(),
+            goldReward: this.goldReward,
+            xpReward: this.xpReward
         };
     }
 

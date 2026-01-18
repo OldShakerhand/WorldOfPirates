@@ -48,6 +48,19 @@ class Player {
         this.inHarbor = false; // True when docked
         this.dockedHarborId = null; // Which harbor
 
+        // Progression (session-based, Phase 1)
+        // FUTURE: Persist to database
+        this.gold = 0;              // Currency for ship upgrades
+        this.xp = 0;                // Experience points
+        this.level = 1;             // Derived from XP
+
+        // FUTURE: Cargo system
+        // this.cargo = [];  // Array of goods { type, quantity, value }
+        // this.cargoCapacity = 0;  // From ship class
+
+        // FUTURE: Skills/talents
+        // this.skills = { navigation: 0, combat: 0, trading: 0 };
+
         // Boarding proximity timer
         this.boardingTarget = null; // { playerId, startTime }
 
@@ -116,6 +129,51 @@ class Player {
         // More ships = slower (simple version)
         const penalty = 1.0 - ((this.fleet.length - 1) * PhysicsConfig.FLEET_SPEED_PENALTY_PER_SHIP);
         return Math.max(PhysicsConfig.MAX_FLEET_SPEED_PENALTY, penalty);
+    }
+
+    // Progression Methods (Phase 1)
+
+    /**
+     * Add gold (server-authoritative)
+     * @param {number} amount - Gold to add
+     */
+    addGold(amount) {
+        this.gold += amount;
+        console.log(`[Progression] ${this.name}: +${amount} gold (total: ${this.gold})`);
+    }
+
+    /**
+     * Add XP and recalculate level
+     * @param {number} amount - XP to add
+     */
+    addXP(amount) {
+        this.xp += amount;
+        const oldLevel = this.level;
+        this.level = this.calculateLevel();
+        if (this.level > oldLevel) {
+            console.log(`[Progression] ${this.name}: LEVEL UP! ${oldLevel} → ${this.level}`);
+        }
+    }
+
+    /**
+     * Calculate level from XP
+     * Simple formula: level = floor(sqrt(xp / 100)) + 1
+     * Level 1: 0 XP, Level 2: 100 XP, Level 3: 400 XP, Level 4: 900 XP, etc.
+     * @returns {number} Current level
+     */
+    calculateLevel() {
+        return Math.floor(Math.sqrt(this.xp / 100)) + 1;
+    }
+
+    /**
+     * Check if player can afford ship upgrade
+     * @param {Object} shipClass - Ship class definition from ShipClass.js
+     * @returns {boolean} True if player meets requirements
+     */
+    canAffordShip(shipClass) {
+        const cost = shipClass.goldCost || 0;
+        const levelReq = shipClass.levelRequirement || 1;
+        return this.gold >= cost && this.level >= levelReq;
     }
 
     handleInput(data) {
@@ -420,7 +478,11 @@ class Player {
             nearHarbor: this.nearHarbor,
             reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
             reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
-            maxReload: this.fireRate
+            maxReload: this.fireRate,
+            // Progression (Phase 1)
+            gold: this.gold,
+            xp: this.xp,
+            level: this.level
         };
     }
 }

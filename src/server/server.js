@@ -109,6 +109,10 @@ io.on('connection', (socket) => {
         gameLoop.handleSwitchFlagship(socket.id, shipClass);
     });
 
+    socket.on('upgradeShip', (shipClass) => {
+        gameLoop.handleUpgradeShip(socket.id, shipClass);
+    });
+
     // NPC Spawn: N key (spawn single trader near player)
     socket.on('spawnNPC', () => {
         const player = gameLoop.world.getEntity(socket.id);

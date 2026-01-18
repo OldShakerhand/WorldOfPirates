@@ -9,6 +9,10 @@ class DefeatNPCsMission extends Mission {
         super(id, 'DEFEAT_NPCS', playerId);
         this.targetCount = targetCount;
         this.defeatedCount = 0;
+
+        // Rewards: Combat mission (higher rewards) (Phase 1)
+        this.goldReward = 200;
+        this.xpReward = 100;
     }
 
     // Called by MissionManager when NPC is destroyed

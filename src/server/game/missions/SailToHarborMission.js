@@ -9,6 +9,10 @@ class SailToHarborMission extends Mission {
         super(id, 'SAIL_TO_HARBOR', playerId);
         this.targetHarborId = targetHarborId;
         this.targetHarborName = targetHarborName || targetHarborId;
+
+        // Rewards: Simple delivery mission (Phase 1)
+        this.goldReward = 100;
+        this.xpReward = 50;
     }
 
     onUpdate(world, deltaTime) {

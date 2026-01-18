@@ -429,6 +429,7 @@ function renderGame(state, mapData, myId) {
     if (myShip) {
         drawSpeedDisplay(myShip);
         drawFleetUI(myShip);
+        drawProgressionUI(myShip); // Phase 1: Progression display
         drawMissionUI(myShip); // Phase 0: Mission scaffolding
 
         // Show harbor prompt if near a harbor
@@ -563,6 +564,32 @@ function drawFleetUI(player) {
         ctx.fillStyle = COLORS.SHIELD_GOLD;
         ctx.fillText('🛡️ SHIELD', x - 30, y + 40);
     }
+
+    ctx.restore();
+}
+
+// Progression UI (Phase 1)
+function drawProgressionUI(player) {
+    const x = 60;
+    const y = 190; // Below fleet UI
+
+    ctx.save();
+    ctx.font = 'bold 14px Arial';
+    ctx.fillStyle = '#FFD700'; // Gold color
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 3;
+
+    // Gold
+    const goldText = `💰 ${player.gold || 0}`;
+    ctx.strokeText(goldText, x - 30, y);
+    ctx.fillText(goldText, x - 30, y);
+
+    // Level and XP
+    const levelText = `Lv ${player.level || 1} (${player.xp || 0} XP)`;
+    ctx.fillStyle = 'white';
+    ctx.font = '12px Arial';
+    ctx.strokeText(levelText, x - 30, y + 18);
+    ctx.fillText(levelText, x - 30, y + 18);
 
     ctx.restore();
 }
@@ -821,6 +848,13 @@ function showHarborUI(harborData) {
     });
 
     fleetList.innerHTML = fleetHTML;
+
+    // Update player resources display (Phase 1: Progression)
+    const playerResourcesEl = document.getElementById('playerResources');
+    const player = window.gameState.players[socket.id];
+    if (player && playerResourcesEl) {
+        playerResourcesEl.textContent = `Gold: ${player.gold || 0} | Level: ${player.level || 1}`;
+    }
 
     // Show/hide repair button based on damage
     const repairBtn = document.getElementById('repairBtn');
