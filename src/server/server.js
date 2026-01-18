@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
         const { x, y } = data;
 
         // Validate coordinates
-        if (typeof x !== 'number' || typeof y !== 'number') {
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
             console.warn('[DEBUG] Invalid teleport coordinates:', data);
             return;
         }
