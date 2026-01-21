@@ -26,7 +26,11 @@ class World {
         this.wind = new Wind();
 
         // Load harbor registry (replaces hardcoded positions)
-        this.harborRegistry = new HarborRegistry(GAME.HARBORS_PATH);
+        // Phase 0: Economy - also loads trade profiles
+        this.harborRegistry = new HarborRegistry(
+            GAME.HARBORS_PATH,
+            GAME.HARBOR_TRADE_PROFILES_PATH
+        );
 
         // Create Harbor instances from registry data
         this.harbors = this.harborRegistry.getAllHarbors().map(data =>

@@ -32,7 +32,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (small raft, body only)
         hitboxWidthFactor: 0.13,
-        hitboxHeightFactor: 0.24
+        hitboxHeightFactor: 0.24,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 0  // Rafts cannot carry cargo
     },
     SLOOP: {
         id: 2,
@@ -56,7 +58,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (narrow hull, excluding sails)
         hitboxWidthFactor: 0.24,
-        hitboxHeightFactor: 0.68
+        hitboxHeightFactor: 0.68,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 20
     },
 
     BARQUE: {
@@ -81,7 +85,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (narrow hull, excluding sails)
         hitboxWidthFactor: 0.25,
-        hitboxHeightFactor: 0.84
+        hitboxHeightFactor: 0.84,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 40
     },
     FLUYT: {
         id: 4,
@@ -105,7 +111,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: -14,
         // Hitbox (wider hull, excluding sails)
         hitboxWidthFactor: 0.38,
-        hitboxHeightFactor: 0.85
+        hitboxHeightFactor: 0.85,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 80  // Merchant vessel, high capacity
     },
     MERCHANT: {
         id: 5,
@@ -129,7 +137,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (medium hull, excluding sails)
         hitboxWidthFactor: 0.33,
-        hitboxHeightFactor: 0.74
+        hitboxHeightFactor: 0.74,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 120  // Dedicated cargo ship
     },
     FRIGATE: {
         id: 6,
@@ -153,7 +163,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (wide hull, excluding sails)
         hitboxWidthFactor: 0.41,
-        hitboxHeightFactor: 0.89
+        hitboxHeightFactor: 0.89,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 60  // Combat-focused, less cargo
     },
 
     SPANISH_GALLEON: {
@@ -178,7 +190,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (narrow hull, excluding sails)
         hitboxWidthFactor: 0.32,
-        hitboxHeightFactor: 0.98
+        hitboxHeightFactor: 0.98,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 100
     },
     WAR_GALLEON: {
         id: 8,
@@ -202,7 +216,9 @@ const SHIP_CLASSES = {
         cannonLongitudinalOffsetStarboard: 0,
         // Hitbox (wide ship, excluding outlier pixels)
         hitboxWidthFactor: 0.45,
-        hitboxHeightFactor: 0.96
+        hitboxHeightFactor: 0.96,
+        // Cargo (Phase 0: Economy)
+        cargoHold: 80  // War vessel, moderate cargo
     }
 };
 

@@ -36,6 +36,7 @@ const GameConfig = {
 
         // Harbors (loaded from JSON, replaces hardcoded positions)
         HARBORS_PATH: './assets/harbors.json',
+        HARBOR_TRADE_PROFILES_PATH: './assets/harbor_trade_profiles.json',
 
         // Terrain types (must match WorldMap.js and convert_map.js)
         TERRAIN: {
@@ -182,6 +183,14 @@ const GameConfig = {
 
         // Debug logging for navigation (disable in production)
         DEBUG_NAVIGATION: false
+    },
+
+    // ========================================
+    // ECONOMY: Trading and cargo system
+    // ========================================
+    ECONOMY: {
+        // Transaction limits
+        MAX_TRANSACTION_QUANTITY: 100  // Prevent exploits
     }
 };
 

@@ -325,3 +325,86 @@ canvas {
     color: #95a5a6;
     font-style: italic;
 }
+
+/* Trade Interface Styles (Phase 0: Economy) */
+.trade-good-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    margin: 5px 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.trade-good-info {
+    flex: 1;
+}
+
+.trade-good-name {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.trade-good-prices {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.trade-good-controls {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.trade-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid #666;
+    background: #444;
+    color: white;
+    border-radius: 3px;
+}
+
+.trade-btn:hover {
+    background: #555;
+}
+
+.trade-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.trade-btn.buy {
+    background: #2ecc71;
+    border-color: #27ae60;
+}
+
+.trade-btn.buy:hover:not(:disabled) {
+    background: #27ae60;
+}
+
+.trade-btn.sell {
+    background: #e74c3c;
+    border-color: #c0392b;
+}
+
+.trade-btn.sell:hover:not(:disabled) {
+    background: #c0392b;
+}
+
+.trade-quantity-input {
+    width: 50px;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #666;
+    background: #333;
+    color: white;
+    border-radius: 3px;
+}
+
+.cargo-item {
+    padding: 3px 0;
+    font-size: 12px;
+}

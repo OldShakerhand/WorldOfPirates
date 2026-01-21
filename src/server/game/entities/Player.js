@@ -1,4 +1,5 @@
 const Ship = require('./Ship');
+const FleetCargo = require('./FleetCargo');
 const NavigationSkill = require('../progression/NavigationSkill');
 const GameConfig = require('../config/GameConfig');
 const { GAME, PHYSICS, COMBAT } = GameConfig;
@@ -53,9 +54,8 @@ class Player {
         this.xp = 0;                // Experience points
         this.level = 1;             // Derived from XP
 
-        // FUTURE: Cargo system
-        // this.cargo = [];  // Array of goods { type, quantity, value }
-        // this.cargoCapacity = 0;  // From ship class
+        // Fleet cargo (Phase 0: Economy)
+        this.fleetCargo = new FleetCargo(this.fleet);
 
         // FUTURE: Skills/talents
         // this.skills = { navigation: 0, combat: 0, trading: 0 };
@@ -173,6 +173,15 @@ class Player {
         const cost = shipClass.goldCost || 0;
         const levelReq = shipClass.levelRequirement || 1;
         return this.gold >= cost && this.level >= levelReq;
+    }
+
+    // Gold methods (server-authoritative, Phase 0: Economy)
+    addGold(amount) {
+        this.gold += amount;
+    }
+
+    removeGold(amount) {
+        this.gold -= amount;
     }
 
     handleInput(data) {
@@ -481,7 +490,9 @@ class Player {
             // Progression (Phase 1)
             gold: this.gold,
             xp: this.xp,
-            level: this.level
+            level: this.level,
+            // Economy (Phase 0)
+            cargo: this.fleetCargo.serialize()
         };
     }
 }

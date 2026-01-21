@@ -189,6 +189,64 @@ function setupGameListeners() {
         // Render updated chat feed
         renderChatFeed(chatMessages);
     });
+
+    // Economy: Transaction result feedback (Phase 0)
+    socket.on('transactionResult', (result) => {
+        const statusEl = document.getElementById('transactionStatus');
+        if (statusEl) {
+            statusEl.textContent = result.message;
+            statusEl.style.color = result.success ? '#2ecc71' : '#e74c3c';
+
+            // Clear after 3 seconds
+            setTimeout(() => {
+                statusEl.textContent = '';
+            }, 3000);
+        }
+    });
+
+    // Economy: Player state update (Phase 0)
+    socket.on('playerStateUpdate', (state) => {
+        // Update cargo display
+        if (state.cargo) {
+            const cargoList = document.getElementById('cargoList');
+            const cargoCapacity = document.getElementById('cargoCapacity');
+
+            if (cargoList && cargoCapacity) {
+                // Re-render cargo
+                if (state.cargo.goods && Object.keys(state.cargo.goods).length > 0) {
+                    let cargoHTML = '';
+                    for (const [goodId, quantity] of Object.entries(state.cargo.goods)) {
+                        cargoHTML += `<div class="cargo-item">${goodId}: ${quantity}</div>`;
+                    }
+                    cargoList.innerHTML = cargoHTML;
+                } else {
+                    cargoList.innerHTML = '<div class="cargo-item" style="color: #888;">Empty</div>';
+                }
+
+                cargoCapacity.textContent = `Capacity: ${state.cargo.used}/${state.cargo.total} (${state.cargo.available} available)`;
+            }
+        }
+
+        // Update gold display
+        if (state.gold !== undefined) {
+            const playerResourcesEl = document.getElementById('playerResources');
+            const player = window.gameState.players[socket.id];
+            if (player && playerResourcesEl) {
+                player.gold = state.gold; // Update local state
+                playerResourcesEl.textContent = `Gold: ${state.gold} | Level: ${player.level || 1}`;
+            }
+        }
+
+        // Re-enable/disable sell buttons based on cargo
+        if (state.cargo && state.cargo.goods) {
+            for (const goodId in state.cargo.goods) {
+                const sellBtn = document.querySelector(`button[onclick="sellGood('${goodId}')"]`);
+                if (sellBtn) {
+                    sellBtn.disabled = state.cargo.goods[goodId] === 0;
+                }
+            }
+        }
+    });
 }
 
 // Input handling
@@ -332,8 +390,45 @@ function upgradeShip() {
     socket.emit('upgradeShip', selectedShip);
 }
 
+// Trade functions (Phase 0: Economy)
+function buyGood(goodId) {
+    if (!window.currentHarborId) {
+        console.error('[Trade] No harbor ID available');
+        return;
+    }
+
+    const quantityInput = document.getElementById(`qty-${goodId}`);
+    const quantity = parseInt(quantityInput.value) || 1;
+
+    console.log(`[Trade] Buying ${quantity}x ${goodId} at ${window.currentHarborId}`);
+    socket.emit('buyGood', {
+        harborId: window.currentHarborId,
+        goodId: goodId,
+        quantity: quantity
+    });
+}
+
+function sellGood(goodId) {
+    if (!window.currentHarborId) {
+        console.error('[Trade] No harbor ID available');
+        return;
+    }
+
+    const quantityInput = document.getElementById(`qty-${goodId}`);
+    const quantity = parseInt(quantityInput.value) || 1;
+
+    console.log(`[Trade] Selling ${quantity}x ${goodId} at ${window.currentHarborId}`);
+    socket.emit('sellGood', {
+        harborId: window.currentHarborId,
+        goodId: goodId,
+        quantity: quantity
+    });
+}
+
 // Make functions global for HTML onclick
 window.repairShip = repairShip;
 window.closeHarbor = closeHarbor;
 window.switchFlagship = switchFlagship;
 window.upgradeShip = upgradeShip;
+window.buyGood = buyGood;
+window.sellGood = sellGood;

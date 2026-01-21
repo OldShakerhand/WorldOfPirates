@@ -832,6 +832,11 @@ function showHarborUI(harborData) {
     const harborTitle = document.getElementById('harborTitle');
     const fleetList = document.getElementById('fleetList');
 
+    // Store harbor ID for trade requests (accessed by client.js)
+    if (typeof window !== 'undefined') {
+        window.currentHarborId = harborData.harborId;
+    }
+
     harborTitle.textContent = `🏴‍☠️ ${harborData.harborName}`;
 
     // Display fleet
@@ -866,11 +871,76 @@ function showHarborUI(harborData) {
         repairBtn.style.display = 'none';
     }
 
+    // Display economy/trade section (Phase 0: Economy)
+    const tradeSection = document.getElementById('tradeSection');
+    if (harborData.economy && harborData.cargo) {
+        tradeSection.style.display = 'block';
+        renderTradeInterface(harborData.economy, harborData.cargo);
+    } else {
+        tradeSection.style.display = 'none';
+    }
+
     harborUI.style.display = 'flex';
 }
 
 function hideHarborUI() {
     document.getElementById('harborUI').style.display = 'none';
+}
+
+// Trade Interface Rendering (Phase 0: Economy)
+function renderTradeInterface(economy, cargo) {
+    // Render cargo inventory
+    const cargoList = document.getElementById('cargoList');
+    if (cargo.goods && Object.keys(cargo.goods).length > 0) {
+        let cargoHTML = '';
+        for (const [goodId, quantity] of Object.entries(cargo.goods)) {
+            cargoHTML += `<div class="cargo-item">${goodId}: ${quantity}</div>`;
+        }
+        cargoList.innerHTML = cargoHTML;
+    } else {
+        cargoList.innerHTML = '<div class="cargo-item" style="color: #888;">Empty</div>';
+    }
+
+    // Render cargo capacity
+    const cargoCapacity = document.getElementById('cargoCapacity');
+    cargoCapacity.textContent = `Capacity: ${cargo.used}/${cargo.total} (${cargo.available} available)`;
+
+    // Render available goods
+    const goodsList = document.getElementById('goodsList');
+    let goodsHTML = '';
+
+    economy.goods.forEach(good => {
+        const playerQuantity = cargo.goods[good.id] || 0;
+        goodsHTML += `
+            <div class="trade-good-row">
+                <div class="trade-good-info">
+                    <div class="trade-good-name">${good.name}</div>
+                    <div class="trade-good-prices">
+                        Buy: ${good.buyPrice}g | Sell: ${good.sellPrice}g | Space: ${good.space}
+                    </div>
+                </div>
+                <div class="trade-good-controls">
+                    <input type="number" 
+                           id="qty-${good.id}" 
+                           class="trade-quantity-input" 
+                           value="1" 
+                           min="1" 
+                           max="100">
+                    <button class="trade-btn buy" 
+                            onclick="buyGood('${good.id}')">
+                        Buy
+                    </button>
+                    <button class="trade-btn sell" 
+                            onclick="sellGood('${good.id}')"
+                            ${playerQuantity === 0 ? 'disabled' : ''}>
+                        Sell
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    goodsList.innerHTML = goodsHTML;
 }
 
 // Chat Feed Rendering

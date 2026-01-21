@@ -113,6 +113,16 @@ io.on('connection', (socket) => {
         gameLoop.handleUpgradeShip(socket.id, shipClass);
     });
 
+    // Economy: Buy goods (Phase 0)
+    socket.on('buyGood', (data) => {
+        gameLoop.handleBuyGood(socket.id, data.harborId, data.goodId, data.quantity);
+    });
+
+    // Economy: Sell goods (Phase 0)
+    socket.on('sellGood', (data) => {
+        gameLoop.handleSellGood(socket.id, data.harborId, data.goodId, data.quantity);
+    });
+
     // NPC Spawn: N key (spawn single trader near player)
     socket.on('spawnNPC', () => {
         const player = gameLoop.world.getEntity(socket.id);

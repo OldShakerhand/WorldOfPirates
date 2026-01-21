@@ -1,0 +1,73 @@
+{
+    "COLONIAL_LUXURY": {
+        "id": "COLONIAL_LUXURY",
+        "name": "Colonial Luxury Goods",
+        "description": "Major colonial ports trading in rum, sugar, and tobacco",
+        "goods": [
+            {
+                "goodId": "rum",
+                "buyPrice": 12,
+                "sellPrice": 8
+            },
+            {
+                "goodId": "sugar",
+                "buyPrice": 10,
+                "sellPrice": 6
+            },
+            {
+                "goodId": "tobacco",
+                "buyPrice": 15,
+                "sellPrice": 10
+            },
+            {
+                "goodId": "wood",
+                "buyPrice": 5,
+                "sellPrice": 3
+            }
+        ]
+    },
+    "FRONTIER_MATERIALS": {
+        "id": "FRONTIER_MATERIALS",
+        "name": "Frontier Materials",
+        "description": "Frontier settlements trading in basic materials",
+        "goods": [
+            {
+                "goodId": "wood",
+                "buyPrice": 4,
+                "sellPrice": 2
+            },
+            {
+                "goodId": "iron",
+                "buyPrice": 8,
+                "sellPrice": 5
+            },
+            {
+                "goodId": "food",
+                "buyPrice": 6,
+                "sellPrice": 4
+            }
+        ]
+    },
+    "PIRATE_HAVEN": {
+        "id": "PIRATE_HAVEN",
+        "name": "Pirate Haven",
+        "description": "Pirate ports trading in contraband and luxury goods",
+        "goods": [
+            {
+                "goodId": "rum",
+                "buyPrice": 10,
+                "sellPrice": 7
+            },
+            {
+                "goodId": "contraband",
+                "buyPrice": 25,
+                "sellPrice": 20
+            },
+            {
+                "goodId": "tobacco",
+                "buyPrice": 14,
+                "sellPrice": 9
+            }
+        ]
+    }
+}

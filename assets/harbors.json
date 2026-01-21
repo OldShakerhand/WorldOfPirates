@@ -342,7 +342,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_LUXURY"
   },
   {
     "id": "carupano",
@@ -402,7 +403,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "FRONTIER_MATERIALS"
   },
   {
     "id": "choluteca",
@@ -507,7 +509,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "none_available"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "cumana",
@@ -537,7 +540,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "COLONIAL_LUXURY"
   },
   {
     "id": "dominica",
@@ -807,7 +811,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_LUXURY"
   },
   {
     "id": "iriona",

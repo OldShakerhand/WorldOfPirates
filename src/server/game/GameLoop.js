@@ -3,6 +3,7 @@ const Player = require('./entities/Player');
 const GameConfig = require('./config/GameConfig');
 const { GAME, COMBAT } = GameConfig;
 const { NPCCombatOverlay } = require('./npc/NPCBehavior');
+const EconomySystem = require('./economy/EconomySystem');
 
 class GameLoop {
     constructor(io) {
@@ -20,6 +21,9 @@ class GameLoop {
         // NO gameplay behavior change
         this.firstTickLogged = false;
         this.firstProjectileLogged = false;
+
+        // Economy system (Phase 0: Harbor Master)
+        this.economySystem = new EconomySystem(this.world.harborRegistry);
     }
 
     start() {
@@ -486,10 +490,16 @@ class GameLoop {
             console.log(`Player ${player.id} received a new Sloop at ${harbor.name}`);
         }
 
-        // Send harbor data to client
+        // Send harbor data to client (Phase 0: Economy)
+        // Get economy data (may be null if harbor doesn't support trade)
+        const economy = this.world.harborRegistry.getHarborEconomy(harbor.id);
+
         const harborData = {
+            harborId: harbor.id,  // Add harbor ID for trade requests
             harborName: harbor.name,
-            fleet: player.fleet.map(ship => ship.serialize())
+            fleet: player.fleet.map(ship => ship.serialize()),
+            economy: economy,  // null if no trade available
+            cargo: player.fleetCargo.serialize()
         };
         socket.emit('harborData', harborData);
     }
@@ -506,6 +516,7 @@ class GameLoop {
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
             const harborData = {
+                harborId: harbor.id,
                 harborName: harbor.name,
                 fleet: player.fleet.map(ship => ship.serialize())
             };
@@ -607,10 +618,61 @@ class GameLoop {
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
             const harborData = {
+                harborId: harbor.id,
                 harborName: harbor.name,
                 fleet: player.fleet.map(ship => ship.serialize())
             };
             this.io.to(socketId).emit('harborData', harborData);
+        }
+    }
+
+    /**
+     * Handle buy good transaction (Phase 0: Economy)
+     * @param {string} socketId - Player socket ID
+     * @param {string} harborId - Harbor ID
+     * @param {string} goodId - Good ID
+     * @param {number} quantity - Quantity to buy
+     */
+    handleBuyGood(socketId, harborId, goodId, quantity) {
+        const player = this.world.getEntity(socketId);
+        if (!player) return;
+
+        const result = this.economySystem.buyGood(player, harborId, goodId, quantity);
+
+        // Emit result to client
+        this.io.to(socketId).emit('transactionResult', result);
+
+        // If successful, emit updated player state
+        if (result.success) {
+            this.io.to(socketId).emit('playerStateUpdate', {
+                gold: player.gold,
+                cargo: player.fleetCargo.serialize()
+            });
+        }
+    }
+
+    /**
+     * Handle sell good transaction (Phase 0: Economy)
+     * @param {string} socketId - Player socket ID
+     * @param {string} harborId - Harbor ID
+     * @param {string} goodId - Good ID
+     * @param {number} quantity - Quantity to sell
+     */
+    handleSellGood(socketId, harborId, goodId, quantity) {
+        const player = this.world.getEntity(socketId);
+        if (!player) return;
+
+        const result = this.economySystem.sellGood(player, harborId, goodId, quantity);
+
+        // Emit result to client
+        this.io.to(socketId).emit('transactionResult', result);
+
+        // If successful, emit updated player state
+        if (result.success) {
+            this.io.to(socketId).emit('playerStateUpdate', {
+                gold: player.gold,
+                cargo: player.fleetCargo.serialize()
+            });
         }
     }
 }

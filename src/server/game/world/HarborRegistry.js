@@ -26,10 +26,11 @@ const path = require('path');
 
 class HarborRegistry {
     /**
-     * Load harbors from JSON file
+     * Load harbors and trade profiles from JSON files
      * @param {string} jsonPath - Path to harbors.json
+     * @param {string} tradeProfilesPath - Path to harbor_trade_profiles.json
      */
-    constructor(jsonPath) {
+    constructor(jsonPath, tradeProfilesPath) {
         console.log(`[HarborRegistry] Loading harbors from: ${jsonPath}`);
 
         if (!fs.existsSync(jsonPath)) {
@@ -56,6 +57,16 @@ class HarborRegistry {
         }
 
         console.log(`[HarborRegistry] Loaded ${this.harbors.length} harbors`);
+
+        // Load trade profiles (Phase 0: Economy)
+        console.log(`[HarborRegistry] Loading trade profiles from: ${tradeProfilesPath}`);
+        if (fs.existsSync(tradeProfilesPath)) {
+            this.tradeProfiles = JSON.parse(fs.readFileSync(tradeProfilesPath, 'utf-8'));
+            console.log(`[HarborRegistry] Loaded ${Object.keys(this.tradeProfiles).length} trade profiles`);
+        } else {
+            console.warn(`[HarborRegistry] Trade profiles not found: ${tradeProfilesPath}`);
+            this.tradeProfiles = {};
+        }
     }
 
     /**
@@ -113,6 +124,52 @@ class HarborRegistry {
      */
     getHarborCount() {
         return this.harbors.length;
+    }
+
+    /**
+     * Get harbor economy data (resolved from trade profile)
+     * Phase 0: Economy system
+     * @param {string} harborId - Harbor ID
+     * @returns {Object|null} Resolved economy data or null if not available
+     */
+    getHarborEconomy(harborId) {
+        const harbor = this.getHarborById(harborId);
+        if (!harbor || !harbor.harborTradeId) return null;
+
+        // Resolve trade profile
+        const tradeProfile = this.tradeProfiles[harbor.harborTradeId];
+        if (!tradeProfile) {
+            console.warn(`[HarborRegistry] Trade profile not found: ${harbor.harborTradeId} for harbor ${harborId}`);
+            return null;
+        }
+
+
+        // Filter out MISSION_ONLY goods and merge with full good definitions
+        const { getGood } = require('../entities/Goods');
+        const tradeableGoods = tradeProfile.goods
+            .map(hg => {
+                const good = getGood(hg.goodId);
+                if (!good || (good.tags && good.tags.includes('MISSION_ONLY'))) {
+                    return null;
+                }
+
+                // Merge good definition with pricing
+                return {
+                    id: good.id,
+                    name: good.name,
+                    category: good.category,
+                    space: good.space,
+                    buyPrice: hg.buyPrice,
+                    sellPrice: hg.sellPrice
+                };
+            })
+            .filter(g => g !== null); // Remove nulls
+
+        return {
+            goods: tradeableGoods,
+            profileId: tradeProfile.id,
+            profileName: tradeProfile.name
+        };
     }
 }
 
