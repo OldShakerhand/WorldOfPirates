@@ -70,6 +70,35 @@ The harbor system provides server-authoritative harbor data with clean separatio
 - `shipyardMax` (string): Maximum ship class available for purchase
 - `jobShipType` (string): Ship class for job missions
 
+**Economy (Phase 0):**
+- `harborTradeId` (string): Trade profile ID (e.g., `COLONIAL_LUXURY`, `FRONTIER_MATERIALS`, `PIRATE_HAVEN`)
+  - If present, harbor supports trading
+  - Links to pricing in `harbor_trade_profiles.json`
+  - See [ECONOMY.md](ECONOMY.md) for full trading documentation
+
+---
+
+## Trading at Harbors
+
+Harbors with a `harborTradeId` support buying and selling goods.
+
+### How to Trade
+
+1. Dock at a harbor (press `H`)
+2. Open the **Trade Goods** section in the harbor UI
+3. Select quantity and click **Buy** or **Sell**
+
+### Trade Profiles
+
+Harbors are grouped into regional trade profiles:
+- **COLONIAL_LUXURY**: Havana, Cartagena, Curacao (luxury goods)
+- **FRONTIER_MATERIALS**: Belize City, Chetumal (basic materials)
+- **PIRATE_HAVEN**: Cozumel (contraband and rum)
+
+**For detailed trading information**, see [ECONOMY.md](ECONOMY.md).
+
+**For cargo management**, see [INVENTORY.md](INVENTORY.md).
+
 ---
 
 ## Coordinate System
