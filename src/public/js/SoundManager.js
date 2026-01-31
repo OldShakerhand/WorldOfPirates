@@ -528,13 +528,14 @@ class SoundManager {
     /**
      * Play powerful cannon fire sound
      */
-    playCannonFire(side, screenX = 0.5) {
+    playCannonFire(side, screenX = 0.5, volumeScale = 1.0) {
         const throttleKey = side === 'left' ? 'cannonLeft' : 'cannonRight';
         if (!this.canPlaySound() || !this.throttleSound(throttleKey, 0.15)) return;
 
         try {
             const now = this.audioContext.currentTime;
             const duration = 1.5;
+            const baseVolume = this.config.categories.combat * volumeScale;
 
             // Panning based on screen position
             const panner = this.audioContext.createStereoPanner();
@@ -556,8 +557,8 @@ class SoundManager {
 
             const subGain = this.audioContext.createGain();
             subGain.gain.setValueAtTime(0, now);
-            subGain.gain.linearRampToValueAtTime(1.0, now + 0.002); // Instant attack
-            subGain.gain.setValueAtTime(1.0, now + 0.05);
+            subGain.gain.linearRampToValueAtTime(1.0 * baseVolume, now + 0.002); // Instant attack
+            subGain.gain.setValueAtTime(1.0 * baseVolume, now + 0.05);
             subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
             // Layer 2: CRACK - Initial gunpowder explosion
@@ -568,7 +569,7 @@ class SoundManager {
 
             const crackGain = this.audioContext.createGain();
             crackGain.gain.setValueAtTime(0, now);
-            crackGain.gain.linearRampToValueAtTime(0.8, now + 0.001);
+            crackGain.gain.linearRampToValueAtTime(0.8 * baseVolume, now + 0.001);
             crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
 
             // Layer 3: BOOM - Main body of the explosion
@@ -584,7 +585,7 @@ class SoundManager {
 
             const boomGain = this.audioContext.createGain();
             boomGain.gain.setValueAtTime(0, now);
-            boomGain.gain.linearRampToValueAtTime(0.9, now + 0.005);
+            boomGain.gain.linearRampToValueAtTime(0.9 * baseVolume, now + 0.005);
             boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
             // Layer 4: BLAST - Explosive noise burst
@@ -599,7 +600,7 @@ class SoundManager {
 
             const blastGain = this.audioContext.createGain();
             blastGain.gain.setValueAtTime(0, now);
-            blastGain.gain.linearRampToValueAtTime(0.7, now + 0.003);
+            blastGain.gain.linearRampToValueAtTime(0.7 * baseVolume, now + 0.003);
             blastGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
             // Layer 5: SMOKE/ECHO - Rolling thunder tail
@@ -612,7 +613,7 @@ class SoundManager {
 
             const echoGain = this.audioContext.createGain();
             echoGain.gain.setValueAtTime(0, now + 0.1);
-            echoGain.gain.linearRampToValueAtTime(0.25, now + 0.2);
+            echoGain.gain.linearRampToValueAtTime(0.25 * baseVolume, now + 0.2);
             echoGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
             // Layer 6: High frequency sizzle (gunpowder)
@@ -625,7 +626,7 @@ class SoundManager {
 
             const sizzleGain = this.audioContext.createGain();
             sizzleGain.gain.setValueAtTime(0, now);
-            sizzleGain.gain.linearRampToValueAtTime(0.2, now + 0.005);
+            sizzleGain.gain.linearRampToValueAtTime(0.2 * baseVolume, now + 0.005);
             sizzleGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
             // Connect all through compressor -> panner
@@ -677,12 +678,13 @@ class SoundManager {
     /**
      * Play realistic water splash sound
      */
-    playWaterSplash(screenX = 0.5) {
+    playWaterSplash(screenX = 0.5, volumeScale = 1.0) {
         if (!this.canPlaySound() || !this.throttleSound('splash', 0.1)) return;
 
         try {
             const now = this.audioContext.currentTime;
             const duration = 0.6;
+            const baseVolume = this.config.categories.combat * volumeScale;
 
             const panner = this.audioContext.createStereoPanner();
             panner.pan.value = (screenX - 0.5) * 2;
@@ -699,7 +701,7 @@ class SoundManager {
 
             const impactGain = this.audioContext.createGain();
             impactGain.gain.setValueAtTime(0, now);
-            impactGain.gain.linearRampToValueAtTime(this.config.categories.combat * 0.4, now + 0.005);
+            impactGain.gain.linearRampToValueAtTime(0.4 * baseVolume, now + 0.005);
             impactGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
             // Layer 2: Water bubbles (modulated low noise)
@@ -713,7 +715,7 @@ class SoundManager {
 
             const bubbleGain = this.audioContext.createGain();
             bubbleGain.gain.setValueAtTime(0, now + 0.05);
-            bubbleGain.gain.linearRampToValueAtTime(this.config.categories.combat * 0.2, now + 0.1);
+            bubbleGain.gain.linearRampToValueAtTime(0.2 * baseVolume, now + 0.1);
             bubbleGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
             // Layer 3: Splash spray (high frequency)
@@ -726,7 +728,7 @@ class SoundManager {
 
             const sprayGain = this.audioContext.createGain();
             sprayGain.gain.setValueAtTime(0, now);
-            sprayGain.gain.linearRampToValueAtTime(this.config.categories.combat * 0.15, now + 0.01);
+            sprayGain.gain.linearRampToValueAtTime(0.15 * baseVolume, now + 0.01);
             sprayGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
             // Connect
@@ -760,12 +762,13 @@ class SoundManager {
     /**
      * Play dramatic wood splintering/impact sound
      */
-    playWoodImpact(screenX = 0.5) {
+    playWoodImpact(screenX = 0.5, volumeScale = 1.0) {
         if (!this.canPlaySound() || !this.throttleSound('impact', 0.1)) return;
 
         try {
             const now = this.audioContext.currentTime;
             const duration = 0.8;
+            const baseVolume = this.config.categories.combat * volumeScale;
 
             const panner = this.audioContext.createStereoPanner();
             panner.pan.value = (screenX - 0.5) * 2;
@@ -786,7 +789,7 @@ class SoundManager {
 
             const impactGain = this.audioContext.createGain();
             impactGain.gain.setValueAtTime(0, now);
-            impactGain.gain.linearRampToValueAtTime(1.0, now + 0.001);
+            impactGain.gain.linearRampToValueAtTime(1.0 * baseVolume, now + 0.001);
             impactGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
             // Layer 2: CRACK - Sharp wood breaking
@@ -797,7 +800,7 @@ class SoundManager {
 
             const crackGain = this.audioContext.createGain();
             crackGain.gain.setValueAtTime(0, now);
-            crackGain.gain.linearRampToValueAtTime(0.6, now + 0.001);
+            crackGain.gain.linearRampToValueAtTime(0.6 * baseVolume, now + 0.001);
             crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
             // Layer 3: SNAP - High frequency crack noise
@@ -812,7 +815,7 @@ class SoundManager {
 
             const snapGain = this.audioContext.createGain();
             snapGain.gain.setValueAtTime(0, now);
-            snapGain.gain.linearRampToValueAtTime(0.7, now + 0.001);
+            snapGain.gain.linearRampToValueAtTime(0.7 * baseVolume, now + 0.001);
             snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
 
             // Layer 4: SPLINTERS - Multiple rapid cracking sounds
@@ -826,7 +829,7 @@ class SoundManager {
 
             const splintersGain = this.audioContext.createGain();
             splintersGain.gain.setValueAtTime(0, now + 0.01);
-            splintersGain.gain.linearRampToValueAtTime(0.5, now + 0.03);
+            splintersGain.gain.linearRampToValueAtTime(0.5 * baseVolume, now + 0.03);
             splintersGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
 
             // Layer 5: DEBRIS - Wood fragments falling
@@ -839,7 +842,7 @@ class SoundManager {
 
             const debrisGain = this.audioContext.createGain();
             debrisGain.gain.setValueAtTime(0, now + 0.05);
-            debrisGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
+            debrisGain.gain.linearRampToValueAtTime(0.4 * baseVolume, now + 0.1);
             debrisGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
 
             // Layer 6: HULL GROAN - Low resonance of the ship
@@ -850,7 +853,7 @@ class SoundManager {
 
             const hullGain = this.audioContext.createGain();
             hullGain.gain.setValueAtTime(0, now + 0.02);
-            hullGain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+            hullGain.gain.linearRampToValueAtTime(0.25 * baseVolume, now + 0.05);
             hullGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
             // Layer 7: RATTLE - Wood pieces rattling
@@ -865,7 +868,7 @@ class SoundManager {
 
             const rattleGain = this.audioContext.createGain();
             rattleGain.gain.setValueAtTime(0, now + 0.1);
-            rattleGain.gain.linearRampToValueAtTime(0.15, now + 0.15);
+            rattleGain.gain.linearRampToValueAtTime(0.15 * baseVolume, now + 0.15);
             rattleGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
             // Connect all through compressor

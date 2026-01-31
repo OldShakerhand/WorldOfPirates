@@ -969,9 +969,9 @@ class NPCShip {
             fleetSize: this.fleet.length,
             navigationSkill: 1,
             nearHarbor: this.nearHarbor,
-            reloadLeft: 999, // Not used
-            reloadRight: 999,
-            maxReload: 999
+            reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
+            reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
+            maxReload: this.fireRate
         };
     }
 }

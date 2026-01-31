@@ -21,6 +21,7 @@ window.soundManager = soundManager; // Make globally accessible
 
 // Previous player state for detecting changes
 let previousPlayerState = null;
+let previousNPCStates = {};
 
 // Track projectiles for impact detection
 let previousProjectiles = [];
@@ -462,7 +463,8 @@ window.sellGood = sellGood;
 function updateSoundSystem(state) {
     if (!socket || !state.players) return;
 
-    const myShip = state.players[socket.id];
+    const myId = socket.id;
+    const myShip = state.players[myId];
     if (!myShip) return;
 
     // Update ambient sounds based on wind
@@ -470,52 +472,99 @@ function updateSoundSystem(state) {
         soundManager.updateAmbient(state.wind, 1 / 60); // Assume 60 FPS
     }
 
-    // Detect sail state changes
+    // --- 1. HANDLE MY OWN SHIP (Detailed sounds including sails) ---
     if (previousPlayerState) {
+        // Sail state changes
         const prevSailState = previousPlayerState.sailState;
         const currentSailState = myShip.sailState;
 
         if (prevSailState !== currentSailState) {
-            // Sail state changed
             if (currentSailState > prevSailState) {
-                // Raising sails
                 soundManager.playSailDeploy();
             } else {
-                // Lowering sails
                 soundManager.playSailRemove();
             }
         }
-
-        // Detect cannon fires by checking reload timer changes
-        // When a cannon fires, its reload timer jumps from 0 to max
-        const prevReloadLeft = previousPlayerState.reloadLeft || 0;
-        const currentReloadLeft = myShip.reloadLeft || 0;
-        if (currentReloadLeft > prevReloadLeft && currentReloadLeft > 3) {
-            // Left cannon just fired
-            const screenX = 0.3; // Left side of screen
-            soundManager.playCannonFire('left', screenX);
-        }
-
-        const prevReloadRight = previousPlayerState.reloadRight || 0;
-        const currentReloadRight = myShip.reloadRight || 0;
-        if (currentReloadRight > prevReloadRight && currentReloadRight > 3) {
-            // Right cannon just fired
-            const screenX = 0.7; // Right side of screen
-            soundManager.playCannonFire('right', screenX);
-        }
     }
+
+    // --- 2. HANDLE ALL SHIPS (Combat sounds: Cannons) ---
+    // Includes my ship and nearby NPCs/Players
+    Object.keys(state.players).forEach(id => {
+        const ship = state.players[id];
+        const isMe = (id === myId);
+
+        // Get previous state for this ship
+        // For me, use previousPlayerState. For others, use previousNPCStates
+        const prevState = isMe ? previousPlayerState : previousNPCStates[id];
+
+        if (prevState) {
+            // Check distance for NPCs to avoid playing sounds for far away ships
+            // My ship is always distance 0 from camera center (conceptually)
+            let distance = 0;
+            let screenX = 0.5;
+            let volume = 1.0;
+
+            if (!isMe) {
+                distance = Math.hypot(ship.x - myShip.x, ship.y - myShip.y);
+                const maxAudibleDist = 1500;
+                if (distance > maxAudibleDist) return; // Too far to hear
+
+                // Calculate volume (linear falloff)
+                volume = Math.max(0, 1 - (distance / maxAudibleDist));
+
+                // Calculate screen X (0.0 to 1.0)
+                // World x difference relative to camera
+                const dx = ship.x - myShip.x;
+                screenX = 0.5 + (dx / canvas.width);
+            } else {
+                // For my ship, full volume, explicit panning handled below
+                volume = 1.0;
+                screenX = 0.5;
+            }
+
+            // Detect Left Cannon Fire
+            const prevReloadLeft = prevState.reloadLeft || 0;
+            const currentReloadLeft = ship.reloadLeft || 0;
+            // Timer jumped up -> Fired
+            if (currentReloadLeft > prevReloadLeft && currentReloadLeft > 3) {
+                const panX = isMe ? 0.3 : screenX; // My left cannon is to the left
+                soundManager.playCannonFire('left', panX, volume);
+            }
+
+            // Detect Right Cannon Fire
+            const prevReloadRight = prevState.reloadRight || 0;
+            const currentReloadRight = ship.reloadRight || 0;
+            if (currentReloadRight > prevReloadRight && currentReloadRight > 3) {
+                const panX = isMe ? 0.7 : screenX; // My right cannon is to the right
+                soundManager.playCannonFire('right', panX, volume);
+            }
+        }
+    });
 
     // Detect projectile impacts
     detectProjectileImpacts(state, myShip);
 
-    // Store current state for next frame
+    // --- 3. STORE STATES FOR NEXT FRAME ---
+
+    // Store my state
     previousPlayerState = {
         sailState: myShip.sailState,
-        x: myShip.x,
-        y: myShip.y,
         reloadLeft: myShip.reloadLeft,
         reloadRight: myShip.reloadRight
     };
+
+    // Store NPC states
+    // We rebuild this every frame to avoid keeping stale data for disconnected ships
+    const newNPCStates = {};
+    Object.keys(state.players).forEach(id => {
+        if (id === myId) return;
+        const ship = state.players[id];
+        newNPCStates[id] = {
+            reloadLeft: ship.reloadLeft,
+            reloadRight: ship.reloadRight
+        };
+    });
+    previousNPCStates = newNPCStates;
 }
 
 /**
