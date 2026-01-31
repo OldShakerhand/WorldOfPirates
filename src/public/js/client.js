@@ -15,6 +15,16 @@ let chatMessages = [];
 window.gameState = { players: {}, projectiles: [] };  // Make globally accessible for debug tools
 window.myPlayerId = null;  // Make globally accessible for debug tools
 
+// Sound Manager
+const soundManager = new SoundManager();
+window.soundManager = soundManager; // Make globally accessible
+
+// Previous player state for detecting changes
+let previousPlayerState = null;
+
+// Track projectiles for impact detection
+let previousProjectiles = [];
+
 // DEBUG: Helper function for debug tools to get player position
 function getMyShipPosition() {
     if (!window.gameState || !window.myPlayerId) return null;
@@ -97,6 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Received map data:', data);
             console.log('Harbors count:', data.harbors ? data.harbors.length : 0);
 
+            // Initialize sound system (requires user interaction)
+            soundManager.init();
+            console.log('[Sound] Sound system initialized');
+
             // Hide name overlay and show game
             nameOverlay.style.display = 'none';
         });
@@ -150,6 +164,9 @@ function setupGameListeners() {
                 const myShip = state.players[socket.id];
                 updateMinimap(worldTilemap, mapData, myShip);
             }
+
+            // Update sound system
+            updateSoundSystem(state);
         }
     });
 
@@ -306,6 +323,11 @@ document.addEventListener('keydown', (e) => {
                 cycleMinimapZoom();
             }
             break;
+        case 'u':
+            // Toggle mute
+            const muted = soundManager.toggleMute();
+            console.log('[Sound] Muted:', muted);
+            break;
     }
     sendInput();
 });
@@ -432,3 +454,111 @@ window.switchFlagship = switchFlagship;
 window.upgradeShip = upgradeShip;
 window.buyGood = buyGood;
 window.sellGood = sellGood;
+
+/**
+ * Update sound system based on game state
+ * Detects sail changes, cannon fires, and projectile impacts
+ */
+function updateSoundSystem(state) {
+    if (!socket || !state.players) return;
+
+    const myShip = state.players[socket.id];
+    if (!myShip) return;
+
+    // Update ambient sounds based on wind
+    if (state.wind) {
+        soundManager.updateAmbient(state.wind, 1 / 60); // Assume 60 FPS
+    }
+
+    // Detect sail state changes
+    if (previousPlayerState) {
+        const prevSailState = previousPlayerState.sailState;
+        const currentSailState = myShip.sailState;
+
+        if (prevSailState !== currentSailState) {
+            // Sail state changed
+            if (currentSailState > prevSailState) {
+                // Raising sails
+                soundManager.playSailDeploy();
+            } else {
+                // Lowering sails
+                soundManager.playSailRemove();
+            }
+        }
+
+        // Detect cannon fires by checking reload timer changes
+        // When a cannon fires, its reload timer jumps from 0 to max
+        const prevReloadLeft = previousPlayerState.reloadLeft || 0;
+        const currentReloadLeft = myShip.reloadLeft || 0;
+        if (currentReloadLeft > prevReloadLeft && currentReloadLeft > 3) {
+            // Left cannon just fired
+            const screenX = 0.3; // Left side of screen
+            soundManager.playCannonFire('left', screenX);
+        }
+
+        const prevReloadRight = previousPlayerState.reloadRight || 0;
+        const currentReloadRight = myShip.reloadRight || 0;
+        if (currentReloadRight > prevReloadRight && currentReloadRight > 3) {
+            // Right cannon just fired
+            const screenX = 0.7; // Right side of screen
+            soundManager.playCannonFire('right', screenX);
+        }
+    }
+
+    // Detect projectile impacts
+    detectProjectileImpacts(state, myShip);
+
+    // Store current state for next frame
+    previousPlayerState = {
+        sailState: myShip.sailState,
+        x: myShip.x,
+        y: myShip.y,
+        reloadLeft: myShip.reloadLeft,
+        reloadRight: myShip.reloadRight
+    };
+}
+
+/**
+ * Detect projectile impacts by tracking projectile lifecycle
+ */
+function detectProjectileImpacts(state, myShip) {
+    if (!state.projectiles) return;
+
+    const currentProjectiles = state.projectiles;
+
+    // Find projectiles that disappeared (hit something or expired)
+    previousProjectiles.forEach(prevProj => {
+        const stillExists = currentProjectiles.find(p =>
+            Math.abs(p.x - prevProj.x) < 5 &&
+            Math.abs(p.y - prevProj.y) < 5
+        );
+
+        if (!stillExists) {
+            // Projectile disappeared - check if it hit a ship
+            let hitShip = false;
+
+            // Check all players for hits
+            for (const id in state.players) {
+                const player = state.players[id];
+                const dist = Math.hypot(player.x - prevProj.x, player.y - prevProj.y);
+
+                if (dist < 30) { // Within ship hitbox range
+                    hitShip = true;
+                    break;
+                }
+            }
+
+            // Calculate screen position for panning
+            const screenX = myShip ? (prevProj.x - myShip.x + canvas.width / 2) / canvas.width : 0.5;
+
+            if (hitShip) {
+                soundManager.playWoodImpact(screenX);
+            } else {
+                soundManager.playWaterSplash(screenX);
+            }
+        }
+    });
+
+    // Store current projectiles for next frame
+    previousProjectiles = currentProjectiles.map(p => ({ x: p.x, y: p.y }));
+}

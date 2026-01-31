@@ -16,6 +16,7 @@ Game design, mechanics, and features.
 - [Harbors](gameplay/HARBORS.md) - Harbor system and locations
 - [NPCs](gameplay/NPCs.md) - NPC behavior and AI
 - [Missions](gameplay/MISSIONS.md) - Mission system and design
+- [Sounds](gameplay/SOUNDS.md) - Sound system and audio implementation
 - [World Map](gameplay/WORLD_MAP.md) - World structure and navigation
 
 ## Assets (`assets/`)
