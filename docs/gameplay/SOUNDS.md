@@ -129,9 +129,10 @@ Pre-generated noise buffers for efficiency:
    - Trigger appropriate sound on state change
 
 2. **Cannon Fires:**
-   - Monitor reload timer changes
+   - Monitor reload timer changes for player and nearby NPCs
    - When timer jumps from 0 to max, cannon fired
    - Separate tracking for left (Q) and right (E) cannons
+   - Calculate distance for volume attenuation (linear falloff up to 1500px)
 
 3. **Projectile Impacts:**
    - Track all projectiles frame-by-frame
@@ -253,7 +254,6 @@ function updateSoundSystem(state) {
    - Victory/defeat sounds
 
 4. **Advanced Features:**
-   - Distance-based volume attenuation
    - Underwater effects
    - Reverb for harbor areas
    - Doppler effect for moving ships
@@ -341,20 +341,23 @@ function updateSoundSystem(state) {
 - Plays sail removal sound
 - Throttled to 0.3 seconds
 
-**`playCannonFire(side, screenX)`**
+**`playCannonFire(side, screenX, volumeScale)`**
 - Plays cannon fire sound
 - `side`: 'left' or 'right'
 - `screenX`: 0-1 for stereo panning
+- `volumeScale`: 0-1 volume multiplier (optional, default 1.0)
 - Throttled to 0.15 seconds per side
 
-**`playWaterSplash(screenX)`**
+**`playWaterSplash(screenX, volumeScale)`**
 - Plays water splash sound
 - `screenX`: 0-1 for stereo panning
+- `volumeScale`: 0-1 volume multiplier (optional, default 1.0)
 - Throttled to 0.1 seconds
 
-**`playWoodImpact(screenX)`**
+**`playWoodImpact(screenX, volumeScale)`**
 - Plays wood impact/splintering sound
 - `screenX`: 0-1 for stereo panning
+- `volumeScale`: 0-1 volume multiplier (optional, default 1.0)
 - Throttled to 0.1 seconds
 
 **`toggleMute()`**
