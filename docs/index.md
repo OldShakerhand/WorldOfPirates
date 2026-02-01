@@ -7,6 +7,7 @@ Technical overview and system documentation.
 - [World Map](architecture/WORLD_MAP.md) - Map generation and layout.
 - [Events](architecture/EVENTS.md) - Game event system.
 - [Client Rendering](architecture/CLIENT_RENDERING.md) - Visual systems (WakeRenderer, VisualAdapter).
+- [Sound System](architecture/SOUND_SYSTEM.md) - Audio implementation and system design.
 
 ## Gameplay (`gameplay/`)
 Game design, mechanics, and features.
@@ -16,7 +17,6 @@ Game design, mechanics, and features.
 - [Harbors](gameplay/HARBORS.md) - Harbor system and locations
 - [NPCs](gameplay/NPCs.md) - NPC behavior and AI
 - [Missions](gameplay/MISSIONS.md) - Mission system and design
-- [Sounds](gameplay/SOUNDS.md) - Sound system and audio implementation
 - [World Map](gameplay/WORLD_MAP.md) - World structure and navigation
 
 ## Assets (`assets/`)
