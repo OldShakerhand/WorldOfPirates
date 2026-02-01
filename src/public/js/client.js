@@ -212,6 +212,8 @@ function setupGameListeners() {
     });
 
     // Transaction results (loot notifications, trade results, etc.)
+    let transactionStatusTimeout = null; // Track timeout to clear it
+
     socket.on('transactionResult', (result) => {
         // Display on-screen notification
         const timestamp = Date.now();
@@ -231,12 +233,19 @@ function setupGameListeners() {
         // Also update harbor trade UI if present (for trade transactions)
         const statusEl = document.getElementById('transactionStatus');
         if (statusEl) {
+            // Clear any existing timeout to prevent old messages from reappearing
+            if (transactionStatusTimeout) {
+                clearTimeout(transactionStatusTimeout);
+            }
+
+            // Immediately update with new message
             statusEl.textContent = result.message;
             statusEl.style.color = result.success ? '#2ecc71' : '#e74c3c';
 
             // Clear after 3 seconds
-            setTimeout(() => {
+            transactionStatusTimeout = setTimeout(() => {
                 statusEl.textContent = '';
+                transactionStatusTimeout = null;
             }, 3000);
         }
     });
