@@ -93,6 +93,8 @@ function getShipProperties(shipClassName) {
 
 // Client-side visual systems
 const wakeRenderer = new WakeRenderer();
+const splashRenderer = new SplashRenderer();
+window.splashRenderer = splashRenderer; // Make accessible to client.js
 
 
 // World dimensions (Gulf of Mexico + Caribbean: 3230×1701 tiles @ 25px = 80,750×42,525 pixels - 50% scale)
@@ -125,6 +127,7 @@ function renderGame(state, mapData, myId) {
 
     // Update visual systems
     wakeRenderer.update(0.016); // Approx 60fps dt
+    splashRenderer.update(0.016);
 
     // Find my ship for camera tracking
     const myShip = state.players[myId];
@@ -324,6 +327,7 @@ function renderGame(state, mapData, myId) {
 
     // Draw wake effects (before ships)
     wakeRenderer.draw(ctx);
+    splashRenderer.draw(ctx);
 
     // Draw players with world wrapping
     for (const id in state.players) {

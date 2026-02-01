@@ -604,6 +604,10 @@ function detectProjectileImpacts(state, myShip) {
                 soundManager.playWoodImpact(screenX);
             } else {
                 soundManager.playWaterSplash(screenX);
+                // Trigger visual splash
+                if (window.splashRenderer) {
+                    window.splashRenderer.triggerSplash(prevProj.x, prevProj.y);
+                }
             }
         }
     });
