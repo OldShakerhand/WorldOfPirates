@@ -143,7 +143,7 @@ function main() {
     try {
         // Load data
         const tilemap = loadJSON('src/public/assets/world_map.json');
-        const harbors = loadJSON('assets/harbors.json');
+        const harbors = loadJSON('src/server/assets/harbors.json');
 
         console.log(`\nMap dimensions: ${tilemap.width}×${tilemap.height} tiles`);
         console.log(`Harbor count: ${harbors.length}`);

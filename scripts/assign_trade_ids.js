@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const harborsPath = path.join(__dirname, '../assets/harbors.json');
+const harborsPath = path.join(__dirname, '../src/server/assets/harbors.json');
 const harbors = JSON.parse(fs.readFileSync(harborsPath, 'utf8'));
 
 let counts = {};

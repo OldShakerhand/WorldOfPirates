@@ -35,8 +35,8 @@ const GameConfig = {
         TILE_SIZE: 25,  // Pixels per tile (production map)
 
         // Harbors (loaded from JSON, replaces hardcoded positions)
-        HARBORS_PATH: './assets/harbors.json',
-        HARBOR_TRADE_PROFILES_PATH: './assets/harbor_trade_profiles.json',
+        HARBORS_PATH: './src/server/assets/harbors.json',
+        HARBOR_TRADE_PROFILES_PATH: './src/server/assets/harbor_trade_profiles.json',
 
         // Terrain types (must match WorldMap.js and convert_map.js)
         TERRAIN: {

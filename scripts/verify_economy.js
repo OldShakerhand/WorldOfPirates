@@ -3,8 +3,8 @@ const GameConfig = require('../src/server/game/config/GameConfig');
 const path = require('path');
 
 const registry = new HarborRegistry(
-    path.join(__dirname, '../assets/harbors.json'),
-    path.join(__dirname, '../assets/harbor_trade_profiles.json')
+    path.join(__dirname, '../src/server/assets/harbors.json'),
+    path.join(__dirname, '../src/server/assets/harbor_trade_profiles.json')
 );
 
 const HARBORS_TO_CHECK = ['nassau', 'cartagena', 'belize_city'];
