@@ -31,8 +31,9 @@ class Wreck {
         };
 
         // Always add some wood and cloth (from ship materials)
-        loot.cargo.WOOD = Math.floor(Math.random() * 3) + GameConfig.WRECKS.MIN_WOOD;
-        loot.cargo.CLOTH = Math.floor(Math.random() * 2) + GameConfig.WRECKS.MIN_CLOTH;
+        // Use lowercase to match economy system good IDs
+        loot.cargo.wood = Math.floor(Math.random() * 3) + GameConfig.WRECKS.MIN_WOOD;
+        loot.cargo.cloth = Math.floor(Math.random() * 2) + GameConfig.WRECKS.MIN_CLOTH;
 
         // Salvage percentage of existing cargo
         if (sourceCargo && sourceCargo.goods) {
