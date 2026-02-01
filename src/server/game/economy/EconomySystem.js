@@ -164,6 +164,7 @@ class EconomySystem {
      * @returns {Object} { success, message, goldEarned?, cargoRemoved? }
      */
     sellGood(player, harborId, goodId, quantity) {
+        console.log(`[EconomySystem] sellGood called - Player: ${player.id}, Good: ${goodId}, Quantity: ${quantity}`);
         // Validation: Player must be docked at this harbor
         if (!player.inHarbor || player.dockedHarborId !== harborId) {
             return {
@@ -175,6 +176,7 @@ class EconomySystem {
         // Validation: Good must exist
         const good = getGood(goodId);
         if (!good) {
+            console.log(`[EconomySystem] Invalid good: ${goodId}`);
             return {
                 success: false,
                 message: 'Invalid good.'
@@ -190,14 +192,17 @@ class EconomySystem {
             const limit = GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY;
 
             finalQuantity = Math.min(currentStock, limit);
+            console.log(`[EconomySystem] Sell All - Current stock: ${currentStock}, Final quantity: ${finalQuantity}`);
 
             if (finalQuantity <= 0) {
+                console.log(`[EconomySystem] No stock to sell for ${goodId}`);
                 return {
                     success: false,
                     message: "You don't have any of this good."
                 };
             }
         } else if (quantity <= 0 || quantity > GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY) {
+            console.log(`[EconomySystem] Invalid quantity: ${quantity}`);
             return {
                 success: false,
                 message: 'Invalid quantity.'
@@ -206,6 +211,7 @@ class EconomySystem {
 
         // Validation: Player must have the goods
         if (player.fleetCargo.getQuantity(goodId) < finalQuantity) {
+            console.log(`[EconomySystem] Insufficient stock - Has: ${player.fleetCargo.getQuantity(goodId)}, Needs: ${finalQuantity}`);
             return {
                 success: false,
                 message: `You don't have enough ${good.name}.`
