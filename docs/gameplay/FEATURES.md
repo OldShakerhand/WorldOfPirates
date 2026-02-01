@@ -73,6 +73,10 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Flagship Switch Shield** - 10-second invulnerability when switching ships
 - [x] **Harbor Exit Shield** - 10-second invulnerability when leaving harbor
 - [x] **Shield Visual Indicator** - Shield icon and distinct color for invulnerable ships
+- [x] **Ship Wrecks** - Wrecks spawn when ships sink, containing lootable gold and cargo
+- [x] **Wreck Looting** - Press F to loot nearby wrecks (150px range)
+- [x] **Owner Loot Lock** - 30-second exclusive loot period for the killer
+- [x] **Combat Rewards** - XP rewards for sinking enemy ships (gold from wreck loot)
 
 ### UI/UX
 - [x] **HUD Display** - Shows health, speed, sail state, ship class
@@ -84,6 +88,7 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Player Rafted Messages** - Emphasizes recoverability (not death/elimination)
 - [x] **Ship Switching Messages** - Informational messages when switching flagships
 - [x] **Debug Minimap** - 304×160px terrain visualization with player/harbor markers
+- [x] **Loot Notifications** - On-screen notifications showing collected loot with fade-out effect
 
 ### Server & Performance
 - [x] **Player Cap** - 20 concurrent players maximum

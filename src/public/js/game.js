@@ -70,6 +70,10 @@ function preloadShipSprites() {
         img.src = `/assets/ships/${spriteKey}.png`;
         shipImages[shipName] = img;
     });
+
+    // Load Wreck Sprite
+    shipImages['Wreck'] = new Image();
+    shipImages['Wreck'].src = '/assets/wreck.png';
 }
 
 // Call preload immediately
@@ -329,6 +333,43 @@ function renderGame(state, mapData, myId) {
     wakeRenderer.draw(ctx);
     splashRenderer.draw(ctx);
 
+    // Render Wrecks (BEFORE ships so they appear underneath)
+    if (state.wrecks && state.wrecks.length > 0) {
+        state.wrecks.forEach(wreck => {
+            const img = shipImages['Wreck'];
+            if (img && img.complete && img.naturalWidth > 0) {
+                ctx.save();
+                ctx.translate(wreck.x, wreck.y);
+                ctx.rotate(wreck.rotation || 0);
+                const size = 100;
+                ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                ctx.restore();
+
+                // Draw "Loot" label if player is close
+                if (myShip) {
+                    const dist = Math.hypot(wreck.x - myShip.x, wreck.y - myShip.y);
+                    if (dist < 150) {
+                        ctx.save();
+                        ctx.translate(wreck.x, wreck.y);
+                        ctx.fillStyle = 'white';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.shadowColor = 'black';
+                        ctx.shadowBlur = 4;
+
+                        let text = "Press F to Loot";
+                        if (wreck.isOwnerLoot && wreck.ownerId !== myId) {
+                            text = "Locked (Owner Only)";
+                            ctx.fillStyle = '#888888';
+                        }
+                        ctx.fillText(text, 0, -60);
+                        ctx.restore();
+                    }
+                }
+            }
+        });
+    }
+
     // Draw players with world wrapping
     for (const id in state.players) {
         const player = state.players[id];
@@ -407,6 +448,8 @@ function renderGame(state, mapData, myId) {
         }
     }
 
+
+
     // Restore context to draw UI elements at fixed positions
     ctx.restore();
 
@@ -449,6 +492,48 @@ function renderGame(state, mapData, myId) {
             ctx.fillText(text, canvas.width / 2, canvas.height - 50);
             ctx.restore();
         }
+    }
+
+    // Draw notification (loot pickups, transaction results)
+    if (window.currentNotification) {
+        const notification = window.currentNotification;
+        const age = Date.now() - notification.timestamp;
+        const fadeStart = 3000; // Start fading after 3 seconds
+        const fadeDuration = 1000; // Fade for 1 second
+
+        let alpha = 1.0;
+        if (age > fadeStart) {
+            alpha = Math.max(0, 1 - (age - fadeStart) / fadeDuration);
+        }
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = 'black';
+        ctx.shadowBlur = 6;
+
+        // Background box
+        const text = notification.message;
+        const metrics = ctx.measureText(text);
+        const padding = 20;
+        const boxWidth = metrics.width + padding * 2;
+        const boxHeight = 40;
+        const boxX = canvas.width / 2 - boxWidth / 2;
+        const boxY = 80;
+
+        ctx.fillStyle = notification.success ? 'rgba(46, 204, 113, 0.9)' : 'rgba(231, 76, 60, 0.9)';
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+        // Border
+        ctx.strokeStyle = notification.success ? '#27ae60' : '#c0392b';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+        // Text
+        ctx.fillStyle = 'white';
+        ctx.fillText(text, canvas.width / 2, boxY + 26);
+        ctx.restore();
     }
 }
 

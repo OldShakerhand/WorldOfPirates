@@ -26,6 +26,9 @@ let previousNPCStates = {};
 // Track projectiles for impact detection
 let previousProjectiles = [];
 
+// Notification system for loot/transactions
+window.currentNotification = null; // { message: string, timestamp: number, success: boolean }
+
 // DEBUG: Helper function for debug tools to get player position
 function getMyShipPosition() {
     if (!window.gameState || !window.myPlayerId) return null;
@@ -201,15 +204,31 @@ function setupGameListeners() {
 
         // Keep only last 10 messages
         if (chatMessages.length > 10) {
-            chatMessages.shift(); // Remove oldest
+            chatMessages = chatMessages.slice(-10);
         }
 
-        // Render updated chat feed
+        // Update chat feed UI
         renderChatFeed(chatMessages);
     });
 
-    // Economy: Transaction result feedback (Phase 0)
+    // Transaction results (loot notifications, trade results, etc.)
     socket.on('transactionResult', (result) => {
+        // Display on-screen notification
+        const timestamp = Date.now();
+        window.currentNotification = {
+            message: result.message,
+            timestamp: timestamp,
+            success: result.success
+        };
+
+        // Auto-clear after 4 seconds
+        setTimeout(() => {
+            if (window.currentNotification && window.currentNotification.timestamp === timestamp) {
+                window.currentNotification = null;
+            }
+        }, 4000);
+
+        // Also update harbor trade UI if present (for trade transactions)
         const statusEl = document.getElementById('transactionStatus');
         if (statusEl) {
             statusEl.textContent = result.message;
@@ -660,3 +679,41 @@ function detectProjectileImpacts(state, myShip) {
     // Store current projectiles for next frame
     previousProjectiles = currentProjectiles.map(p => ({ x: p.x, y: p.y }));
 }
+
+// Wreck Loot Interaction
+document.addEventListener('keydown', (e) => {
+    // Only handle 'F' key
+    if (e.key.toLowerCase() !== 'f') return;
+
+    // Ignore if typing in an input
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+    if (!window.gameState || !window.gameState.wrecks || !window.myPlayerId) return;
+
+    const myShip = window.gameState.players[window.myPlayerId];
+    if (!myShip) return;
+
+    // Find nearest wreck
+    let nearestWreck = null;
+    let minDist = Infinity;
+
+    window.gameState.wrecks.forEach(wreck => {
+        const dist = Math.hypot(wreck.x - myShip.x, wreck.y - myShip.y);
+        if (dist < minDist) {
+            minDist = dist;
+            nearestWreck = wreck;
+        }
+    });
+
+    // Check if within range (150px - match visual/server logic)
+    if (nearestWreck && minDist < 150) {
+        // Optimistic check for ownership (server validates authoritatively)
+        if (nearestWreck.isOwnerLoot && nearestWreck.ownerId !== window.myPlayerId) {
+            // Optional: visual feedback handled by game.js text
+        }
+
+        console.log(`[Interaction] Requesting loot for wreck ${nearestWreck.id}`);
+        socket.emit('lootWreck', nearestWreck.id);
+        // Server authoritatively prevents double-looting by removing wreck before granting loot
+    }
+});

@@ -17,6 +17,7 @@ Game design, mechanics, and features.
 - [Harbors](gameplay/HARBORS.md) - Harbor system and locations
 - [NPCs](gameplay/NPCs.md) - NPC behavior and AI
 - [Missions](gameplay/MISSIONS.md) - Mission system and design
+- [Wrecks](gameplay/WRECKS.md) - Ship wreck system and looting mechanics
 - [World Map](gameplay/WORLD_MAP.md) - World structure and navigation
 
 ## Assets (`assets/`)

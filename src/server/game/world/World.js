@@ -1,4 +1,5 @@
 const Projectile = require('../entities/Projectile');
+const Wreck = require('../entities/Wreck');
 const Wind = require('../entities/Wind');
 const Harbor = require('./Harbor');
 const GameConfig = require('../config/GameConfig');
@@ -21,6 +22,10 @@ class World {
         this.entities = {};
         this.projectiles = [];
         this.projectileIdCounter = 0;
+
+        // Wrecks
+        this.wrecks = []; // transient list of Wreck objects
+        this.wreckIdCounter = 0;
 
         // Wind system
         this.wind = new Wind();
@@ -52,6 +57,14 @@ class World {
         if (COMBAT.DEBUG_INITIALIZATION) {
             console.log(`[INIT] World created | Islands: 0 (tile-based) | Harbors: ${this.harbors.length} | Timestamp: ${Date.now()}`);
         }
+    }
+
+    createWreck(x, y, ownerId, cargo) {
+        const id = `wreck_${this.wreckIdCounter++}`;
+        const wreck = new Wreck(id, x, y, ownerId, cargo);
+        this.wrecks.push(wreck);
+        console.log(`[World] Spawned wreck ${id} at (${x.toFixed(0)}, ${y.toFixed(0)})`);
+        return wreck;
     }
 
     /**
@@ -135,6 +148,16 @@ class World {
                 this.projectiles.splice(i, 1);
             }
         }
+
+        // Update Wrecks
+        for (let i = this.wrecks.length - 1; i >= 0; i--) {
+            const wreck = this.wrecks[i];
+            wreck.update();
+            if (wreck.toRemove) {
+                console.log(`[World] Wreck ${wreck.id} despawned`);
+                this.wrecks.splice(i, 1);
+            }
+        }
     }
 
     /**
@@ -204,10 +227,22 @@ class World {
         return this.entities[id];
     }
 
+    getWreck(id) {
+        return this.wrecks.find(w => w.id === id);
+    }
+
+    removeWreck(id) {
+        const index = this.wrecks.findIndex(w => w.id === id);
+        if (index !== -1) {
+            this.wrecks.splice(index, 1);
+        }
+    }
+
     getState() {
         const state = {
             players: {},
             projectiles: this.projectiles.map(p => p.serialize()),
+            wrecks: this.wrecks.map(w => w.serialize()),
             wind: this.wind.serialize()
         };
         for (const id in this.entities) {

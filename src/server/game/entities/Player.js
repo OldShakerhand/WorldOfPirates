@@ -329,6 +329,12 @@ class Player {
                 this.io.emit('chatMessage', raftedMessage);
             }
 
+            // Create Wreck (Visual & Loot)
+            if (this.world) {
+                // Pass cargo for loot generation (Phase 1: Partial cargo salvage)
+                this.world.createWreck(this.x, this.y, shipSunkEvent.killerId, this.fleetCargo.serialize());
+            }
+
             console.log(`Player ${this.id} rafted (all ships lost, recoverable)`);
         }
     }

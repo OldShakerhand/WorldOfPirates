@@ -37,7 +37,7 @@ const REWARDS = {
     // Combat Rewards (immediate on kill)
     COMBAT: {
         PIRATE_SUNK: {
-            gold: 50,
+            gold: 0,  // Gold now comes from wreck loot
             xp: 25,
             description: 'Defeated hostile pirate'
         },

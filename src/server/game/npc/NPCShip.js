@@ -769,6 +769,12 @@ class NPCShip {
 
         // Check if flagship sunk
         if (this.flagship.isSunk) {
+            // CRITICAL: Prevent duplicate death processing
+            // If already despawning, skip all death logic
+            if (this.state === 'DESPAWNING') {
+                return;
+            }
+
             console.log(`[NPC] ${this.id} sunk, despawning`);
 
             // Grant combat reward to killer (Phase 2: Combat rewards)
@@ -795,6 +801,13 @@ class NPCShip {
             }
 
             this.state = 'DESPAWNING';
+
+            // Create Wreck (Visual & Loot)
+            if (this.world) {
+                // NPCs don't have fleetCargo yet (Phase 1), so pass empty object
+                // Wreck class will handle generating basic loot (wood/cloth + gold)
+                this.world.createWreck(this.x, this.y, damageSource, {});
+            }
         }
     }
 

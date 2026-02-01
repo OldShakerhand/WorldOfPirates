@@ -158,7 +158,7 @@ class GameLoop {
         }
 
         // Pass io and world references for kill message emission
-        const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
+        const player = new Player(socket.id, playerName, 'FRIGATE', this.io, this.world);
 
         // DEBUG ONLY: Track player join for early-session collision diagnosis
         // NO gameplay behavior change
@@ -460,6 +460,65 @@ class GameLoop {
             // Fire projectile straight out from cannon (perpendicular to ship)
             this.world.createProjectile(player.id, cannonX, cannonY, baseAngle);
         }
+    }
+
+    handleLootWreck(socket, wreckId) {
+        const player = this.world.getEntity(socket.id);
+        const wreck = this.world.getWreck(wreckId);
+
+        if (!player || !wreck) return;
+
+        // Validation 1: Distance (must be close)
+        const dist = Math.hypot(wreck.x - player.x, player.y - wreck.y); // Corrected y-coordinate order
+        if (dist > GAME.HARBOR_INTERACTION_RADIUS * 1.5) { // Slightly larger than harbor radius
+            socket.emit('transactionResult', { success: false, message: 'Too far away to loot!' });
+            return;
+        }
+
+        // Validation 2: Ownership (timelock)
+        // If owner loot time hasn't expired, only owner can loot
+        if (!wreck.canLoot(player.id)) {
+            socket.emit('transactionResult', { success: false, message: 'Wreck is locked to the killer!' });
+            return;
+        }
+
+        // CRITICAL: Remove wreck FIRST to prevent race conditions
+        // This ensures only ONE player can loot, even if multiple requests arrive simultaneously
+        const loot = wreck.loot; // Capture loot before removal
+        this.world.removeWreck(wreckId);
+
+        // Grant Loot
+        let message = 'Looted: ';
+
+        // 1. Gold
+        if (loot.gold > 0) {
+            player.addGold(loot.gold);
+            message += `${loot.gold} gold`;
+        }
+
+
+
+        // 2. Cargo
+        let cargoAddedString = '';
+        if (loot.cargo) {
+            for (const [goodId, amount] of Object.entries(loot.cargo)) {
+                const success = player.fleetCargo.addGood(goodId, amount);
+                if (success) {
+                    cargoAddedString += `, ${amount} ${goodId}`;
+                }
+            }
+        }
+
+        if (cargoAddedString) {
+            message += cargoAddedString;
+            socket.emit('playerStateUpdate', { cargo: player.fleetCargo.serialize() });
+        } else if (loot.cargo && Object.keys(loot.cargo).length > 0) {
+            message += ' (Cargo full!)';
+        }
+
+        // Success
+        socket.emit('transactionResult', { success: true, message: message });
+        console.log(`Player ${player.name} looted wreck ${wreckId}`);
     }
 
     handleEnterHarbor(socket) {

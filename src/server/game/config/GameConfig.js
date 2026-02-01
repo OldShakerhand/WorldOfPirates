@@ -222,6 +222,19 @@ const GameConfig = {
         // Deterministic variation per harbor to add flavor
         // Applied after all other calculations
         PRICE_VARIATION: 0.05 // ±5%
+    },
+
+    // ========================================
+    // WRECKS: Ship wreck system
+    // ========================================
+    WRECKS: {
+        DURATION_SECONDS: 120,    // Wrecks disappear after 2 minutes
+        OWNER_LOOT_DURATION: 30,  // Only killer can loot for first 30s
+        BASE_GOLD_MIN: 10,        // Minimum gold from wreck
+        BASE_GOLD_MAX: 50,        // Maximum gold from wreck
+        CARGO_SALVAGE_PERCENT: 0.3, // 30% of cargo is recoverable
+        MIN_CLOTH: 1,             // Always drop at least 1 cloth (sails)
+        MIN_WOOD: 2               // Always drop at least 2 wood (hull)
     }
 };
 
