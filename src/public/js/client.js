@@ -517,8 +517,19 @@ function buyAll(goodId, price) {
 }
 
 // Sell All Logic
+let lastSellAllTime = 0;
+const SELL_ALL_COOLDOWN = 500; // 500ms cooldown
+
 function sellAll(goodId) {
     if (!window.gameState || !window.myPlayerId) return;
+
+    // Debounce to prevent double-clicks
+    const now = Date.now();
+    if (now - lastSellAllTime < SELL_ALL_COOLDOWN) {
+        console.log('[Trade] Sell All cooldown active, ignoring click');
+        return;
+    }
+    lastSellAllTime = now;
 
     // Just send intent (-1 for All)
     // Server validation handles inventory check
