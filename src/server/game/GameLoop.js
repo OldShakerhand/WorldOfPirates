@@ -572,9 +572,9 @@ class GameLoop {
         const player = this.world.getEntity(playerId);
         if (!player || player.isRaft) return;
 
-        // Calculate repair cost (1 gold per HP)
+        // Calculate repair cost (0.5 gold per HP)
         const hpNeeded = player.flagship.maxHealth - player.flagship.health;
-        const repairCost = hpNeeded;
+        const repairCost = Math.ceil(hpNeeded * 0.5);
 
         // Check if player has enough gold
         if (player.gold < repairCost) {
