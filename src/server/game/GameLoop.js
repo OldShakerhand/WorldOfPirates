@@ -572,17 +572,40 @@ class GameLoop {
         const player = this.world.getEntity(playerId);
         if (!player || player.isRaft) return;
 
-        // Repair flagship to full health
-        player.flagship.health = player.flagship.maxHealth;
-        console.log(`Player ${playerId} repaired flagship`);
+        // Calculate repair cost (1 gold per HP)
+        const hpNeeded = player.flagship.maxHealth - player.flagship.health;
+        const repairCost = hpNeeded;
 
-        // Send updated harbor data
+        // Check if player has enough gold
+        if (player.gold < repairCost) {
+            this.io.to(playerId).emit('transactionResult', {
+                success: false,
+                message: `Not enough gold! Need ${repairCost}g, have ${player.gold}g`
+            });
+            return;
+        }
+
+        // Deduct gold and repair flagship
+        player.gold -= repairCost;
+        player.flagship.health = player.flagship.maxHealth;
+        console.log(`Player ${playerId} repaired flagship for ${repairCost} gold`);
+
+        // Send success notification
+        this.io.to(playerId).emit('transactionResult', {
+            success: true,
+            message: `Repaired for ${repairCost} gold`
+        });
+
+        // Send updated harbor data with economy and cargo (same as enterHarbor)
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
+            const economy = this.world.harborRegistry.getHarborEconomy(harbor.id);
             const harborData = {
                 harborId: harbor.id,
                 harborName: harbor.name,
-                fleet: player.fleet.map(ship => ship.serialize())
+                fleet: player.fleet.map(ship => ship.serialize()),
+                economy: economy,
+                cargo: player.fleetCargo.serialize()
             };
             this.io.to(playerId).emit('harborData', harborData);
         }
