@@ -123,11 +123,6 @@ io.on('connection', (socket) => {
         gameLoop.handleSellGood(socket.id, data.harborId, data.goodId, data.quantity);
     });
 
-    // Economy: Sell goods (Phase 0)
-    socket.on('sellGood', (data) => {
-        gameLoop.handleSellGood(socket.id, data.harborId, data.goodId, data.quantity);
-    });
-
     // Loot Wreck
     socket.on('lootWreck', (wreckId) => {
         gameLoop.handleLootWreck(socket, wreckId);
