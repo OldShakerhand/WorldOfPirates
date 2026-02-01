@@ -574,26 +574,43 @@ class GameLoop {
 
         // Calculate repair cost (0.5 gold per HP)
         const hpNeeded = player.flagship.maxHealth - player.flagship.health;
-        const repairCost = Math.ceil(hpNeeded * 0.5);
+        const fullRepairCost = Math.ceil(hpNeeded * 0.5);
 
-        // Check if player has enough gold
-        if (player.gold < repairCost) {
+        // Determine how much we can actually repair
+        let repairCost, hpToRepair;
+
+        if (player.gold >= fullRepairCost) {
+            // Full repair
+            repairCost = fullRepairCost;
+            hpToRepair = hpNeeded;
+        } else if (player.gold >= 1) {
+            // Partial repair - repair as much as gold allows
+            // Each gold = 2 HP (since 0.5 gold per HP)
+            hpToRepair = Math.floor(player.gold * 2);
+            hpToRepair = Math.min(hpToRepair, hpNeeded); // Don't over-repair
+            repairCost = Math.ceil(hpToRepair * 0.5);
+        } else {
+            // Not enough gold for even 1 HP
             this.io.to(playerId).emit('transactionResult', {
                 success: false,
-                message: `Not enough gold! Need ${repairCost}g, have ${player.gold}g`
+                message: `Not enough gold! Need at least 1g to repair.`
             });
             return;
         }
 
         // Deduct gold and repair flagship
         player.gold -= repairCost;
-        player.flagship.health = player.flagship.maxHealth;
-        console.log(`Player ${playerId} repaired flagship for ${repairCost} gold`);
+        player.flagship.health = Math.min(player.flagship.health + hpToRepair, player.flagship.maxHealth);
+        console.log(`Player ${playerId} repaired ${hpToRepair} HP for ${repairCost} gold`);
 
         // Send success notification
+        const message = hpToRepair === hpNeeded
+            ? `Fully repaired for ${repairCost} gold`
+            : `Repaired ${hpToRepair} HP for ${repairCost} gold (partial repair)`;
+
         this.io.to(playerId).emit('transactionResult', {
             success: true,
-            message: `Repaired for ${repairCost} gold`
+            message: message
         });
 
         // Send updated harbor data with economy and cargo (same as enterHarbor)
