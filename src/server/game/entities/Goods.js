@@ -28,13 +28,13 @@ const GOODS = {
         properties: { legality: 'LEGAL' },
         space: 1
     },
-    IRON: {
-        id: 'iron',
-        name: 'Iron',
+    CLOTH: {
+        id: 'cloth',
+        name: 'Cloth',
         category: 'material',
         intents: ['TRADE', 'USE'],
         properties: { legality: 'LEGAL' },
-        space: 2
+        space: 1
     },
 
     // Luxury goods
@@ -80,6 +80,7 @@ const GOODS = {
         category: 'luxury',
         intents: ['TRADE'],
         properties: { legality: 'ILLEGAL' },
+        tags: ['MISSION_ONLY'],
         space: 1
     },
 

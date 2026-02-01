@@ -12,7 +12,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "andros",
@@ -27,7 +28,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "anguilla",
@@ -42,7 +44,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "antigua",
@@ -57,7 +60,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "arecibo",
@@ -72,7 +76,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "armanuelles",
@@ -87,7 +92,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "aruba",
@@ -102,7 +108,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "baracoa",
@@ -117,7 +124,8 @@
       "bank": false,
       "shipyardMax": "merchant",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "barbados",
@@ -132,7 +140,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "barbuda",
@@ -147,7 +156,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "barcelona",
@@ -162,7 +172,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "basseterre",
@@ -177,7 +188,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "belize_city",
@@ -192,7 +204,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "bermuda",
@@ -207,7 +220,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "bluefields",
@@ -222,7 +236,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "bonaire",
@@ -237,7 +252,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "caibarian",
@@ -252,7 +268,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "camarco",
@@ -267,7 +284,8 @@
       "bank": false,
       "shipyardMax": "merchant",
       "jobShipType": "none_available"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "campeche",
@@ -282,7 +300,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "cancun",
@@ -297,7 +316,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "caracas",
@@ -312,7 +332,8 @@
       "bank": true,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "caratasca",
@@ -327,7 +348,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "cartagena",
@@ -343,7 +365,7 @@
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_LUXURY"
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "carupano",
@@ -358,7 +380,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "casares",
@@ -373,7 +396,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "nil"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "cat_island",
@@ -388,7 +412,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "none_available"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "chetumal",
@@ -404,7 +429,7 @@
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
     },
-    "harborTradeId": "FRONTIER_MATERIALS"
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "choluteca",
@@ -419,7 +444,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "ciudad_del_carmen",
@@ -434,7 +460,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "cojoida",
@@ -449,7 +476,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "mercant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "colon",
@@ -464,7 +492,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "coro",
@@ -479,7 +508,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "corpus_christi",
@@ -494,7 +524,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "cozumel",
@@ -525,7 +556,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "curacao",
@@ -541,7 +573,7 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "COLONIAL_LUXURY"
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "dominica",
@@ -556,7 +588,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "don_diego",
@@ -571,7 +604,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "el_macao",
@@ -586,7 +620,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "eleuthera",
@@ -601,7 +636,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "espiritu_santo",
@@ -616,7 +652,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "florida_keys",
@@ -631,7 +668,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "fort_caroline",
@@ -646,7 +684,8 @@
       "bank": true,
       "shipyardMax": "merchant",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "fort_lauderdale",
@@ -661,7 +700,8 @@
       "bank": false,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "fort_louis_de_la_mobile",
@@ -676,7 +716,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "fortdefrance",
@@ -691,7 +732,8 @@
       "bank": false,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "galveston_bay",
@@ -706,7 +748,8 @@
       "bank": true,
       "shipyardMax": "merchant",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "george_town",
@@ -721,7 +764,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "gibara",
@@ -736,7 +780,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "gibraltar",
@@ -751,7 +796,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "gran_granada",
@@ -766,7 +812,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "grand_bahama",
@@ -781,7 +828,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "grand_turk",
@@ -796,7 +844,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "havana",
@@ -812,7 +861,7 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_LUXURY"
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "iriona",
@@ -827,7 +876,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "isla_beata",
@@ -842,7 +892,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "baque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "joana",
@@ -857,7 +908,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "kingstown",
@@ -872,7 +924,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "la_ceiba",
@@ -887,7 +940,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "limon",
@@ -902,7 +956,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "manzanillo",
@@ -917,7 +972,8 @@
       "bank": false,
       "shipyardMax": "frigate",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "maracaibo",
@@ -932,7 +988,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "margarita",
@@ -947,7 +1004,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "mariegalante",
@@ -962,7 +1020,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "matanzas",
@@ -977,7 +1036,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "matthew_town",
@@ -992,7 +1052,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "monte_cristi",
@@ -1007,7 +1068,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "montego_bay",
@@ -1022,7 +1084,8 @@
       "bank": false,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "montserrat",
@@ -1037,7 +1100,8 @@
       "bank": true,
       "shipyardMax": "merchant",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "nassau",
@@ -1052,7 +1116,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "navassa_island",
@@ -1067,7 +1132,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "nevis",
@@ -1082,7 +1148,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "new_orleans",
@@ -1097,7 +1164,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "nombre_de_dios",
@@ -1112,7 +1180,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "nuestra_senora_de_guadalupe_de_reynosa",
@@ -1127,7 +1196,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "old_biloxi",
@@ -1142,7 +1212,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "pedernales",
@@ -1157,7 +1228,8 @@
       "bank": true,
       "shipyardMax": "sloop",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "petitgoave",
@@ -1172,7 +1244,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "pointe_a_la_hache",
@@ -1187,7 +1260,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "pointeapitre",
@@ -1202,7 +1276,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "ponce",
@@ -1217,7 +1292,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "port_antonio",
@@ -1232,7 +1308,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "port_of_spain",
@@ -1247,7 +1324,8 @@
       "bank": false,
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "port_royal",
@@ -1262,7 +1340,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "port_salut",
@@ -1277,7 +1356,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "port_st_joseph",
@@ -1292,7 +1372,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "portdepaix",
@@ -1307,7 +1388,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "prinzapolca",
@@ -1322,7 +1404,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "providence",
@@ -1337,7 +1420,8 @@
       "bank": true,
       "shipyardMax": "merchant",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "pueblo_nuevo",
@@ -1352,7 +1436,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "nil"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "puerto_barrios",
@@ -1367,7 +1452,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "puerto_bello",
@@ -1382,7 +1468,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "puerto_cabello",
@@ -1397,7 +1484,8 @@
       "bank": true,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "puerto_cabezas",
@@ -1412,7 +1500,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "puerto_cortes",
@@ -1427,7 +1516,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "puerto_estrella",
@@ -1442,7 +1532,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "puerto_plata",
@@ -1457,7 +1548,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "punta_gorda",
@@ -1472,7 +1564,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "punto_fijo",
@@ -1487,7 +1580,8 @@
       "bank": false,
       "shipyardMax": "merchant",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "puntarenas",
@@ -1502,7 +1596,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "road_town",
@@ -1517,7 +1612,8 @@
       "bank": true,
       "shipyardMax": "merchant",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "roatan",
@@ -1532,7 +1628,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "none_available"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "saba",
@@ -1547,7 +1644,8 @@
       "bank": false,
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "saint_eustatius",
@@ -1562,7 +1660,8 @@
       "bank": false,
       "shipyardMax": "merchant",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "saint_lucia",
@@ -1577,7 +1676,8 @@
       "bank": false,
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "sainte_marie",
@@ -1592,7 +1692,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "san_andres",
@@ -1607,7 +1708,8 @@
       "bank": false,
       "shipyardMax": "fast_galleon",
       "jobShipType": "none_available"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "san_carlos",
@@ -1622,7 +1724,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "san_juan",
@@ -1637,7 +1740,8 @@
       "bank": true,
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "san_juan_del_norte",
@@ -1652,7 +1756,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "san_rafael_de_curiapo",
@@ -1667,7 +1772,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "san_ramos",
@@ -1682,7 +1788,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "nil"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "san_sebastian",
@@ -1697,7 +1804,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "santa_maria",
@@ -1712,7 +1820,8 @@
       "bank": false,
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "santa_maria_de_galve",
@@ -1727,7 +1836,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "santa_maria_de_la_antigua",
@@ -1742,7 +1852,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "santa_marta",
@@ -1757,7 +1868,8 @@
       "bank": true,
       "shipyardMax": "merchant",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "santiago_de_cuba",
@@ -1772,7 +1884,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "santo_domingo",
@@ -1787,7 +1900,8 @@
       "bank": true,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "sint_maarten",
@@ -1802,7 +1916,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "south_andros",
@@ -1817,7 +1932,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "spring_point",
@@ -1832,7 +1948,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "st_augustine",
@@ -1847,7 +1964,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "st_georges",
@@ -1862,7 +1980,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "st_john",
@@ -1877,7 +1996,8 @@
       "bank": true,
       "shipyardMax": "pinnace",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "st_kitts",
@@ -1892,7 +2012,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "LUXURY_EXPORT"
   },
   {
     "id": "st_miguel",
@@ -1907,7 +2028,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "st_thomas",
@@ -1922,7 +2044,8 @@
       "bank": false,
       "shipyardMax": "spanish_galleon",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "swan_islands",
@@ -1937,7 +2060,8 @@
       "bank": false,
       "shipyardMax": "sloop",
       "jobShipType": "none_available"
-    }
+    },
+    "harborTradeId": "PIRATE_HAVEN"
   },
   {
     "id": "tampa",
@@ -1952,7 +2076,8 @@
       "bank": false,
       "shipyardMax": "frigate",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "tampico",
@@ -1967,7 +2092,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "tobago",
@@ -1982,7 +2108,8 @@
       "bank": false,
       "shipyardMax": "barque",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "tortuga",
@@ -1997,7 +2124,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "tortuguero",
@@ -2012,7 +2140,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "trinidad",
@@ -2027,7 +2156,8 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "fluyt"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "trinidad_de_cuba",
@@ -2042,7 +2172,8 @@
       "bank": true,
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   },
   {
     "id": "tucupita",
@@ -2057,7 +2188,8 @@
       "bank": true,
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
-    }
+    },
+    "harborTradeId": "COLONIAL_CAPITAL"
   },
   {
     "id": "vera_cruz",
@@ -2072,7 +2204,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "victoria_hill",
@@ -2087,7 +2220,8 @@
       "bank": true,
       "shipyardMax": "fluyt",
       "jobShipType": "pinnace"
-    }
+    },
+    "harborTradeId": "FRONTIER_SUPPLY"
   },
   {
     "id": "villa_hermosa",
@@ -2102,7 +2236,8 @@
       "bank": true,
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
-    }
+    },
+    "harborTradeId": "MAINLAND_RESOURCES"
   },
   {
     "id": "yaguana",
@@ -2117,6 +2252,7 @@
       "bank": true,
       "shipyardMax": "barque",
       "jobShipType": "barque"
-    }
+    },
+    "harborTradeId": "PLANTATION_AGRICULTURE"
   }
 ]

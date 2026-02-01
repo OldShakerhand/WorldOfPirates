@@ -23,6 +23,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const GameConfig = require('../config/GameConfig');
 
 class HarborRegistry {
     /**
@@ -128,7 +129,7 @@ class HarborRegistry {
 
     /**
      * Get harbor economy data (resolved from trade profile)
-     * Phase 0: Economy system
+     * Phase 0: Economy system - Dynamic Price Calculation
      * @param {string} harborId - Harbor ID
      * @returns {Object|null} Resolved economy data or null if not available
      */
@@ -139,37 +140,76 @@ class HarborRegistry {
         // Resolve trade profile
         const tradeProfile = this.tradeProfiles[harbor.harborTradeId];
         if (!tradeProfile) {
+            // Graceful fallback during migration if profile missing
             console.warn(`[HarborRegistry] Trade profile not found: ${harbor.harborTradeId} for harbor ${harborId}`);
             return null;
         }
 
-
-        // Filter out MISSION_ONLY goods and merge with full good definitions
         const { getGood } = require('../entities/Goods');
+        const { BASE_PRICES, TRADE_TIERS, HARBOR_SELL_MARGIN, PRICE_VARIATION } = GameConfig.ECONOMY;
+
+        // Calculate variation factor (-5% to +5%)
+        const variation = this._getPriceVariation(harborId);
+        const variationFactor = 1.0 + (variation * PRICE_VARIATION);
+
         const tradeableGoods = tradeProfile.goods
             .map(hg => {
                 const good = getGood(hg.goodId);
+                // Skip invalid goods or mission-only items
                 if (!good || (good.tags && good.tags.includes('MISSION_ONLY'))) {
                     return null;
                 }
 
-                // Merge good definition with pricing
+                // Calculate Prices
+                const basePrice = BASE_PRICES[hg.goodId.toUpperCase()] || 10;
+                const tierMultiplier = TRADE_TIERS[hg.tier] || TRADE_TIERS.STANDARD;
+
+                // Buy Price: What player pays to buy from harbor
+                let buyPrice = basePrice * tierMultiplier;
+                // Apply local variation
+                buyPrice = buyPrice * variationFactor;
+
+                // Sell Price: What player gets when selling to harbor (margin applied)
+                let sellPrice = buyPrice * HARBOR_SELL_MARGIN;
+
+                // Rounding
+                buyPrice = Math.max(1, Math.round(buyPrice));
+                sellPrice = Math.max(1, Math.round(sellPrice));
+
                 return {
                     id: good.id,
                     name: good.name,
                     category: good.category,
                     space: good.space,
-                    buyPrice: hg.buyPrice,
-                    sellPrice: hg.sellPrice
+                    buyPrice: buyPrice,
+                    sellPrice: sellPrice,
+                    tier: hg.tier // Exposed for UI to show "High Demand" etc.
                 };
             })
-            .filter(g => g !== null); // Remove nulls
+            .filter(g => g !== null);
 
         return {
             goods: tradeableGoods,
             profileId: tradeProfile.id,
             profileName: tradeProfile.name
         };
+    }
+
+    /**
+     * Generate deterministic price variation for a harbor
+     * @param {string} harborId 
+     * @returns {number} Value between -1.0 and 1.0
+     */
+    _getPriceVariation(harborId) {
+        let hash = 0;
+        for (let i = 0; i < harborId.length; i++) {
+            const char = harborId.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        // Normalize to -1.0 to 1.0
+        const normalized = (hash % 1000) / 1000;
+        return normalized;
     }
 }
 

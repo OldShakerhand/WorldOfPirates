@@ -190,7 +190,38 @@ const GameConfig = {
     // ========================================
     ECONOMY: {
         // Transaction limits
-        MAX_TRANSACTION_QUANTITY: 100  // Prevent exploits
+        MAX_TRANSACTION_QUANTITY: 100,  // Prevent exploits
+
+        // Base Prices (Standard value of goods)
+        // Used to derive regional prices based on supply/demand tiers
+        BASE_PRICES: {
+            FOOD: 5,
+            WOOD: 10,
+            CLOTH: 15,
+            SUGAR: 30,
+            RUM: 50,
+            TOBACCO: 80,
+            CONTRABAND: 200
+        },
+
+        // Trade Tiers (Supply/Demand multipliers)
+        // Applied to Base Price to determine the Harbor's Buy Price (Player buys from harbor)
+        TRADE_TIERS: {
+            EXPORT: 0.6,    // High supply, cheap to buy
+            STANDARD: 1.0,  // Normal supply, standard price
+            IMPORT: 1.4     // High demand, expensive to buy
+        },
+
+        // Harbor Margins
+        // Determines sell price relative to buy price (Player sells to harbor)
+        // Sell Price = Buy Price * MARGIN
+        // Ensures player always loses money if buying and selling in same harbor
+        HARBOR_SELL_MARGIN: 0.75,
+
+        // Local Price Variation
+        // Deterministic variation per harbor to add flavor
+        // Applied after all other calculations
+        PRICE_VARIATION: 0.05 // ±5%
     }
 };
 

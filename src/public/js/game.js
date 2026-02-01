@@ -914,7 +914,11 @@ function renderTradeInterface(economy, cargo) {
         goodsHTML += `
             <div class="trade-good-row">
                 <div class="trade-good-info">
-                    <div class="trade-good-name">${good.name}</div>
+                    <div class="trade-good-name">
+                        ${good.name}
+                        ${good.tier === 'EXPORT' ? '<span class="tier-badge tier-export">CHEAP</span>' : ''}
+                        ${good.tier === 'IMPORT' ? '<span class="tier-badge tier-import">EXPENSIVE</span>' : ''}
+                    </div>
                     <div class="trade-good-prices">
                         Buy: ${good.buyPrice}g | Sell: ${good.sellPrice}g | Space: ${good.space}
                     </div>

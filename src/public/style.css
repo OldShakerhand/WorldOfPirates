@@ -408,3 +408,30 @@ canvas {
     padding: 3px 0;
     font-size: 12px;
 }
+
+/* Trade Tiers */
+.tier-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 3px;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+.tier-export {
+    background-color: #2ecc71;
+    color: #000;
+}
+
+.tier-import {
+    background-color: #e67e22;
+    /* Orange for high demand */
+    color: #fff;
+}
+
+.tier-standard {
+    display: none;
+    /* No badge for standard */
+}

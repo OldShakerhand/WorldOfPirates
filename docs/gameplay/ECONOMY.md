@@ -2,139 +2,95 @@
 
 ## Overview
 
-The economy system enables players to buy and sell goods at harbors. All transactions are **server-authoritative** with full validation to ensure fair gameplay.
+The economy system enables players to buy and sell goods at harbors. Prices are **dynamic per region**, creating profitable trade routes between different parts of the Caribbean.
 
 ## Trading Basics
 
 ### How to Trade
 
-1. **Dock at a harbor** that supports trading (press `H` when near a harbor)
-2. **Open the Trade Goods section** in the harbor UI
-3. **Select a quantity** (1-100) for the good you want to trade
-4. **Click Buy or Sell** to execute the transaction
+1.  **Dock at a harbor** (Press `H` near a harbor).
+2.  **Open Trade Goods** in the UI.
+3.  **Buy Low (Green Badge)**: Look for goods marked **CHEAP**.
+4.  **Sell High (Orange Badge)**: Look for goods marked **EXPENSIVE**.
+5.  **Select Quantity** and transact.
 
-### Transaction Validation
+### Validation
 
-All trades are validated server-side:
-- ✅ Player must be docked at the harbor
-- ✅ Player must have sufficient gold (for buying)
-- ✅ Player must have sufficient cargo space (for buying)
-- ✅ Player must own the goods (for selling)
-- ✅ Harbor must sell/buy the specific good
+Trades are validated server-side:
+-   ✅ Docked at harbor.
+-   ✅ Sufficient Gold (Buy) / Cargo (Sell).
+-   ✅ Good available in harbor.
 
-## Goods
+## Goods & Pricing
 
-### Available Goods
+Prices are derived from a **Base Price** modified by a **Regional Tier**.
 
-| Good | Category | Space | Legality | Uses |
-|------|----------|-------|----------|------|
-| **Wood** | Material | 1 | Legal | Trade, Crafting |
-| **Iron** | Material | 2 | Legal | Trade, Crafting |
-| **Rum** | Luxury | 1 | Legal | Trade |
-| **Sugar** | Luxury | 1 | Legal | Trade |
-| **Tobacco** | Luxury | 1 | Legal | Trade |
-| **Food** | Food | 1 | Legal | Trade, Consumption |
-| **Contraband** | Luxury | 1 | Illegal | Trade |
+### Base Prices
+| Good | Category | Base Price | Space | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **Food** | Food | 5g | 1 | Basic necessity |
+| **Wood** | Material | 10g | 1 | Ship repairs |
+| **Cloth** | Material | 15g | 1 | Sails & clothing |
+| **Sugar** | Luxury | 30g | 1 | Cash crop |
+| **Rum** | Luxury | 50g | 1 | Refined good |
+| **Tobacco** | Luxury | 80g | 1 | Premium luxury |
+| **Contraband** | Illegal | 200g | 1 | **Mission Only** |
 
-### Good Properties
+### Price Tiers (Regional Supply/Demand)
 
-- **Space**: Cargo space required per unit
-- **Legality**: LEGAL or ILLEGAL (enforcement not yet implemented)
-- **Intents**: What can be done with the good (TRADE, USE)
+Each region assigns a tier to every good:
 
-## Trade Profiles
+| Tier | UI Badge | Price Multiplier | Description |
+| :--- | :--- | :--- | :--- |
+| **EXPORT** | <span style="color:green">CHEAP</span> | **0.6x** | High supply, locally produced. |
+| **STANDARD** | (None) | **1.0x** | Normal market price. |
+| **IMPORT** | <span style="color:orange">EXPENSIVE</span> | **1.4x** | High demand, scarce. |
 
-Harbors are grouped into **trade profiles** that define regional pricing:
+### Harbor Margin
+Harbors always sell for slightly more than they buy (Margin: 0.75).
+-   **Player Buys**: `Base * Tier * Variation`
+-   **Player Sells**: `BuyPrice * 0.75`
 
-### COLONIAL_LUXURY
-**Harbors**: Havana, Cartagena, Curacao
+### Local Variation
+Every harbor has a deterministic price variation of **±5%** to add flavor.
 
-Major colonial ports trading in luxury goods:
-- **Rum**: Buy 12g, Sell 8g
-- **Sugar**: Buy 10g, Sell 6g
-- **Tobacco**: Buy 15g, Sell 10g
-- **Wood**: Buy 5g, Sell 3g
+## Regional Trade Profiles
 
-### FRONTIER_MATERIALS
-**Harbors**: Belize City, Chetumal
+Harbors are assigned one of 6 trade profiles based on geography:
 
-Frontier settlements trading in basic materials:
-- **Wood**: Buy 4g, Sell 2g
-- **Iron**: Buy 8g, Sell 5g
-- **Food**: Buy 6g, Sell 4g
+1.  **FRONTIER (Bahamas/Florida)**
+    -   **Exports**: Food, Wood
+    -   **Imports**: Cloth, Rum
+    -   *Strategy*: Buy cheap wood here, sell in Luxury regions.
 
-### PIRATE_HAVEN
-**Harbors**: Cozumel
+2.  **PLANTATION (Cuba/Jamaica)**
+    -   **Exports**: Sugar, Tobacco
+    -   **Imports**: Cloth, Iron (Tools)
+    -   *Strategy*: The breadbasket of the Caribbean.
 
-Pirate ports trading in contraband and luxury goods:
-- **Rum**: Buy 10g, Sell 7g
-- **Contraband**: Buy 25g, Sell 20g
-- **Tobacco**: Buy 14g, Sell 9g
+3.  **MAINLAND (Mexico/Yucatan)**
+    -   **Exports**: Wood, Silver (abstracted)
+    -   **Imports**: Finished Goods
+    -   *Strategy*: Raw resource extraction.
 
-## Pricing
+4.  **LUXURY (Lesser Antilles)**
+    -   **Exports**: Rum, Sugar
+    -   **Imports**: Food, Wood
+    -   *Strategy*: Refines raw sugar into expensive Rum.
 
-Prices are **static** in Phase 0:
-- **Buy Price**: What you pay to buy from the harbor
-- **Sell Price**: What you receive when selling to the harbor
-- Buy prices are always higher than sell prices (harbor profit margin)
+5.  **CAPITAL (Spanish Main)**
+    -   **Exports**: Cloth, Tools
+    -   **Imports**: All Luxuries (Sugar, Tobacco, Rum)
+    -   *Strategy*: Rich consumers pay top dollar for luxuries.
 
-## Transaction Limits
-
-- **Max quantity per transaction**: 100 units
-- **Min quantity**: 1 unit
-- Transactions are **atomic** (all-or-nothing)
-
-## Cargo Management
-
-See [INVENTORY.md](INVENTORY.md) for detailed information about the cargo system.
-
-**Quick Summary**:
-- Cargo is stored at the **fleet level**
-- Total capacity = sum of all ships' cargo holds
-- Flagship switching does NOT affect cargo
-
-## Future Features
-
-The following features are planned but not yet implemented:
-
-### Phase 1+
-- **Persistence**: Save cargo and gold to database
-- **Dynamic Pricing**: Supply and demand mechanics
-- **Harbor Inventory**: Limited stock at harbors
-- **Delivery Missions**: Transport goods between harbors
-- **Smuggling**: Contraband detection and penalties
-- **Faction Reputation**: Prices affected by standing
-- **Cargo Transfer**: Move goods between ships
-- **Weight/Volume**: More complex cargo system
-- **Perishable Goods**: Time-sensitive cargo
+6.  **PIRATE HAVEN (Tortuga/Nassau)**
+    -   **Exports**: Rum (Stolen)
+    -   **Imports**: Tobacco, Cloth
+    -   *Strategy*: High risk, high reward.
 
 ## Technical Details
 
-### Server Architecture
-
-The economy uses a **"Harbor Master"** pattern:
-- `EconomySystem.js`: Validates and executes all transactions
-- `HarborRegistry.js`: Resolves harbor trade profiles
-- `Player.js`: Owns gold and fleet cargo
-- `FleetCargo.js`: Manages cargo capacity and inventory
-
-### Socket Protocol
-
-**Client → Server**:
-```javascript
-socket.emit('buyGood', { harborId, goodId, quantity });
-socket.emit('sellGood', { harborId, goodId, quantity });
-```
-
-**Server → Client**:
-```javascript
-socket.emit('transactionResult', { success, message, ... });
-socket.emit('playerStateUpdate', { gold, cargo });
-```
-
-## Tips
-
-- **Buy low, sell high**: Different harbors have different prices
-- **Watch your cargo space**: Each good takes up space
-- **Plan your route**: Trade between harbors with different profiles for profit
-- **Upgrade your fleet**: Larger ships = more cargo capacity
+-   **Config**: `src/server/game/config/GameConfig.js` defines Base Prices and Tiers.
+-   **Profiles**: `assets/harbor_trade_profiles.json` defines goods per region.
+-   **Logic**: `HarborRegistry.js` calculates final prices dynamically.
+-   **Validation**: `EconomySystem.js` handles transactions securely.
