@@ -27,6 +27,7 @@ Phase 0 focuses on **structural scaffolding** rather than content. The goal is t
 **Objective**: Navigate to a specific harbor  
 **Success**: Player enters target harbor  
 **Failure**: Player becomes raft  
+**Reward**: Granted immediately upon docking at target harbor  
 **Keybind**: `1`
 
 #### 2. Stay in Area

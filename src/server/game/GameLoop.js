@@ -490,6 +490,11 @@ class GameLoop {
             console.log(`Player ${player.id} received a new Sloop at ${harbor.name}`);
         }
 
+        // Force mission update to check completion logic IMMEDIATELY
+        // This ensures rewards are granted (and notifications sent) 
+        // BEFORE the client receives the harborData and renders the UI.
+        this.world.missionManager.update(0);
+
         // Send harbor data to client (Phase 0: Economy)
         // Get economy data (may be null if harbor doesn't support trade)
         const economy = this.world.harborRegistry.getHarborEconomy(harbor.id);

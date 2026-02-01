@@ -65,8 +65,39 @@ class EconomySystem {
             };
         }
 
-        // Validation: Quantity must be positive and within limits
-        if (quantity <= 0 || quantity > GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY) {
+        // Validation: Quantity must be positive and within limits (unless -1 for "Buy Max")
+        let finalQuantity = quantity;
+
+        if (quantity === -1) {
+            // "Buy Max" Logic
+            const harborEconomy = this.harborRegistry.getHarborEconomy(harborId);
+            if (!harborEconomy) return { success: false, message: 'Harbor has no economy.' };
+
+            const harborGood = harborEconomy.goods.find(g => g.id === goodId);
+            if (!harborGood || !harborGood.buyPrice) return { success: false, message: 'Good not sold here.' };
+
+            // 1. Calculate max affordable
+            const maxAffordable = Math.floor(player.gold / harborGood.buyPrice);
+
+            // 2. Calculate max cargo space
+            // We need to know specific space per unit. Look up good config.
+            const good = getGood(goodId);
+            const spacePerUnit = good.space || 1;
+            const spaceAvailable = player.fleetCargo.getAvailableSpace();
+            const maxStorable = Math.floor(spaceAvailable / spacePerUnit);
+
+            // 3. Apply transaction limit
+            const limit = GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY;
+
+            finalQuantity = Math.min(maxAffordable, maxStorable, limit); // Cap at 100 for now
+
+            if (finalQuantity <= 0) {
+                return {
+                    success: false,
+                    message: maxAffordable === 0 ? 'Not enough gold.' : 'Not enough cargo space.'
+                };
+            }
+        } else if (quantity <= 0 || quantity > GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY) {
             return {
                 success: false,
                 message: 'Invalid quantity.'
@@ -92,7 +123,7 @@ class EconomySystem {
         }
 
         // Calculate cost
-        const totalCost = harborGood.buyPrice * quantity;
+        const totalCost = harborGood.buyPrice * finalQuantity;
 
         // Validation: Player must have enough gold
         if (player.gold < totalCost) {
@@ -103,8 +134,8 @@ class EconomySystem {
         }
 
         // Validation: Fleet must have cargo space
-        if (!player.fleetCargo.canFit(goodId, quantity)) {
-            const spaceNeeded = good.space * quantity;
+        if (!player.fleetCargo.canFit(goodId, finalQuantity)) {
+            const spaceNeeded = good.space * finalQuantity;
             const spaceAvailable = player.fleetCargo.getAvailableSpace();
             return {
                 success: false,
@@ -114,13 +145,13 @@ class EconomySystem {
 
         // Execute transaction (atomic)
         player.removeGold(totalCost);
-        player.fleetCargo.addGood(goodId, quantity);
+        player.fleetCargo.addGood(goodId, finalQuantity);
 
         return {
             success: true,
-            message: `Bought ${quantity} ${good.name} for ${totalCost} gold.`,
+            message: `Bought ${finalQuantity} ${good.name} for ${totalCost} gold.`,
             goldSpent: totalCost,
-            cargoAdded: { goodId, quantity }
+            cargoAdded: { goodId, quantity: finalQuantity }
         };
     }
 
@@ -129,7 +160,7 @@ class EconomySystem {
      * @param {Object} player - Player entity
      * @param {string} harborId - Harbor ID
      * @param {string} goodId - Good ID
-     * @param {number} quantity - Quantity to sell
+     * @param {number} quantity - Quantity to sell (or -1 for Sell All)
      * @returns {Object} { success, message, goldEarned?, cargoRemoved? }
      */
     sellGood(player, harborId, goodId, quantity) {
@@ -150,8 +181,23 @@ class EconomySystem {
             };
         }
 
-        // Validation: Quantity must be positive and within limits
-        if (quantity <= 0 || quantity > GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY) {
+        // Determine quantity
+        let finalQuantity = quantity;
+
+        if (quantity === -1) {
+            // "Sell All" Logic
+            const currentStock = player.fleetCargo.getQuantity(goodId);
+            const limit = GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY;
+
+            finalQuantity = Math.min(currentStock, limit);
+
+            if (finalQuantity <= 0) {
+                return {
+                    success: false,
+                    message: "You don't have any of this good."
+                };
+            }
+        } else if (quantity <= 0 || quantity > GameConfig.ECONOMY.MAX_TRANSACTION_QUANTITY) {
             return {
                 success: false,
                 message: 'Invalid quantity.'
@@ -159,7 +205,7 @@ class EconomySystem {
         }
 
         // Validation: Player must have the goods
-        if (player.fleetCargo.getQuantity(goodId) < quantity) {
+        if (player.fleetCargo.getQuantity(goodId) < finalQuantity) {
             return {
                 success: false,
                 message: `You don't have enough ${good.name}.`
@@ -185,17 +231,17 @@ class EconomySystem {
         }
 
         // Calculate revenue
-        const totalRevenue = harborGood.sellPrice * quantity;
+        const totalRevenue = harborGood.sellPrice * finalQuantity;
 
         // Execute transaction (atomic)
-        player.fleetCargo.removeGood(goodId, quantity);
+        player.fleetCargo.removeGood(goodId, finalQuantity);
         player.addGold(totalRevenue);
 
         return {
             success: true,
-            message: `Sold ${quantity} ${good.name} for ${totalRevenue} gold.`,
+            message: `Sold ${finalQuantity} ${good.name} for ${totalRevenue} gold.`,
             goldEarned: totalRevenue,
-            cargoRemoved: { goodId, quantity }
+            cargoRemoved: { goodId, quantity: finalQuantity }
         };
     }
 }

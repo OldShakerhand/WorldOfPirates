@@ -8,18 +8,23 @@ The economy system enables players to buy and sell goods at harbors. Prices are 
 
 ### How to Trade
 
+### How to Trade
+
 1.  **Dock at a harbor** (Press `H` near a harbor).
 2.  **Open Trade Goods** in the UI.
 3.  **Buy Low (Green Badge)**: Look for goods marked **CHEAP**.
 4.  **Sell High (Orange Badge)**: Look for goods marked **EXPENSIVE**.
-5.  **Select Quantity** and transact.
+5.  **Select Quantity** or use **Buy All / Sell All**:
+    - **Buy All**: Purchases maximum amount based on Gold and Cargo Space.
+    - **Sell All**: Sells entire inventory of selected good.
 
 ### Validation
 
-Trades are validated server-side:
+Trades are validated **server-side** (Authoritative):
 -   ✅ Docked at harbor.
 -   ✅ Sufficient Gold (Buy) / Cargo (Sell).
 -   ✅ Good available in harbor.
+-   ✅ Transaction limits (cap at 100 items per request).
 
 ## Goods & Pricing
 

@@ -934,15 +934,30 @@ function renderTradeInterface(economy, cargo) {
                            value="1" 
                            min="1" 
                            max="100">
-                    <button class="trade-btn buy" 
-                            onclick="buyGood('${good.id}')">
-                        Buy
-                    </button>
-                    <button class="trade-btn sell" 
-                            onclick="sellGood('${good.id}')"
-                            ${playerQuantity === 0 ? 'disabled' : ''}>
-                        Sell
-                    </button>
+                    <div class="trade-btn-group">
+                        <button class="trade-btn buy" 
+                                onclick="buyGood('${good.id}')">
+                            Buy
+                        </button>
+                        <button class="trade-btn buy-all" 
+                                title="Buy Max"
+                                onclick="buyAll('${good.id}', ${good.buyPrice})">
+                            All
+                        </button>
+                    </div>
+                    <div class="trade-btn-group">
+                        <button class="trade-btn sell" 
+                                onclick="sellGood('${good.id}')"
+                                ${playerQuantity === 0 ? 'disabled' : ''}>
+                            Sell
+                        </button>
+                        <button class="trade-btn sell-all" 
+                                title="Sell All"
+                                onclick="sellAll('${good.id}')"
+                                ${playerQuantity === 0 ? 'disabled' : ''}>
+                            All
+                        </button>
+                    </div>
                 </div>
             </div>
         `;

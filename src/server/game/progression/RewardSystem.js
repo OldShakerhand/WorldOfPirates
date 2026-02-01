@@ -42,6 +42,20 @@ class RewardSystem {
         // Apply gold
         if (reward.gold > 0) {
             player.addGold(reward.gold);
+
+            // Notify client of gold update
+            if (player.io) {
+                // Update state
+                player.io.to(player.id).emit('playerStateUpdate', {
+                    gold: player.gold
+                });
+
+                // Show notification
+                player.io.to(player.id).emit('transactionResult', {
+                    success: true,
+                    message: `Mission Reward: ${reward.gold} gold!`
+                });
+            }
         }
 
         // Apply XP

@@ -257,12 +257,20 @@ function setupGameListeners() {
 
         // Re-enable/disable sell buttons based on cargo
         if (state.cargo && state.cargo.goods) {
-            for (const goodId in state.cargo.goods) {
-                const sellBtn = document.querySelector(`button[onclick="sellGood('${goodId}')"]`);
-                if (sellBtn) {
-                    sellBtn.disabled = state.cargo.goods[goodId] === 0;
+
+            // Loop through all goods in the cargo (and potentially others if we had a full list)
+            // Ideally we iterate over all DOM elements for goods
+            const allSellButtons = document.querySelectorAll('.trade-btn.sell, .trade-btn.sell-all');
+
+            allSellButtons.forEach(btn => {
+                // Extract goodId from onclick attribute: sellGood('GOOD_ID') or sellAll('GOOD_ID')
+                const match = btn.getAttribute('onclick').match(/sell(?:Good|All)\('(.+?)'\)/);
+                if (match && match[1]) {
+                    const goodId = match[1];
+                    const qty = state.cargo.goods[goodId] || 0;
+                    btn.disabled = (qty === 0);
                 }
-            }
+            });
         }
     });
 }
@@ -414,16 +422,24 @@ function upgradeShip() {
 }
 
 // Trade functions (Phase 0: Economy)
-function buyGood(goodId) {
+// Trade functions (Phase 0: Economy)
+function buyGood(goodId, quantityOverride) {
     if (!window.currentHarborId) {
         console.error('[Trade] No harbor ID available');
         return;
     }
 
-    const quantityInput = document.getElementById(`qty-${goodId}`);
-    const quantity = parseInt(quantityInput.value) || 1;
+    let quantity;
+    if (quantityOverride !== undefined) {
+        quantity = quantityOverride;
+    } else {
+        const quantityInput = document.getElementById(`qty-${goodId}`);
+        quantity = parseInt(quantityInput.value) || 1;
+    }
 
-    console.log(`[Trade] Buying ${quantity}x ${goodId} at ${window.currentHarborId}`);
+    const qtyDisplay = quantity === -1 ? "ALL" : quantity;
+    console.log(`[Trade] Buying ${qtyDisplay}x ${goodId} at ${window.currentHarborId}`);
+
     socket.emit('buyGood', {
         harborId: window.currentHarborId,
         goodId: goodId,
@@ -431,16 +447,23 @@ function buyGood(goodId) {
     });
 }
 
-function sellGood(goodId) {
+function sellGood(goodId, quantityOverride) {
     if (!window.currentHarborId) {
         console.error('[Trade] No harbor ID available');
         return;
     }
 
-    const quantityInput = document.getElementById(`qty-${goodId}`);
-    const quantity = parseInt(quantityInput.value) || 1;
+    let quantity;
+    if (quantityOverride !== undefined) {
+        quantity = quantityOverride;
+    } else {
+        const quantityInput = document.getElementById(`qty-${goodId}`);
+        quantity = parseInt(quantityInput.value) || 1;
+    }
 
-    console.log(`[Trade] Selling ${quantity}x ${goodId} at ${window.currentHarborId}`);
+    const qtyDisplay = quantity === -1 ? "ALL" : quantity;
+    console.log(`[Trade] Selling ${qtyDisplay}x ${goodId} at ${window.currentHarborId}`);
+
     socket.emit('sellGood', {
         harborId: window.currentHarborId,
         goodId: goodId,
@@ -455,6 +478,28 @@ window.switchFlagship = switchFlagship;
 window.upgradeShip = upgradeShip;
 window.buyGood = buyGood;
 window.sellGood = sellGood;
+
+// Buy Max Logic
+function buyAll(goodId, price) {
+    if (!window.gameState || !window.myPlayerId) return;
+
+    // Just send intent (-1 for Max)
+    // Server validation handles affordability and space
+    buyGood(goodId, -1);
+}
+
+// Sell All Logic
+function sellAll(goodId) {
+    if (!window.gameState || !window.myPlayerId) return;
+
+    // Just send intent (-1 for All)
+    // Server validation handles inventory check
+    sellGood(goodId, -1);
+}
+
+window.buyAll = buyAll;
+window.sellAll = sellAll;
+
 
 /**
  * Update sound system based on game state

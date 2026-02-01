@@ -409,6 +409,49 @@ canvas {
     font-size: 12px;
 }
 
+.trade-btn-group {
+    display: flex;
+    margin: 0 2px;
+}
+
+.trade-btn-group .trade-btn {
+    border-radius: 0;
+}
+
+.trade-btn-group .trade-btn:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-right: none;
+}
+
+.trade-btn-group .trade-btn:last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    width: 30px;
+    /* Fixed width for "All" */
+    padding: 4px 0;
+    /* Center text */
+    font-weight: bold;
+}
+
+.trade-btn.buy-all {
+    background: #27ae60;
+    /* Darker green */
+}
+
+.trade-btn.buy-all:hover:not(:disabled) {
+    background: #1e8449;
+}
+
+.trade-btn.sell-all {
+    background: #c0392b;
+    /* Darker red */
+}
+
+.trade-btn.sell-all:hover:not(:disabled) {
+    background: #922b21;
+}
+
 /* Trade Tiers */
 .tier-badge {
     display: inline-block;
