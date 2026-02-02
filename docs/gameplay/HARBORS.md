@@ -164,6 +164,37 @@ node tools/import_harbors.js "images/WOP - Harbors.csv" assets/harbors.json
 
 ---
 
+## Harbor Visualization
+
+### Overview
+Harbors are visualized using the `harbor_big.png` sprite, positioned and oriented based on the coastline. The system automatically detects the nearest water (when starting on land) or land (when starting in water) to place the harbor correctly.
+
+### Coastline Detection
+- **Algorithm:** Scans in 4 directions (N, E, S, W) up to 10 tiles distance.
+- **Logic:**
+  1. Checks if the initial harbor position is on **LAND** or **WATER**.
+  2. If on **LAND**: Searches for the nearest **WATER** tile and moves the harbor **TO** the coastline.
+  3. If in **WATER**: Searches for the nearest **LAND** tile and anchors the harbor there.
+- **Result:** Calculates a `rotation` (radians) and applies an offset to `harbor.x` and `harbor.y`.
+
+### Rendering
+- **Sprite:** `harbor_big.png` (opening/dock inlet faces **BOTTOM/SOUTH** in the image).
+- **Position:** 
+  - The logic position (`harbor.x`, `harbor.y`) is moved to the shoreline.
+  - The sprite is anchored at its **bottom-center** (the dock inlet), placing the dock at the exact shoreline position.
+- **Rotation:** Determined by the coastline algorithm.
+  - North Coast: Sprite faces South (0 rad)
+  - East Coast: Sprite faces West (PI/2 rad)
+  - South Coast: Sprite faces North (PI rad)
+  - West Coast: Sprite faces East (3PI/2 rad)
+- **Offset:** A "land-ward" offset (approx 40px) is applied along the rotated X-axis to shift the sprite slightly "inwards", ensuring the docks sit in shallow water while the buildings sit on land.
+
+### Known Issues
+- **Small Islands:** Some harbors on very small islands (e.g., `villa_hermosa`, `grand_turk`) may fail to find a coastline within the 10-tile search radius. These default to 0 rotation and no offset.
+- **Complex Terrain:** Harbors in deep bays or on peninsulas might detect the "wrong" side of the coast if it's closer than the intended harbor entrance.
+
+---
+
 ## HarborRegistry API
 
 ### Constructor

@@ -74,6 +74,10 @@ function preloadShipSprites() {
     // Load Wreck Sprite
     shipImages['Wreck'] = new Image();
     shipImages['Wreck'].src = '/assets/wreck.png';
+
+    // Load Harbor Sprite
+    shipImages['Harbor'] = new Image();
+    shipImages['Harbor'].src = '/assets/harbor_big.png';
 }
 
 // Call preload immediately
@@ -563,22 +567,70 @@ function drawIslandWithShallowWater(island) {
 function drawHarbor(harbor) {
     ctx.save();
 
-    // Draw dock/pier (simple rectangle) - Scaled 3x (60x120)
-    ctx.fillStyle = '#808080'; // TEMPORARY: Grey for better visualization during testing
-    ctx.fillRect(harbor.x - 30, harbor.y - 60, 60, 120);
+    const harborX = harbor.x;
+    const harborY = harbor.y;
+    const rotation = harbor.rotation || 0;
 
-    // Draw outline
-    ctx.strokeStyle = '#654321';
+    // Get harbor sprite
+    const harborSprite = shipImages['Harbor'];
+    const spriteLoaded = harborSprite && harborSprite.complete && harborSprite.naturalWidth > 0;
+
+    // Transform to harbor position
+    ctx.translate(harborX, harborY);
+    ctx.rotate(rotation);
+
+    // DEBUG: Draw rectangle FIRST (below sprite)
+    // Uncomment to see the logic / collision box
+    /*
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+    ctx.fillRect(-30, -60, 60, 120);
+    ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
-    ctx.strokeRect(harbor.x - 30, harbor.y - 60, 60, 120);
+    ctx.strokeRect(-30, -60, 60, 120);
 
-    // Draw harbor name (small text)
-    ctx.fillStyle = 'white';
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(harbor.name, harbor.x, harbor.y - 25);
+    // Center point marker
+    ctx.fillStyle = 'yellow';
+    ctx.beginPath();
+    ctx.arc(0, 0, 5, 0, Math.PI * 2);
+    ctx.fill();
+    */
+
+    // Draw harbor sprite ON TOP
+    if (spriteLoaded) {
+        // Scale to fit (similar to debug rectangle size)
+        const scale = 0.20;  // Smaller to match rectangle better
+        const spriteWidth = harborSprite.naturalWidth * scale;
+        const spriteHeight = harborSprite.naturalHeight * scale;
+
+        // Center the sprite on the rotation point (same as rectangle)
+        // Shift +X to move towards land (the 'back' of the harbor)
+        const landOffset = 40;
+
+        ctx.drawImage(
+            harborSprite,
+            -spriteWidth / 2 + landOffset,
+            -spriteHeight / 2,
+            spriteWidth,
+            spriteHeight
+        );
+    }
 
     ctx.restore();
+
+    // Draw harbor name (no transform needed)
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 3;
+    ctx.strokeText(harbor.name, harborX, harborY - 70);
+    ctx.fillText(harbor.name, harborX, harborY - 70);
+
+    // DEBUG: Log once
+    if (!harbor._logged) {
+        console.log(`[drawHarbor] ${harbor.name}: pos(${harborX.toFixed(0)}, ${harborY.toFixed(0)}), rot=${(rotation * 180 / Math.PI).toFixed(0)}°, spriteLoaded=${spriteLoaded}`);
+        harbor._logged = true;
+    }
 }
 
 function drawWindrose(wind) {

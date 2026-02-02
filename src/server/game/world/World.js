@@ -38,8 +38,9 @@ class World {
         );
 
         // Create Harbor instances from registry data
+        // Pass worldMap for coastline detection (visual placement)
         this.harbors = this.harborRegistry.getAllHarbors().map(data =>
-            new Harbor(data.id, this.createIslandStub(data), data.name)
+            new Harbor(data.id, this.createIslandStub(data), data.name, this.worldMap)
         );
 
         // NPC Manager (Phase 1: Trader NPCs)
@@ -70,12 +71,15 @@ class World {
     /**
      * Create island stub for Harbor compatibility
      * Converts tile coordinates to world coordinates
+     * Includes tile coordinates for coastline detection
      */
     createIslandStub(harborData) {
         return {
             id: harborData.id,
             x: harborData.tileX * GAME.TILE_SIZE,
             y: harborData.tileY * GAME.TILE_SIZE,
+            tileX: harborData.tileX,
+            tileY: harborData.tileY,
             radius: 50
         };
     }
