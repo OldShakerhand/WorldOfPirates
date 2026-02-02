@@ -625,12 +625,6 @@ function drawHarbor(harbor) {
     ctx.lineWidth = 3;
     ctx.strokeText(harbor.name, harborX, harborY - 70);
     ctx.fillText(harbor.name, harborX, harborY - 70);
-
-    // DEBUG: Log once
-    if (!harbor._logged) {
-        console.log(`[drawHarbor] ${harbor.name}: pos(${harborX.toFixed(0)}, ${harborY.toFixed(0)}), rot=${(rotation * 180 / Math.PI).toFixed(0)}°, spriteLoaded=${spriteLoaded}`);
-        harbor._logged = true;
-    }
 }
 
 function drawWindrose(wind) {

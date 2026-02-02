@@ -142,7 +142,7 @@ class Harbor {
             this.visualOffsetY = best.dir.dy * offsetTiles * GAME.TILE_SIZE;
         }
 
-        console.log(`[Harbor] ${this.id}: onLand=${onLand}, coast=${best.dir.name}, dist=${best.distance}, rotation=${(this.rotation * 180 / Math.PI).toFixed(0)}°, offset=(${this.visualOffsetX}, ${this.visualOffsetY})`);
+        // console.log(`[Harbor] ${this.id}: onLand=${onLand}, coast=${best.dir.name}, dist=${best.distance}, rotation=${(this.rotation * 180 / Math.PI).toFixed(0)}°, offset=(${this.visualOffsetX}, ${this.visualOffsetY})`);
     }
 
     generateName() {
