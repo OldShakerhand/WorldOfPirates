@@ -77,7 +77,7 @@ function preloadShipSprites() {
 
     // Load Harbor Sprite
     shipImages['Harbor'] = new Image();
-    shipImages['Harbor'].src = '/assets/harbor_big.png';
+    shipImages['Harbor'].src = '/assets/harbor_small.png';
 }
 
 // Call preload immediately
@@ -579,9 +579,42 @@ function drawHarbor(harbor) {
     ctx.translate(harborX, harborY);
     ctx.rotate(rotation);
 
-    // DEBUG: Draw rectangle FIRST (below sprite)
-    // Uncomment to see the logic / collision box
+    // Draw harbor sprite FIRST (so debug rect is on top)
+    if (spriteLoaded) {
+        // Scale to fit: 75% of original 0.5 = 0.375
+        // Scale to fit: 0.35 (Golden Middle)
+        const scale = 0.35;
+        const spriteWidth = harborSprite.naturalWidth * scale;
+        const spriteHeight = harborSprite.naturalHeight * scale;
+
+        // Apply 90 degree rotation (PI/2) for sprite orientation
+        ctx.rotate(Math.PI / 2);
+
+        // Center on rotation point
+        // Move South (Inwards): -Y axis
+        const landOffset = -65;
+
+        ctx.drawImage(
+            harborSprite,
+            -spriteWidth / 2,
+            -spriteHeight / 2 + landOffset, // -65 moves South
+            spriteWidth,
+            spriteHeight
+        );
+
+        // Restore context rotation for debug rect!
+        // Actually, we restore the whole context below anyway right after this block.
+        // But the debug rect code follows immediately inside the loop? 
+        // No, debug rect code is after the 'if' block.
+        ctx.rotate(-Math.PI / 2);
+    }
+
+    // DEBUG: Draw rectangle ON TOP (Commented out for production as requested)
     /*
+    // Move Outwards (North = -X in Rot90 frame)
+    ctx.save();
+    ctx.translate(-40, 0);
+
     ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
     ctx.fillRect(-30, -60, 60, 120);
     ctx.strokeStyle = 'red';
@@ -593,27 +626,9 @@ function drawHarbor(harbor) {
     ctx.beginPath();
     ctx.arc(0, 0, 5, 0, Math.PI * 2);
     ctx.fill();
+
+    ctx.restore(); // Restore translation
     */
-
-    // Draw harbor sprite ON TOP
-    if (spriteLoaded) {
-        // Scale to fit (similar to debug rectangle size)
-        const scale = 0.20;  // Smaller to match rectangle better
-        const spriteWidth = harborSprite.naturalWidth * scale;
-        const spriteHeight = harborSprite.naturalHeight * scale;
-
-        // Center the sprite on the rotation point (same as rectangle)
-        // Shift +X to move towards land (the 'back' of the harbor)
-        const landOffset = 40;
-
-        ctx.drawImage(
-            harborSprite,
-            -spriteWidth / 2 + landOffset,
-            -spriteHeight / 2,
-            spriteWidth,
-            spriteHeight
-        );
-    }
 
     ctx.restore();
 
@@ -623,8 +638,9 @@ function drawHarbor(harbor) {
     ctx.textAlign = 'center';
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 3;
-    ctx.strokeText(harbor.name, harborX, harborY - 70);
-    ctx.fillText(harbor.name, harborX, harborY - 70);
+    // Move text closer (was -70, now -40)
+    ctx.strokeText(harbor.name, harborX, harborY - 40);
+    ctx.fillText(harbor.name, harborX, harborY - 40);
 }
 
 function drawWindrose(wind) {
