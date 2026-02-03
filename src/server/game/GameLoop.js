@@ -158,7 +158,7 @@ class GameLoop {
         }
 
         // Pass io and world references for kill message emission
-        const player = new Player(socket.id, playerName, 'FRIGATE', this.io, this.world);
+        const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
 
         // DEBUG ONLY: Track player join for early-session collision diagnosis
         // NO gameplay behavior change

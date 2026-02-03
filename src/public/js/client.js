@@ -321,7 +321,7 @@ document.addEventListener('keydown', (e) => {
         case 'd': keys.turnRight = true; break;
         case 'q': keys.shootLeft = true; break;
         case 'e': keys.shootRight = true; break;
-        case 'h':
+        case 'f':
             socket.emit('enterHarbor');
             break;
         case 'n':
