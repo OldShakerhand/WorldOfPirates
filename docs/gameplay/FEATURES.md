@@ -53,7 +53,7 @@ This document tracks the implementation status of all features in World of Pirat
 
 ### Harbor System
 - [x] **141 Historical Harbors** - Accurate Caribbean/Gulf of Mexico harbor locations
-- [x] **Harbor Docking** - Enter harbors with H key when in range (200px)
+- [x] **Harbor Docking** - Enter harbors with F key when in range (200px)
 - [x] **Ship Repair** - Repair flagship to full health while docked
 - [x] **Raft Upgrade** - Receive free Sloop when entering harbor on a raft
 - [x] **Flagship Switching in Harbor** - Change flagship while docked

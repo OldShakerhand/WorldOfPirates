@@ -491,7 +491,7 @@ function renderGame(state, mapData, myId) {
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
             ctx.textAlign = 'center';
-            const text = 'Press H to enter harbor';
+            const text = 'Press F to enter harbor';
             ctx.strokeText(text, canvas.width / 2, canvas.height - 50);
             ctx.fillText(text, canvas.width / 2, canvas.height - 50);
             ctx.restore();

@@ -84,7 +84,7 @@ Harbors with a `harborTradeId` support buying and selling goods.
 
 ### How to Trade
 
-1. Dock at a harbor (press `H`)
+1. Dock at a harbor (press `F`)
 2. Open the **Trade Goods** section in the harbor UI
 3. Select quantity and click **Buy** or **Sell**
 

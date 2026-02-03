@@ -154,7 +154,7 @@ This document tracks all notable changes to World of Pirates across versions. It
   - See: [`World.js`](file:///c:/Development/WorldOfPirates/src/server/game/World.js), [`Wind.js`](file:///c:/Development/WorldOfPirates/src/server/game/Wind.js), [`Island.js`](file:///c:/Development/WorldOfPirates/src/server/game/Island.js)
 
 - **Harbor System**
-  - Harbor docking (H key when in range)
+  - Harbor docking (F key when in range)
   - Ship repair to full health
   - Free Sloop for players on rafts
   - 10-second invulnerability shield when leaving harbor

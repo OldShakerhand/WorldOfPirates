@@ -10,7 +10,7 @@ The economy system enables players to buy and sell goods at harbors. Prices are 
 
 ### How to Trade
 
-1.  **Dock at a harbor** (Press `H` near a harbor).
+1.  **Dock at a harbor** (Press `F` near a harbor).
 2.  **Open Trade Goods** in the UI.
 3.  **Buy Low (Green Badge)**: Look for goods marked **CHEAP**.
 4.  **Sell High (Orange Badge)**: Look for goods marked **EXPENSIVE**.

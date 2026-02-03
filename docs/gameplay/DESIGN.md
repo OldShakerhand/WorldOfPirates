@@ -164,7 +164,7 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 
 **Safe Zones** (See: [`Harbor.js`](file:///c:/Development/WorldOfPirates/src/server/game/world/Harbor.js))
 - Harbors located at each island
-- Enter harbor (H key) when in range
+- Enter harbor (F key) when in range
 - While docked:
   - Ship is stationary and safe
   - Can repair flagship to full health
