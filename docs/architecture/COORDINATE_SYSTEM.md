@@ -467,7 +467,75 @@ Log world coordinates to verify positioning:
 console.log(`Cannon at (${cannonX.toFixed(1)}, ${cannonY.toFixed(1)})`);
 ```
 
+
+## Harbor Coordinate System
+
+### Overview
+
+Harbors use a **mixed coordinate system** that differs between sprite rendering and world positioning. This inconsistency can cause confusion when working with harbor-related features.
+
+### World Positioning (Standard)
+
+Harbor positions and player spawn locations use **standard screen coordinates**:
+- `+X` = East (right)
+- `+Y` = South (down)  
+- `-Y` = North (up)
+
+**Example - Harbor Exit Spawn:**
+```javascript
+// Spawn player North of harbor (toward water)
+player.x = harbor.x;
+player.y = harbor.y - GAME.HARBOR_SPAWN_DISTANCE; // -Y = North
+```
+
+### Sprite Rendering Offsets (Rotated)
+
+Harbor sprite rendering uses **rotated coordinates** due to `ctx.rotate(Math.PI / 2)` transform:
+- `-Y` offset = moves sprite South (toward land)
+- `+Y` offset = moves sprite North (toward water)
+
+**Example - Harbor Sprite Positioning:**
+```javascript
+// In game.js, after rotation
+const landOffset = -65; // Negative Y moves sprite South onto land
+ctx.drawImage(harborSprite, x, y + landOffset, ...);
+```
+
+### Harbor Orientation
+
+After rotation, harbor sprites are oriented as follows:
+- **Houses** (top of original sprite) point **South** toward land
+- **Pier** (bottom of original sprite) points **North** toward water
+- Harbor center is positioned at the **shoreline** (land/water boundary)
+
+### Current Implementation
+
+**Harbor Sprite** ([game.js](file:///C:/Development/WorldOfPirates/src/public/js/game.js)):
+- Scale: `0.35`
+- Offset: `-65px` (South/toward land)
+- Rotation: `90°` (PI/2 radians)
+
+**Harbor Exit Spawn** ([GameLoop.js](file:///C:/Development/WorldOfPirates/src/server/game/GameLoop.js)):
+- Distance: `120px` from harbor
+- Direction: `harbor.rotation + Math.PI` (opposite of land direction, toward water)
+- Uses trigonometry: `x = harbor.x + cos(angle) * distance`, `y = harbor.y + sin(angle) * distance`
+- Adapts to each harbor's unique coastline orientation
+
+### Known Issues
+
+> [!WARNING]
+> **Coordinate System Inconsistency**
+> 
+> The Y-axis direction is **inverted** between sprite rendering and world positioning:
+> - Sprite offsets: `-Y` = South (land)
+> - World positions: `-Y` = North (water)
+> 
+> This is due to the `ctx.rotate(Math.PI / 2)` transform applied during rendering.
+> See [DEBT.md](file:///C:/Development/WorldOfPirates/docs/meta/DEBT.md) for planned alignment refactor.
+
 ---
+
+
 
 ## Version History
 

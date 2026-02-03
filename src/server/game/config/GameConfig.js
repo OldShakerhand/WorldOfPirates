@@ -50,7 +50,7 @@ const GameConfig = {
 
         // Harbor - Adjusted for 3x larger visual docks (60x120px)
         HARBOR_INTERACTION_RADIUS: 80, // Was 30. Visual extends 60px from center.
-        HARBOR_SPAWN_DISTANCE: 150, // Was 50. Must be outside visual bounds.
+        HARBOR_SPAWN_DISTANCE: 120, // Distance North of harbor to spawn when exiting (toward water)
 
         // Player spawn (Nassau area - Bahamas, many nearby harbors)
         PLAYER_SPAWN_MIN: 80000,      // Center X: Nassau area (tileX ~3466 * 25 = 86,650)

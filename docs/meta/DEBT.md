@@ -125,6 +125,15 @@ Track magic numbers, hardcoded heuristics, and scaling issues that should be add
 **When**: When balancing wind impact on gameplay  
 **Impact**: LOW - gameplay tuning
 
+### TECH_DEBT_012: Harbor Coordinate System Inconsistency
+**File**: `game.js:585-603`, `GameLoop.js:665-667`  
+**Type**: Architecture Issue  
+**Why**: Y-axis inverted between sprite rendering (-Y = South) and world positioning (-Y = North) due to rotation transform  
+**Refactor**: Standardize on world coordinates everywhere, apply rotation transforms properly so offsets use consistent coordinate system  
+**When**: Before adding more harbor features or when coordinate confusion causes bugs  
+**Impact**: MEDIUM - affects maintainability and future harbor feature development  
+**Details**: See [COORDINATE_SYSTEM.md - Harbor Coordinate System](file:///C:/Development/WorldOfPirates/docs/architecture/COORDINATE_SYSTEM.md#harbor-coordinate-system)
+
 ---
 
 ## Refactoring Roadmap
