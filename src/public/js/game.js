@@ -579,9 +579,8 @@ function drawHarbor(harbor) {
     ctx.translate(harborX, harborY);
     ctx.rotate(rotation);
 
-    // Draw harbor sprite FIRST (so debug rect is on top)
+    // Draw harbor sprite
     if (spriteLoaded) {
-        // Scale to fit: 75% of original 0.5 = 0.375
         // Scale to fit: 0.35 (Golden Middle)
         const scale = 0.35;
         const spriteWidth = harborSprite.naturalWidth * scale;
@@ -591,8 +590,8 @@ function drawHarbor(harbor) {
         ctx.rotate(Math.PI / 2);
 
         // Center on rotation point
-        // Move South (Inwards): -Y axis
-        const landOffset = -65;
+        // Move toward land: 4 tiles = 100px (opposite of exit direction)
+        const landOffset = -100;
 
         ctx.drawImage(
             harborSprite,
@@ -602,32 +601,22 @@ function drawHarbor(harbor) {
             spriteHeight
         );
 
-        // Restore context rotation for debug rect!
-        // Actually, we restore the whole context below anyway right after this block.
-        // But the debug rect code follows immediately inside the loop? 
-        // No, debug rect code is after the 'if' block.
         ctx.rotate(-Math.PI / 2);
     }
 
-    // DEBUG: Draw rectangle ON TOP (Commented out for production as requested)
+    // DEBUG: Docking rectangle (commented out for production)
     /*
-    // Move Outwards (North = -X in Rot90 frame)
     ctx.save();
-    ctx.translate(-40, 0);
-
     ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
     ctx.fillRect(-30, -60, 60, 120);
     ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.strokeRect(-30, -60, 60, 120);
-
-    // Center point marker
-    ctx.fillStyle = 'yellow';
+    ctx.fillStyle = 'lime';
     ctx.beginPath();
-    ctx.arc(0, 0, 5, 0, Math.PI * 2);
+    ctx.arc(0, 0, 8, 0, Math.PI * 2);
     ctx.fill();
-
-    ctx.restore(); // Restore translation
+    ctx.restore();
     */
 
     ctx.restore();

@@ -56,9 +56,6 @@ This document defines the coordinate systems, rotation conventions, and spatial 
 ### Axes
 - **X-axis**: Horizontal, increases to the **right**
 - **Y-axis**: Vertical, increases **downward** (standard canvas coordinates)
-- **Origin**: Top-left corner at `(0, 0)`
-- **World Size**: 2000 × 2000 pixels
-
 ### Coordinate Space
 ```
 (0,0) ────────────────────► X
@@ -69,6 +66,30 @@ This document defines the coordinate systems, rotation conventions, and spatial 
   ▼
   Y
 ```
+
+---
+
+## Harbor Positioning & Offsets
+
+Harbor positioning separates logical game mechanics from visual representation to ensure valid docking while maintaining aesthetic alignment with coastlines.
+
+### Logical Position (Server)
+- **Coordinate**: `harbor.x`, `harbor.y` (derived from `tileX`, `tileY`)
+- **Location**: Center of the **shallow water** band.
+- **Purpose**: Validates docking/undocking, interaction radius checks, and AI navigation.
+- **Invariant**: Must always be on a valid water/shallow tile.
+
+### Visual Position (Client)
+- **Sprite**: `harbor_big.png` (rotated based on `exitDirection`)
+- **Offset**: Harbors are rendered with a **4-tile (100px) offset toward land**.
+- **Transformation**:
+  ```javascript
+  // Move logic position to land-ward visual position
+  transform.translate(harbor.x, harbor.y);
+  transform.rotate(rotation);
+  transform.translate(0, -100); // -100px along local Y (inward/land)
+  ```
+- **Result**: The "dock" visual extends from land into the water, with the logical dock point sitting in the water at the end of the pier.
 
 ---
 

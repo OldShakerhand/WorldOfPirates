@@ -98,6 +98,14 @@ Track magic numbers, hardcoded heuristics, and scaling issues that should be add
 **Type**: Magic Number  
 **Why**: 0.5 for half sails doesn't allow ship-specific tuning  
 **Refactor**: Move to `ShipClass` properties or `PhysicsConfig`  
+
+### TECH_DEBT_006: Hardcoded Harbor Visual Config
+**File**: `game.js:594`
+**Type**: Configuration
+**Why**: Visual offsets (-100px) and scale (0.35) are hardcoded in render loop
+**Refactor**: Move to `ClientConfig.js` or `HarborConfig.js`
+**When**: When adding more harbor types or customizable visuals
+**Impact**: LOW - visual only  
 **When**: When different ship types need different sail efficiency curves  
 **Impact**: LOW - nice-to-have for ship variety
 

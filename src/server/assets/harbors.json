@@ -2,7 +2,7 @@
   {
     "id": "abaco",
     "name": "Abaco",
-    "tileX": 1679,
+    "tileX": 1681,
     "tileY": 349,
     "lat": 28.35,
     "lon": -77.35,
@@ -13,7 +13,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "andros",
@@ -29,7 +33,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "anguilla",
@@ -45,13 +53,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "antigua",
     "name": "Antigua",
     "tileX": 2783,
-    "tileY": 997,
+    "tileY": 995,
     "lat": 16.93,
     "lon": -62.74,
     "nation": "england",
@@ -61,13 +73,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "arecibo",
     "name": "Arecibo",
     "tileX": 2422,
-    "tileY": 912,
+    "tileY": 914,
     "lat": 18.6,
     "lon": -67.43,
     "nation": "spain",
@@ -77,13 +93,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "armanuelles",
     "name": "Armanuelles",
     "tileX": 1342,
-    "tileY": 1679,
+    "tileY": 1681,
     "lat": 5.28,
     "lon": -81.59,
     "nation": "spain",
@@ -93,7 +113,11 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "aruba",
@@ -109,13 +133,17 @@
       "shipyardMax": "barque",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "baracoa",
     "name": "Baracoa",
-    "tileX": 1875,
-    "tileY": 774,
+    "tileX": 1874,
+    "tileY": 775,
     "lat": 21.03,
     "lon": -74.61,
     "nation": "spain",
@@ -125,13 +153,17 @@
       "shipyardMax": "merchant",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "barbados",
     "name": "Barbados",
-    "tileX": 2940,
-    "tileY": 1292,
+    "tileX": 2930,
+    "tileY": 1306,
     "lat": 11.84,
     "lon": -60.7,
     "nation": "england",
@@ -141,13 +173,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "barbuda",
     "name": "Barbuda",
     "tileX": 2780,
-    "tileY": 970,
+    "tileY": 972,
     "lat": 17.55,
     "lon": -62.77,
     "nation": "england",
@@ -157,13 +193,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "barcelona",
     "name": "Barcelona",
-    "tileX": 2575,
-    "tileY": 1517,
+    "tileX": 2576,
+    "tileY": 1518,
     "lat": 7.94,
     "lon": -65.54,
     "nation": "spain",
@@ -173,13 +213,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "basseterre",
     "name": "Basse-Terre",
-    "tileX": 2794,
-    "tileY": 1078,
+    "tileX": 2788,
+    "tileY": 1073,
     "lat": 15.52,
     "lon": -62.68,
     "nation": "france",
@@ -189,13 +233,17 @@
       "shipyardMax": "barque",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "belize_city",
     "name": "Belize City",
-    "tileX": 888,
-    "tileY": 976,
+    "tileX": 890,
+    "tileY": 987,
     "lat": 17.51,
     "lon": -87.84,
     "nation": "portugal",
@@ -205,7 +253,11 @@
       "shipyardMax": "frigate",
       "jobShipType": "barque"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "bermuda",
@@ -221,13 +273,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "bluefields",
     "name": "Bluefields",
     "tileX": 1210,
-    "tileY": 1363,
+    "tileY": 1361,
     "lat": 10.42,
     "lon": -83.59,
     "nation": "england",
@@ -237,13 +293,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "bonaire",
     "name": "Bonaire",
-    "tileX": 2312,
-    "tileY": 1368,
+    "tileX": 2306,
+    "tileY": 1385,
     "lat": 10.55,
     "lon": -68.93,
     "nation": "holland",
@@ -253,13 +313,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "caibarian",
     "name": "Caibarian",
-    "tileX": 1515,
-    "tileY": 610,
+    "tileX": 1514,
+    "tileY": 611,
     "lat": 23.77,
     "lon": -79.46,
     "nation": "spain",
@@ -269,13 +333,17 @@
       "shipyardMax": "barque",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "camarco",
     "name": "Camarco",
     "tileX": 1275,
-    "tileY": 656,
+    "tileY": 657,
     "lat": 23.01,
     "lon": -82.58,
     "nation": "pirates",
@@ -285,12 +353,16 @@
       "shipyardMax": "merchant",
       "jobShipType": "none_available"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "campeche",
     "name": "Campeche",
-    "tileX": 719,
+    "tileX": 717,
     "tileY": 779,
     "lat": 20.73,
     "lon": -89.91,
@@ -301,13 +373,17 @@
       "shipyardMax": "barque",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "cancun",
     "name": "Cancun",
     "tileX": 980,
-    "tileY": 695,
+    "tileY": 691,
     "lat": 22.19,
     "lon": -86.55,
     "nation": "spain",
@@ -317,13 +393,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "caracas",
     "name": "Caracas",
     "tileX": 2420,
-    "tileY": 1489,
+    "tileY": 1491,
     "lat": 8.59,
     "lon": -67.58,
     "nation": "spain",
@@ -333,13 +413,17 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "caratasca",
     "name": "Caratasca",
-    "tileX": 1197,
-    "tileY": 1136,
+    "tileX": 1194,
+    "tileY": 1143,
     "lat": 14.66,
     "lon": -83.56,
     "nation": "spain",
@@ -349,13 +433,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "cartagena",
     "name": "Cartagena",
     "tileX": 1798,
-    "tileY": 1495,
+    "tileY": 1492,
     "lat": 8.22,
     "lon": -75.72,
     "nation": "spain",
@@ -365,13 +453,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "carupano",
     "name": "Carupano",
-    "tileX": 2679,
-    "tileY": 1482,
+    "tileX": 2680,
+    "tileY": 1483,
     "lat": 8.66,
     "lon": -64.29,
     "nation": "spain",
@@ -381,13 +473,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "casares",
     "name": "Casares",
     "tileX": 1026,
-    "tileY": 1432,
+    "tileY": 1435,
     "lat": 9.55,
     "lon": -85.78,
     "nation": "pirates",
@@ -397,13 +493,17 @@
       "shipyardMax": "barque",
       "jobShipType": "nil"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "cat_island",
     "name": "Cat Island",
-    "tileX": 1807,
-    "tileY": 475,
+    "tileX": 1793,
+    "tileY": 489,
     "lat": 26.09,
     "lon": -75.63,
     "nation": "pirates",
@@ -413,13 +513,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "none_available"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "chetumal",
     "name": "Chetumal",
-    "tileX": 891,
-    "tileY": 907,
+    "tileX": 889,
+    "tileY": 914,
     "lat": 18.71,
     "lon": -87.8,
     "nation": "portugal",
@@ -429,13 +533,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "choluteca",
     "name": "Choluteca",
-    "tileX": 915,
-    "tileY": 1308,
+    "tileX": 923,
+    "tileY": 1318,
     "lat": 11.9,
     "lon": -87.63,
     "nation": "spain",
@@ -445,13 +553,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "ciudad_del_carmen",
     "name": "Ciudad del Carmen",
-    "tileX": 654,
-    "tileY": 882,
+    "tileX": 655,
+    "tileY": 883,
     "lat": 19.02,
     "lon": -90.82,
     "nation": "spain",
@@ -461,13 +573,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "cojoida",
     "name": "Cojoida",
-    "tileX": 2869,
-    "tileY": 1631,
+    "tileX": 2867,
+    "tileY": 1643,
     "lat": 5.94,
     "lon": -61.63,
     "nation": "spain",
@@ -477,13 +593,17 @@
       "shipyardMax": "barque",
       "jobShipType": "mercant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "colon",
     "name": "Colon",
-    "tileX": 1488,
-    "tileY": 1576,
+    "tileX": 1489,
+    "tileY": 1577,
     "lat": 6.95,
     "lon": -79.9,
     "nation": "spain",
@@ -493,13 +613,17 @@
       "shipyardMax": "barque",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "coro",
     "name": "Coro",
     "tileX": 2215,
-    "tileY": 1414,
+    "tileY": 1418,
     "lat": 9.82,
     "lon": -70.17,
     "nation": "spain",
@@ -509,7 +633,11 @@
       "shipyardMax": "fluyt",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "corpus_christi",
@@ -525,13 +653,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "cozumel",
     "name": "Cozumel",
-    "tileX": 976,
-    "tileY": 757,
+    "tileX": 978,
+    "tileY": 759,
     "lat": 21.17,
     "lon": -86.57,
     "nation": "pirates",
@@ -541,13 +673,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "none_available"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "cumana",
     "name": "Cumana",
-    "tileX": 2615,
-    "tileY": 1485,
+    "tileX": 2603,
+    "tileY": 1489,
     "lat": 8.43,
     "lon": -65.01,
     "nation": "spain",
@@ -557,7 +693,11 @@
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "curacao",
@@ -573,13 +713,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "dominica",
     "name": "Dominica",
     "tileX": 2809,
-    "tileY": 1112,
+    "tileY": 1110,
     "lat": 14.96,
     "lon": -62.44,
     "nation": "england",
@@ -589,13 +733,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "don_diego",
     "name": "Don Diego",
-    "tileX": 1962,
-    "tileY": 1433,
+    "tileX": 1963,
+    "tileY": 1434,
     "lat": 9.48,
     "lon": -73.68,
     "nation": "spain",
@@ -605,13 +753,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "el_macao",
     "name": "El Macao",
     "tileX": 2269,
-    "tileY": 876,
+    "tileY": 874,
     "lat": 19.1,
     "lon": -69.55,
     "nation": "spain",
@@ -621,13 +773,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "eleuthera",
     "name": "Eleuthera",
-    "tileX": 1752,
-    "tileY": 414,
+    "tileX": 1751,
+    "tileY": 410,
     "lat": 27.15,
     "lon": -76.37,
     "nation": "england",
@@ -637,13 +793,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "espiritu_santo",
     "name": "Espiritu Santo",
-    "tileX": 432,
-    "tileY": 932,
+    "tileX": 431,
+    "tileY": 933,
     "lat": 18.19,
     "lon": -93.66,
     "nation": "spain",
@@ -653,7 +813,11 @@
       "shipyardMax": "pinnace",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "florida_keys",
@@ -669,13 +833,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "fort_caroline",
     "name": "Fort Caroline",
-    "tileX": 1388,
-    "tileY": 19,
+    "tileX": 1391,
+    "tileY": 18,
     "lat": 33.93,
     "lon": -81.27,
     "nation": "france",
@@ -685,12 +853,16 @@
       "shipyardMax": "merchant",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "fort_lauderdale",
     "name": "Fort Lauderdale",
-    "tileX": 1490,
+    "tileX": 1492,
     "tileY": 307,
     "lat": 28.7,
     "lon": -80.05,
@@ -701,13 +873,17 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "fort_louis_de_la_mobile",
     "name": "Fort Louis de la Mobile",
-    "tileX": 912,
-    "tileY": 19,
+    "tileX": 913,
+    "tileY": 28,
     "lat": 34.3,
     "lon": -87.58,
     "nation": "france",
@@ -717,13 +893,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "fortdefrance",
     "name": "Fort-de-France",
-    "tileX": 2837,
-    "tileY": 1187,
+    "tileX": 2838,
+    "tileY": 1184,
     "lat": 13.62,
     "lon": -62.07,
     "nation": "france",
@@ -733,13 +913,17 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "galveston_bay",
     "name": "Galveston Bay",
-    "tileX": 411,
-    "tileY": 96,
+    "tileX": 421,
+    "tileY": 104,
     "lat": 33.09,
     "lon": -93.82,
     "nation": "spain",
@@ -749,7 +933,11 @@
       "shipyardMax": "merchant",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "george_town",
@@ -765,7 +953,11 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "gibara",
@@ -781,12 +973,16 @@
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "gibraltar",
     "name": "Gibraltar",
-    "tileX": 2114,
+    "tileX": 2112,
     "tileY": 1563,
     "lat": 6.98,
     "lon": -71.52,
@@ -797,7 +993,11 @@
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "gran_granada",
@@ -813,13 +1013,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "grand_bahama",
     "name": "Grand Bahama",
-    "tileX": 1594,
-    "tileY": 309,
+    "tileX": 1598,
+    "tileY": 310,
     "lat": 29.02,
     "lon": -78.41,
     "nation": "holland",
@@ -829,7 +1033,11 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "grand_turk",
@@ -845,13 +1053,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "havana",
     "name": "Havana",
     "tileX": 1313,
-    "tileY": 560,
+    "tileY": 562,
     "lat": 24.74,
     "lon": -82.15,
     "nation": "spain",
@@ -861,13 +1073,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "iriona",
     "name": "Iriona",
-    "tileX": 1107,
-    "tileY": 1098,
+    "tileX": 1108,
+    "tileY": 1099,
     "lat": 15.35,
     "lon": -84.95,
     "nation": "spain",
@@ -877,13 +1093,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "isla_beata",
     "name": "Isla Beata",
-    "tileX": 2069,
-    "tileY": 961,
+    "tileX": 2067,
+    "tileY": 963,
     "lat": 17.67,
     "lon": -72.15,
     "nation": "spain",
@@ -893,7 +1113,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "baque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "joana",
@@ -909,12 +1133,16 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "kingstown",
     "name": "Kingstown",
-    "tileX": 2832,
+    "tileX": 2834,
     "tileY": 1300,
     "lat": 11.68,
     "lon": -62.14,
@@ -925,13 +1153,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "la_ceiba",
     "name": "La Ceiba",
-    "tileX": 988,
-    "tileY": 1093,
+    "tileX": 979,
+    "tileY": 1103,
     "lat": 15.23,
     "lon": -86.33,
     "nation": "spain",
@@ -941,13 +1173,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "limon",
     "name": "Limon",
-    "tileX": 1021,
-    "tileY": 1081,
+    "tileX": 1023,
+    "tileY": 1075,
     "lat": 15.35,
     "lon": -85.85,
     "nation": "spain",
@@ -957,13 +1193,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "manzanillo",
     "name": "Manzanillo",
-    "tileX": 1674,
-    "tileY": 770,
+    "tileX": 1673,
+    "tileY": 771,
     "lat": 21.07,
     "lon": -77.3,
     "nation": "spain",
@@ -973,12 +1213,16 @@
       "shipyardMax": "frigate",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "maracaibo",
     "name": "Maracaibo",
-    "tileX": 2080,
+    "tileX": 2077,
     "tileY": 1473,
     "lat": 8.65,
     "lon": -72.04,
@@ -989,13 +1233,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "margarita",
     "name": "Margarita",
     "tileX": 2600,
-    "tileY": 1456,
+    "tileY": 1458,
     "lat": 9.1,
     "lon": -65.18,
     "nation": "holland",
@@ -1005,13 +1253,17 @@
       "shipyardMax": "barque",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "mariegalante",
     "name": "Marie-Galante",
-    "tileX": 2820,
-    "tileY": 1088,
+    "tileX": 2821,
+    "tileY": 1091,
     "lat": 15.39,
     "lon": -62.3,
     "nation": "france",
@@ -1021,13 +1273,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "matanzas",
     "name": "Matanzas",
-    "tileX": 1361,
-    "tileY": 563,
+    "tileX": 1360,
+    "tileY": 564,
     "lat": 24.58,
     "lon": -81.49,
     "nation": "spain",
@@ -1037,13 +1293,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "matthew_town",
     "name": "Matthew Town",
-    "tileX": 1929,
-    "tileY": 722,
+    "tileX": 1928,
+    "tileY": 721,
     "lat": 21.78,
     "lon": -74.02,
     "nation": "england",
@@ -1053,13 +1313,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "monte_cristi",
     "name": "Monte Cristi",
     "tileX": 2074,
-    "tileY": 807,
+    "tileY": 809,
     "lat": 20.5,
     "lon": -72.26,
     "nation": "france",
@@ -1069,13 +1333,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "montego_bay",
     "name": "Montego Bay",
     "tileX": 1624,
-    "tileY": 910,
+    "tileY": 912,
     "lat": 18.82,
     "lon": -78.04,
     "nation": "england",
@@ -1085,12 +1353,16 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "montserrat",
     "name": "Montserrat",
-    "tileX": 2767,
+    "tileX": 2769,
     "tileY": 1021,
     "lat": 16.42,
     "lon": -63.17,
@@ -1101,13 +1373,17 @@
       "shipyardMax": "merchant",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "nassau",
     "name": "Nassau",
     "tileX": 1657,
-    "tileY": 416,
+    "tileY": 418,
     "lat": 27.19,
     "lon": -77.61,
     "nation": "england",
@@ -1117,7 +1393,11 @@
       "shipyardMax": "fluyt",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "navassa_island",
@@ -1133,13 +1413,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "nevis",
     "name": "Nevis",
-    "tileX": 2706,
-    "tileY": 993,
+    "tileX": 2691,
+    "tileY": 997,
     "lat": 16.96,
     "lon": -63.54,
     "nation": "england",
@@ -1149,13 +1433,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "new_orleans",
     "name": "New Orleans",
-    "tileX": 752,
-    "tileY": 48,
+    "tileX": 754,
+    "tileY": 58,
     "lat": 33.51,
     "lon": -89.48,
     "nation": "france",
@@ -1165,13 +1453,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "nombre_de_dios",
     "name": "Nombre de Dios",
     "tileX": 1523,
-    "tileY": 1565,
+    "tileY": 1567,
     "lat": 7.24,
     "lon": -79.23,
     "nation": "spain",
@@ -1181,7 +1473,11 @@
       "shipyardMax": "barque",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "nuestra_senora_de_guadalupe_de_reynosa",
@@ -1197,13 +1493,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "old_biloxi",
     "name": "Old Biloxi",
-    "tileX": 836,
-    "tileY": 42,
+    "tileX": 837,
+    "tileY": 45,
     "lat": 33.92,
     "lon": -88.56,
     "nation": "france",
@@ -1213,13 +1513,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "pedernales",
     "name": "Pedernales",
-    "tileX": 2751,
-    "tileY": 1532,
+    "tileX": 2748,
+    "tileY": 1533,
     "lat": 7.72,
     "lon": -63.15,
     "nation": "spain",
@@ -1229,13 +1533,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "petitgoave",
     "name": "Petit-Goave",
-    "tileX": 1993,
-    "tileY": 895,
+    "tileX": 2001,
+    "tileY": 896,
     "lat": 18.76,
     "lon": -73.18,
     "nation": "france",
@@ -1245,13 +1553,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "pointe_a_la_hache",
     "name": "Pointe a la Hache",
-    "tileX": 790,
-    "tileY": 72,
+    "tileX": 794,
+    "tileY": 59,
     "lat": 32.89,
     "lon": -89.21,
     "nation": "spain",
@@ -1261,13 +1573,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "pointeapitre",
     "name": "Pointe-a-Pitre",
     "tileX": 2804,
-    "tileY": 1063,
+    "tileY": 1061,
     "lat": 15.81,
     "lon": -62.49,
     "nation": "france",
@@ -1277,13 +1593,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "ponce",
     "name": "Ponce",
-    "tileX": 2425,
-    "tileY": 960,
+    "tileX": 2424,
+    "tileY": 963,
     "lat": 17.95,
     "lon": -67.38,
     "nation": "spain",
@@ -1293,13 +1613,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "port_antonio",
     "name": "Port Antonio",
-    "tileX": 1714,
-    "tileY": 930,
+    "tileX": 1713,
+    "tileY": 931,
     "lat": 18.45,
     "lon": -76.61,
     "nation": "england",
@@ -1309,13 +1633,17 @@
       "shipyardMax": "barque",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "port_of_spain",
     "name": "Port of Spain",
     "tileX": 2802,
-    "tileY": 1479,
+    "tileY": 1481,
     "lat": 8.63,
     "lon": -62.55,
     "nation": "spain",
@@ -1325,13 +1653,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "port_royal",
     "name": "Port Royal",
-    "tileX": 1701,
-    "tileY": 926,
+    "tileX": 1698,
+    "tileY": 920,
     "lat": 18.04,
     "lon": -77.14,
     "nation": "england",
@@ -1341,13 +1673,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "port_salut",
     "name": "Port Salut",
-    "tileX": 1912,
-    "tileY": 910,
+    "tileX": 1915,
+    "tileY": 906,
     "lat": 18.37,
     "lon": -74.29,
     "nation": "france",
@@ -1357,13 +1693,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "port_st_joseph",
     "name": "Port St. Joseph",
-    "tileX": 1085,
-    "tileY": 71,
+    "tileX": 1086,
+    "tileY": 70,
     "lat": 33.15,
     "lon": -85.13,
     "nation": "france",
@@ -1373,13 +1713,17 @@
       "shipyardMax": "barque",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "portdepaix",
     "name": "Port-de-Paix",
-    "tileX": 1985,
-    "tileY": 797,
+    "tileX": 1983,
+    "tileY": 795,
     "lat": 20.42,
     "lon": -73.25,
     "nation": "france",
@@ -1389,12 +1733,16 @@
       "shipyardMax": "pinnace",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "prinzapolca",
     "name": "Prinzapolca",
-    "tileX": 1226,
+    "tileX": 1228,
     "tileY": 1283,
     "lat": 12.08,
     "lon": -83.35,
@@ -1405,7 +1753,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "providence",
@@ -1421,13 +1773,17 @@
       "shipyardMax": "merchant",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "pueblo_nuevo",
     "name": "Pueblo Nuevo",
     "tileX": 178,
-    "tileY": 1096,
+    "tileY": 1098,
     "lat": 15.56,
     "lon": -96.83,
     "nation": "spain",
@@ -1437,13 +1793,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "nil"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "puerto_barrios",
     "name": "Puerto Barrios",
-    "tileX": 855,
-    "tileY": 1100,
+    "tileX": 856,
+    "tileY": 1101,
     "lat": 15.18,
     "lon": -88.17,
     "nation": "spain",
@@ -1453,13 +1813,17 @@
       "shipyardMax": "barque",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "puerto_bello",
     "name": "Puerto Bello",
     "tileX": 1503,
-    "tileY": 1562,
+    "tileY": 1564,
     "lat": 7.19,
     "lon": -79.7,
     "nation": "england",
@@ -1469,13 +1833,17 @@
       "shipyardMax": "barque",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "puerto_cabello",
     "name": "Puerto Cabello",
-    "tileX": 2326,
-    "tileY": 1498,
+    "tileX": 2325,
+    "tileY": 1499,
     "lat": 8.43,
     "lon": -68.64,
     "nation": "spain",
@@ -1485,13 +1853,17 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "puerto_cabezas",
     "name": "Puerto Cabezas",
     "tileX": 1244,
-    "tileY": 1237,
+    "tileY": 1241,
     "lat": 12.99,
     "lon": -83.2,
     "nation": "england",
@@ -1501,13 +1873,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "puerto_cortes",
     "name": "Puerto Cortes",
     "tileX": 911,
-    "tileY": 1104,
+    "tileY": 1106,
     "lat": 15.34,
     "lon": -87.51,
     "nation": "spain",
@@ -1517,13 +1893,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "puerto_estrella",
     "name": "Puerto Estrella",
-    "tileX": 2088,
-    "tileY": 1359,
+    "tileX": 2086,
+    "tileY": 1360,
     "lat": 10.85,
     "lon": -71.78,
     "nation": "spain",
@@ -1533,13 +1913,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "puerto_plata",
     "name": "Puerto Plata",
-    "tileX": 2138,
-    "tileY": 810,
+    "tileX": 2137,
+    "tileY": 811,
     "lat": 20.31,
     "lon": -71.22,
     "nation": "france",
@@ -1549,13 +1933,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "punta_gorda",
     "name": "Punta Gorda",
-    "tileX": 1312,
-    "tileY": 300,
+    "tileX": 1311,
+    "tileY": 301,
     "lat": 29.23,
     "lon": -82.1,
     "nation": "spain",
@@ -1565,13 +1953,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "punto_fijo",
     "name": "Punto Fijo",
-    "tileX": 2173,
-    "tileY": 1391,
+    "tileX": 2171,
+    "tileY": 1389,
     "lat": 10.04,
     "lon": -70.79,
     "nation": "spain",
@@ -1581,13 +1973,17 @@
       "shipyardMax": "merchant",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "puntarenas",
     "name": "Puntarenas",
-    "tileX": 1139,
-    "tileY": 1558,
+    "tileX": 1132,
+    "tileY": 1559,
     "lat": 7.1,
     "lon": -84.35,
     "nation": "spain",
@@ -1597,7 +1993,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "road_town",
@@ -1613,13 +2013,17 @@
       "shipyardMax": "merchant",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "roatan",
     "name": "Roatan",
-    "tileX": 1011,
-    "tileY": 1072,
+    "tileX": 1016,
+    "tileY": 1082,
     "lat": 15.67,
     "lon": -86.1,
     "nation": "pirates",
@@ -1629,13 +2033,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "none_available"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "saba",
     "name": "Saba",
-    "tileX": 2694,
-    "tileY": 984,
+    "tileX": 2704,
+    "tileY": 993,
     "lat": 17.65,
     "lon": -64.29,
     "nation": "holland",
@@ -1645,13 +2053,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "saint_eustatius",
     "name": "Saint Eustatius",
-    "tileX": 2694,
-    "tileY": 984,
+    "tileX": 2704,
+    "tileY": 993,
     "lat": 17.47,
     "lon": -63.95,
     "nation": "holland",
@@ -1661,12 +2073,16 @@
       "shipyardMax": "merchant",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "saint_lucia",
     "name": "Saint Lucia",
-    "tileX": 2844,
+    "tileX": 2841,
     "tileY": 1221,
     "lat": 13.06,
     "lon": -61.98,
@@ -1677,13 +2093,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "sainte_marie",
     "name": "Sainte Marie",
-    "tileX": 2835,
-    "tileY": 1181,
+    "tileX": 2833,
+    "tileY": 1182,
     "lat": 13.89,
     "lon": -62.01,
     "nation": "france",
@@ -1693,7 +2113,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "san_andres",
@@ -1709,7 +2133,11 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "none_available"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "san_carlos",
@@ -1725,13 +2153,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "san_juan",
     "name": "San Juan",
     "tileX": 2471,
-    "tileY": 914,
+    "tileY": 915,
     "lat": 18.59,
     "lon": -66.76,
     "nation": "spain",
@@ -1741,12 +2173,16 @@
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "san_juan_del_norte",
     "name": "San Juan del Norte",
-    "tileX": 1201,
+    "tileX": 1203,
     "tileY": 1450,
     "lat": 9.05,
     "lon": -83.6,
@@ -1757,13 +2193,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "san_rafael_de_curiapo",
     "name": "San Rafael de Curiapo",
-    "tileX": 2914,
-    "tileY": 1646,
+    "tileX": 2915,
+    "tileY": 1643,
     "lat": 5.21,
     "lon": -61.38,
     "nation": "spain",
@@ -1773,13 +2213,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "san_ramos",
     "name": "San Ramos",
-    "tileX": 1031,
-    "tileY": 1438,
+    "tileX": 1030,
+    "tileY": 1439,
     "lat": 9.66,
     "lon": -85.55,
     "nation": "pirates",
@@ -1789,13 +2233,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "nil"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "san_sebastian",
     "name": "San Sebastian",
     "tileX": 1701,
-    "tileY": 1637,
+    "tileY": 1635,
     "lat": 5.7,
     "lon": -76.96,
     "nation": "spain",
@@ -1805,13 +2253,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "santa_maria",
     "name": "Santa Maria",
-    "tileX": 2100,
-    "tileY": 1592,
+    "tileX": 2101,
+    "tileY": 1593,
     "lat": 6.67,
     "lon": -71.85,
     "nation": "spain",
@@ -1821,13 +2273,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "barque"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "santa_maria_de_galve",
     "name": "Santa Maria de Galve",
     "tileX": 967,
-    "tileY": 44,
+    "tileY": 47,
     "lat": 33.94,
     "lon": -86.91,
     "nation": "spain",
@@ -1837,13 +2293,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": 1
+    }
   },
   {
     "id": "santa_maria_de_la_antigua",
     "name": "Santa Maria de la Antigua",
-    "tileX": 1679,
-    "tileY": 1647,
+    "tileX": 1678,
+    "tileY": 1648,
     "lat": 5.67,
     "lon": -77.27,
     "nation": "spain",
@@ -1853,13 +2313,17 @@
       "shipyardMax": "sloop",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "santa_marta",
     "name": "Santa Marta",
-    "tileX": 1894,
-    "tileY": 1438,
+    "tileX": 1895,
+    "tileY": 1439,
     "lat": 9.34,
     "lon": -74.53,
     "nation": "spain",
@@ -1869,13 +2333,17 @@
       "shipyardMax": "merchant",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": -1,
+      "y": -1
+    }
   },
   {
     "id": "santiago_de_cuba",
     "name": "Santiago de Cuba",
     "tileX": 1754,
-    "tileY": 812,
+    "tileY": 814,
     "lat": 20.51,
     "lon": -76.1,
     "nation": "spain",
@@ -1885,7 +2353,11 @@
       "shipyardMax": "frigate",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "santo_domingo",
@@ -1901,7 +2373,11 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "sint_maarten",
@@ -1917,12 +2393,16 @@
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "south_andros",
     "name": "South Andros",
-    "tileX": 1654,
+    "tileX": 1656,
     "tileY": 495,
     "lat": 25.73,
     "lon": -77.67,
@@ -1933,13 +2413,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "spring_point",
     "name": "Spring Point",
     "tileX": 1908,
-    "tileY": 599,
+    "tileY": 597,
     "lat": 23.92,
     "lon": -74.29,
     "nation": "england",
@@ -1949,13 +2433,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "st_augustine",
     "name": "St. Augustine",
-    "tileX": 1397,
-    "tileY": 59,
+    "tileX": 1400,
+    "tileY": 58,
     "lat": 33.3,
     "lon": -81.08,
     "nation": "spain",
@@ -1965,13 +2453,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "st_georges",
     "name": "St. George's",
-    "tileX": 2786,
-    "tileY": 1373,
+    "tileX": 2789,
+    "tileY": 1374,
     "lat": 10.46,
     "lon": -62.75,
     "nation": "france",
@@ -1981,7 +2473,11 @@
       "shipyardMax": "pinnace",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "st_john",
@@ -1997,13 +2493,17 @@
       "shipyardMax": "pinnace",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "st_kitts",
     "name": "St. Kitts",
-    "tileX": 2706,
-    "tileY": 993,
+    "tileX": 2691,
+    "tileY": 997,
     "lat": 17.16,
     "lon": -63.65,
     "nation": "england",
@@ -2013,13 +2513,17 @@
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "LUXURY_EXPORT"
+    "harborTradeId": "LUXURY_EXPORT",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "st_miguel",
     "name": "St. Miguel",
     "tileX": 752,
-    "tileY": 1275,
+    "tileY": 1277,
     "lat": 12.42,
     "lon": -89.27,
     "nation": "spain",
@@ -2029,7 +2533,11 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "st_thomas",
@@ -2045,7 +2553,11 @@
       "shipyardMax": "spanish_galleon",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "swan_islands",
@@ -2061,12 +2573,16 @@
       "shipyardMax": "sloop",
       "jobShipType": "none_available"
     },
-    "harborTradeId": "PIRATE_HAVEN"
+    "harborTradeId": "PIRATE_HAVEN",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "tampa",
     "name": "Tampa",
-    "tileX": 1284,
+    "tileX": 1286,
     "tileY": 209,
     "lat": 30.75,
     "lon": -82.51,
@@ -2077,13 +2593,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": -1,
+      "y": 0
+    }
   },
   {
     "id": "tampico",
     "name": "Tampico",
-    "tileX": 203,
-    "tileY": 626,
+    "tileX": 202,
+    "tileY": 628,
     "lat": 23.46,
     "lon": -96.74,
     "nation": "spain",
@@ -2093,13 +2613,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "tobago",
     "name": "Tobago",
     "tileX": 2871,
-    "tileY": 1436,
+    "tileY": 1438,
     "lat": 9.45,
     "lon": -61.55,
     "nation": "holland",
@@ -2109,13 +2633,17 @@
       "shipyardMax": "barque",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "tortuga",
     "name": "Tortuga",
     "tileX": 1986,
-    "tileY": 793,
+    "tileY": 808,
     "lat": 20.73,
     "lon": -73.29,
     "nation": "france",
@@ -2125,13 +2653,17 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "sloop"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "tortuguero",
     "name": "Tortuguero",
-    "tileX": 1270,
-    "tileY": 1549,
+    "tileX": 1269,
+    "tileY": 1550,
     "lat": 7.44,
     "lon": -82.62,
     "nation": "spain",
@@ -2141,7 +2673,11 @@
       "shipyardMax": "fluyt",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 1,
+      "y": -1
+    }
   },
   {
     "id": "trinidad",
@@ -2157,13 +2693,17 @@
       "shipyardMax": "barque",
       "jobShipType": "fluyt"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": 1
+    }
   },
   {
     "id": "trinidad_de_cuba",
     "name": "Trinidad de Cuba",
-    "tileX": 1462,
-    "tileY": 673,
+    "tileX": 1461,
+    "tileY": 674,
     "lat": 22.82,
     "lon": -80.04,
     "nation": "spain",
@@ -2173,7 +2713,11 @@
       "shipyardMax": "war_galleon",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   },
   {
     "id": "tucupita",
@@ -2189,13 +2733,17 @@
       "shipyardMax": "frigate",
       "jobShipType": "merchant"
     },
-    "harborTradeId": "COLONIAL_CAPITAL"
+    "harborTradeId": "COLONIAL_CAPITAL",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "vera_cruz",
     "name": "Vera Cruz",
-    "tileX": 302,
-    "tileY": 835,
+    "tileX": 303,
+    "tileY": 828,
     "lat": 19.72,
     "lon": -95.51,
     "nation": "spain",
@@ -2205,13 +2753,17 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "frigate"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 1,
+      "y": 0
+    }
   },
   {
     "id": "victoria_hill",
     "name": "Victoria Hill",
     "tileX": 1872,
-    "tileY": 492,
+    "tileY": 490,
     "lat": 25.81,
     "lon": -74.78,
     "nation": "england",
@@ -2221,7 +2773,11 @@
       "shipyardMax": "fluyt",
       "jobShipType": "pinnace"
     },
-    "harborTradeId": "FRONTIER_SUPPLY"
+    "harborTradeId": "FRONTIER_SUPPLY",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "villa_hermosa",
@@ -2237,12 +2793,16 @@
       "shipyardMax": "fast_galleon",
       "jobShipType": "war_galleon"
     },
-    "harborTradeId": "MAINLAND_RESOURCES"
+    "harborTradeId": "MAINLAND_RESOURCES",
+    "exitDirection": {
+      "x": 0,
+      "y": -1
+    }
   },
   {
     "id": "yaguana",
     "name": "Yaguana",
-    "tileX": 2007,
+    "tileX": 2004,
     "tileY": 900,
     "lat": 18.9,
     "lon": -72.83,
@@ -2253,6 +2813,10 @@
       "shipyardMax": "barque",
       "jobShipType": "barque"
     },
-    "harborTradeId": "PLANTATION_AGRICULTURE"
+    "harborTradeId": "PLANTATION_AGRICULTURE",
+    "exitDirection": {
+      "x": -1,
+      "y": 1
+    }
   }
 ]

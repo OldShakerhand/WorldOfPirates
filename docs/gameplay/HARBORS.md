@@ -47,7 +47,8 @@ The harbor system provides server-authoritative harbor data with clean separatio
     "bank": true,
     "shipyardMax": "fluyt",
     "jobShipType": "merchant"
-  }
+  },
+  "exitDirection": { "x": 0, "y": -1 }
 }
 ```
 
@@ -164,34 +165,27 @@ node tools/import_harbors.js "images/WOP - Harbors.csv" assets/harbors.json
 
 ---
 
-## Harbor Visualization
+## Harbor Positioning
 
-### Overview
-Harbors are visualized using the `harbor_big.png` sprite, positioned and oriented based on the coastline. The system automatically detects the nearest water (when starting on land) or land (when starting in water) to place the harbor correctly.
+Harbor placement uses a 3-step system to ensure correct gameplay and visual alignment:
 
-### Coastline Detection
-- **Algorithm:** Scans in 4 directions (N, E, S, W) up to 10 tiles distance.
-- **Logic:**
-  1. Checks if the initial harbor position is on **LAND** or **WATER**.
-  2. If on **LAND**: Searches for the nearest **WATER** tile and moves the harbor **TO** the coastline.
-  3. If in **WATER**: Searches for the nearest **LAND** tile and anchors the harbor there.
-- **Result:** Calculates a `rotation` (radians) and applies an offset to `harbor.x` and `harbor.y`.
+### 1. Tile Positioning (Server & Logic)
+Harbor `tileX/tileY` coordinates are positioned in the **center of the contiguous shallow water band**.
+- This ensures ships dock in valid shallow water.
+- The migration tool scans from land toward sea to find the exact center of the shallow strip.
 
-### Rendering
-- **Sprite:** `harbor_big.png` (opening/dock inlet faces **BOTTOM/SOUTH** in the image).
-- **Position:** 
-  - The logic position (`harbor.x`, `harbor.y`) is moved to the shoreline.
-  - The sprite is anchored at its **bottom-center** (the dock inlet), placing the dock at the exact shoreline position.
-- **Rotation:** Determined by the coastline algorithm.
-  - North Coast: Sprite faces South (0 rad)
-  - East Coast: Sprite faces West (PI/2 rad)
-  - South Coast: Sprite faces North (PI rad)
-  - West Coast: Sprite faces East (3PI/2 rad)
-- **Offset:** A "land-ward" offset (approx 40px) is applied along the rotated X-axis to shift the sprite slightly "inwards", ensuring the docks sit in shallow water while the buildings sit on land.
+### 2. Exit Direction (Orientation)
+The `exitDirection` field stores the vector pointing toward open sea (e.g., `{x: 0, y: -1}` for North).
+- Used for spawn orientation.
+- Used to calculate the visual sprite rotation.
+- Stored in `harbors.json` and loaded into `Harbor` entities.
 
-### Known Issues
-- **Small Islands:** Some harbors on very small islands (e.g., `villa_hermosa`, `grand_turk`) may fail to find a coastline within the 10-tile search radius. These default to 0 rotation and no offset.
-- **Complex Terrain:** Harbors in deep bays or on peninsulas might detect the "wrong" side of the coast if it's closer than the intended harbor entrance.
+### 3. Visual Offset (Client Rendering)
+For visual aesthetics, the harbor sprite is offset **toward land** from the logical tile position.
+- **Offset**: 4 tiles (100px) inward (opposite of `exitDirection`).
+- **Result**: The "docking logic" happens in the water (shallow band), but the "visual pier" appears to extend from the land.
+
+This separation ensures robust gameplay mechanics (docking in water) while maintaining good visual placement (piers attached to land).
 
 ---
 

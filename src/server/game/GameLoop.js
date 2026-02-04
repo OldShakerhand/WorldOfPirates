@@ -663,10 +663,11 @@ class GameLoop {
             const harbor = this.world.harbors.find(h => h.id === player.dockedHarborId);
             if (harbor && harbor.island) {
                 // Spawn player in direction harbor opens (toward water)
-                // Harbor rotation points toward land, so add PI to point toward water
-                const spawnAngle = (harbor.rotation || 0) + Math.PI;
-                player.x = harbor.x + Math.cos(spawnAngle) * GAME.HARBOR_SPAWN_DISTANCE;
-                player.y = harbor.y + Math.sin(spawnAngle) * GAME.HARBOR_SPAWN_DISTANCE;
+                // Use stored exitDirection data directly
+                const exitX = harbor.exitDirection?.x || 0;
+                const exitY = harbor.exitDirection?.y || -1; // Default north if missing
+                player.x = harbor.x + exitX * GAME.HARBOR_SPAWN_DISTANCE;
+                player.y = harbor.y + exitY * GAME.HARBOR_SPAWN_DISTANCE;
 
                 // Grant 10-second shield when leaving harbor (no firing allowed)
                 player.shieldEndTime = Date.now() / 1000 + COMBAT.HARBOR_EXIT_SHIELD_DURATION;

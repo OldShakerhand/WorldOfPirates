@@ -18,16 +18,17 @@ const DIRECTIONS = [
  * Visual placement rules:
  * - Sprite anchored at coastline edge (not center)
  * - Land overlap allowed, deep water overlap not allowed
- * - Rotation based on nearest land direction
+ * - Rotation based on exitDirection (stored) or coastline detection (fallback)
  */
 class Harbor {
     /**
      * @param {string} id - Harbor ID
      * @param {Object} island - Island stub with x, y, tileX, tileY
      * @param {string} name - Harbor name
-     * @param {Object} worldMap - WorldMap instance for coastline detection (optional)
+     * @param {Object} worldMap - WorldMap instance for coastline detection (fallback only)
+     * @param {Object} exitDirection - Stored exit direction { x: -1|0|1, y: -1|0|1 } (optional)
      */
-    constructor(id, island, name = null, worldMap = null) {
+    constructor(id, island, name = null, worldMap = null, exitDirection = null) {
         this.id = id;
         this.island = island;
         this.radius = GAME.HARBOR_INTERACTION_RADIUS;
@@ -39,17 +40,38 @@ class Harbor {
         // Rotation for sprite rendering
         this.rotation = 0;
 
+        // Exit direction for spawn logic (stored data)
+        this.exitDirection = exitDirection || { x: 0, y: -1 }; // Default: north
+
         // Offset to move harbor to coastline (will be applied to x,y)
         this.visualOffsetX = 0;
         this.visualOffsetY = 0;
 
-        // Detect coastline and compute rotation + offset
-        if (worldMap && island.tileX !== undefined && island.tileY !== undefined) {
+        // Use stored exitDirection if available, otherwise fall back to runtime detection
+        if (exitDirection) {
+            // Derive rotation from exitDirection
+            // exitDirection points toward water, rotation points toward land (opposite)
+            const landX = -exitDirection.x;
+            const landY = -exitDirection.y;
+            this.rotation = Math.atan2(landY, landX);
+
+            // NO server-side offset! Docking position stays at tile coordinates.
+            // Client-side sprite rendering handles visual offset toward land.
+            this.visualOffsetX = 0;
+            this.visualOffsetY = 0;
+        } else if (worldMap && island.tileX !== undefined && island.tileY !== undefined) {
+            // Fallback: runtime coastline detection (for backwards compatibility)
             this._computeCoastlineOrientation(island.tileX, island.tileY, worldMap);
 
             // Apply offset to actual position (moves both logic rectangle and sprite)
             this.x += this.visualOffsetX;
             this.y += this.visualOffsetY;
+
+            // Derive exitDirection from computed rotation for consistency
+            this.exitDirection = {
+                x: Math.round(Math.cos(this.rotation + Math.PI)),
+                y: Math.round(Math.sin(this.rotation + Math.PI))
+            };
         }
 
         // DEBUG: Log if coordinates are NaN
@@ -60,6 +82,7 @@ class Harbor {
         // Use real harbor name from CSV
         this.name = name || this.generateName();
     }
+
 
     /**
      * Find coastline and compute rotation + position offset
@@ -168,7 +191,9 @@ class Harbor {
             radius: this.radius,
             name: this.name,
             islandId: this.island.id,
-            // Visual properties for client rendering
+            // Orientation data (stored, not computed at runtime)
+            exitDirection: this.exitDirection,
+            // Visual properties for client rendering (derived from exitDirection)
             rotation: this.rotation,
             visualOffsetX: this.visualOffsetX,
             visualOffsetY: this.visualOffsetY

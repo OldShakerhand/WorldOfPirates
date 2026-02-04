@@ -32,10 +32,16 @@ This document tracks all notable changes to World of Pirates across versions. It
 ## [Unreleased]
 
 ### Added
+- **8-Directional Harbor Coastline Detection** - Harbors now detect diagonal coastlines for better orientation
+- **Harbor Positioning Algorithm** - New logic finds exact center of shallow water band for optimal placement
 
 ### Changed
+- **Harbor Sprite Rendering** - Applied 4-tile (100px) visual offset toward land for better pier alignment
+- **Harbor Coordinate Logic** - Server logic position is now strictly in shallow water, decoupled from visual sprite position
 
 ### Fixed
+- **Harbor Placement Issues** - Resolved misaligned harbors on irregular coastlines (e.g., Nassau, Andros)
+- **Debug Visualization** - Fixed debug rectangle offset discrepancy
 
 ---
 

@@ -38,9 +38,9 @@ class World {
         );
 
         // Create Harbor instances from registry data
-        // Pass worldMap for coastline detection (visual placement)
+        // Pass exitDirection for orientation (stored data, no runtime detection needed)
         this.harbors = this.harborRegistry.getAllHarbors().map(data =>
-            new Harbor(data.id, this.createIslandStub(data), data.name, this.worldMap)
+            new Harbor(data.id, this.createIslandStub(data), data.name, this.worldMap, data.exitDirection)
         );
 
         // NPC Manager (Phase 1: Trader NPCs)
