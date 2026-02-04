@@ -1,29 +1,33 @@
 # World of Pirates 🏴‍☠️
 
-A multiplayer naval combat game built with Node.js and Socket.IO. Command your fleet, engage in tactical broadside battles, and navigate treacherous waters in this real-time pirate adventure.
+A multiplayer naval combat game built with Node.js and Socket.IO. Command your fleet, engage in tactical broadside battles, trade goods in a dynamic economy, and navigate treacherous waters in this real-time pirate adventure.
 
 ## 🎮 Features
 
-- **Real-time Multiplayer** - Up to 20 simultaneous players with player names
+- **Real-time Multiplayer** - Up to 20 simultaneous players with persistent stats
 - **Dynamic Wind System** - Tactical sailing with realistic wind mechanics
-- **Fleet Management** - Command multiple ships with different classes and capabilities
+- **Fleet Management** - Command multiple ships, from nimble Sloops to massive War Galleons
 - **Naval Combat** - Broadside cannon battles with physics-based projectiles
-- **10 Ship Classes** - From humble rafts to mighty War Galleons
+- **Trading Economy** - Buy low and sell high across 141 harbors with distinct trade profiles
+- **Missions & Looting** - Undertake contracts and scavenge wrecks for profit
+- **Progression** - Gain XP, level up skills, and unlock powerful vessels
 - **NPC Ships** - AI-controlled traders and pirates with intelligent navigation and combat
 - **Authentic Caribbean Map** - 141 historic harbors on a 80,000x42,000 world map
 - **Visual Adapter Layer** - Organic rounded coastlines and shallow water transitions
-- **Harbor System** - Repair ships, switch flagships, and manage your fleet
-- **Invulnerability Shields** - Strategic protection when switching ships or leaving harbor
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Play via Browser
+**[Play Now](https://worldofpirates.onrender.com)** - No installation required!
 
+### Local Development
+
+#### Prerequisites
 - Node.js (v14 or higher)
 - npm
 - **Git LFS** (Required for map assets)
 
-### Installation
+#### Installation
 
 ```bash
 # Clone the repository
@@ -42,6 +46,15 @@ npm run dev
 ```
 
 The game will be available at `http://localhost:3000`
+
+## 💰 Economy System
+
+The economy is driven by a server-authoritative **Harbor Master** model. Harbors have unique trade profiles that dictate the prices of goods based on supply and demand.
+
+- **Dynamic Pricing**: Prices vary per harbor. Traders can exploit arbitrage opportunities.
+- **Goods**: Tradeable commodities include **Rum**, **Sugar**, **Tobacco**, **Wood**, **Cloth**, and **Food**.
+- **Atomic Transactions**: Buying and selling are validated server-side to ensure gold limitations and cargo capacity are respected.
+- **Harbor Profiles**: Some harbors are rich in luxury goods like Sugar, while others are industrial hubs for Wood and Cloth.
 
 ## 🎯 Controls
 
@@ -63,6 +76,19 @@ The game will be available at `http://localhost:3000`
 | **P** | Spawn NPC Pirate nearby |
 | **T** | Harbor teleportation menu |
 
+## 🎨 Ship Classes
+
+| Class | Speed | Health | Cannons | Cargo | Description |
+|-------|-------|--------|---------|-------|-------------|
+| Raft | 140 | 500 | 0 | 0 | Invulnerable fallback when all ships are lost |
+| Sloop | 131 | 100 | 2 | 20 | Fast, maneuverable starter ship |
+| Barque | 120 | 200 | 3 | 40 | Balanced combat vessel |
+| Fluyt | 115 | 250 | 4 | 80 | Cargo-focused design |
+| Merchant | 104 | 300 | 5 | 120 | Heavy trading vessel with decent defense |
+| Frigate | 112 | 350 | 6 | 60 | Powerful warship |
+| Spanish Galleon | 100 | 450 | 8 | 100 | Heavy combat vessel |
+| War Galleon | 91 | 600 | 12 | 80 | Ultimate warship |
+
 ## 🏗️ Tech Stack
 
 - **Backend**: Node.js, Express, Socket.IO
@@ -71,13 +97,6 @@ The game will be available at `http://localhost:3000`
 - **Game Architecture**: Server-authoritative, 60 tick/s game loop
 - **Visuals**: Custom "Visual Adapter" for organic terrain rendering
 
-## 📊 Server Capacity
-
-- **Max Players**: 20 concurrent players
-- **Tick Rate**: 60 updates per second
-- **World Size**: 3230x1702 tiles (80,750x42,525 px) based on real Caribbean geography
-- **Harbors**: 141 named locations with historical accuracy
-
 ## 🛠️ Project Structure
 
 ```
@@ -85,17 +104,17 @@ WorldOfPirates/
 ├── src/
 │   ├── server/
 │   │   ├── server.js              # Main server & Socket.IO setup
-│   │   └── game/
-│   │       ├── GameLoop.js        # Core game loop (60 tick/s)
-│   │       ├── World.js           # World state & entity management
-│   │       ├── WorldMap.js        # Tile-based map logic
-│   │       ├── HarborRegistry.js  # Harbor data management
-│   │       └── ...
-│   └── public/
-│       ├── assets/                # Game assets (map, images)
-│       └── js/
-│           ├── visual_adapter.js  # Client-side visual enhancement layer
-│           └── game.js            # Main client render loop
+│   │   ├── game/                  # Core game logic
+│   │   │   ├── economy/           # EconomySystem, TradeRoutes
+│   │   │   ├── entities/          # Ship, Player, NpcShip
+│   │   │   ├── config/            # Game constants
+│   │   │   └── ...
+│   ├── public/
+│   │   ├── assets/                # Game images and data
+│   │   ├── js/
+│   │   │   ├── game.js            # Main client loop
+│   │   │   ├── visual_adapter.js  # Client visuals
+│   │   │   └── ...
 ├── docs/                          # Documentation
 └── tools/                         # Map processing tools
 ```
@@ -110,45 +129,6 @@ WorldOfPirates/
 - [Ship Assets](docs/assets/SHIPS.md) - Asset creation and sprite guidelines
 - [Changelog](docs/meta/CHANGELOG.md) - Version history and updates
 
-## 🎨 Ship Classes
-
-| Class | Speed | Health | Cannons | Description |
-|-------|-------|--------|---------|-------------|
-| Raft | 75 | ∞ | 0 | Invulnerable fallback when all ships are lost |
-| Sloop | 120 | 100 | 2 | Fast, maneuverable starter ship |
-| Pinnace | 110 | 150 | 3 | Balanced combat vessel |
-| Barque | 100 | 200 | 4 | Sturdy merchant-warrior |
-| Fluyt | 90 | 220 | 4 | Cargo-focused design |
-| Merchant | 95 | 250 | 4 | Trading vessel with decent firepower |
-| Frigate | 105 | 300 | 6 | Powerful warship |
-| Fast Galleon | 100 | 350 | 7 | Speed and firepower combined |
-| Spanish Galleon | 85 | 400 | 8 | Heavy combat vessel |
-| War Galleon | 80 | 500 | 10 | Ultimate warship |
-
-## 🔧 Development
-
-### Running in Development Mode
-
-```bash
-npm run dev
-```
-
-Uses `nodemon` for automatic server restarts on file changes.
-
-### Debug Features
-
-- **NPC Spawning**: Press `N` for traders, `P` for pirates
-- **Harbor Teleportation**: Press `T` to teleport to any harbor
-- **Debug Minimap**: Real-time terrain visualization
-- **Performance Monitoring**: Server tick time tracking in console
-
-### Map Processing
-
-The world map is generated from high-resolution satellite data. Tools in `tools/` handle:
-- Resizing (Lanczos3 high-quality downscaling)
-- Coordinate transformation (teleporting 141 harbors to new positions)
-- Mask generation (Water/Land/Shallow classification)
-
 ## 🤝 Contributing
 
 This is currently a personal project. Documentation and contribution guidelines coming soon!
@@ -158,10 +138,14 @@ This is currently a personal project. Documentation and contribution guidelines 
 **Active Development**
 - ✅ Core Gameplay Loop (Sailing, Combat, Harbors)
 - ✅ Massive Caribbean Map (3230×1702 tiles, fully navigable)
-- ✅ Visual Layer (Rounded coastlines, shallow gradients)
-- ✅ NPC System (AI traders and pirates with combat/navigation)
-- ✅ Player Identity (Names, kill attribution, game events)
-- 🚧 Next: Economy System & Persistent Player Data
+- ✅ Economy System (Trading, supply/demand, harbor markets)
+- ✅ NPC System (AI traders and pirates)
+- ✅ Player Identity (Names, stats, persistence)
+- 🚧 Next Steps:
+    - Advanced Skill Leveling
+    - Extended Crew & Fleet Management
+    - UI Overhaul
+    - Deep Persistence (Database integration)
 
 ---
 
