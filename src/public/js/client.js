@@ -137,6 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
             socket = null;
         });
 
+        // Handle ban
+        socket.on('banned', (data) => {
+            showError(data.reason);
+            setSailBtn.disabled = false;
+            setSailBtn.textContent = 'Set Sail! 🏴‍☠️';
+            socket.disconnect();
+            socket = null;
+        });
+
         // Setup game event listeners
         setupGameListeners();
     });
@@ -210,6 +219,10 @@ function setupGameListeners() {
         // Update chat feed UI
         renderChatFeed(chatMessages);
     });
+
+    // Chat input handling
+    setupChatInput();
+
 
     // Transaction results (loot notifications, trade results, etc.)
     let transactionStatusTimeout = null; // Track timeout to clear it
@@ -303,6 +316,54 @@ function setupGameListeners() {
     });
 }
 
+// Chat input setup
+let chatInputActive = false;
+
+function setupChatInput() {
+    const chatInputContainer = document.getElementById('chatInputContainer');
+    const chatInput = document.getElementById('chatInput');
+
+    if (!chatInputContainer || !chatInput) return;
+
+    // Handle Enter key globally
+    document.addEventListener('keydown', (e) => {
+        // Ignore if typing in other inputs
+        if (document.activeElement.tagName === 'INPUT' && document.activeElement.id !== 'chatInput') return;
+        if (document.activeElement.tagName === 'TEXTAREA') return;
+
+        if (e.key === 'Enter') {
+            if (!chatInputActive) {
+                // Open chat input
+                chatInputContainer.style.display = 'block';
+                chatInput.focus();
+                chatInputActive = true;
+                e.preventDefault();
+            } else {
+                // Send message
+                const message = chatInput.value.trim();
+                if (message.length > 0) {
+                    socket.emit('playerChat', { message });
+                    chatInput.value = '';
+                }
+                // Close chat input
+                chatInputContainer.style.display = 'none';
+                chatInput.blur();
+                chatInputActive = false;
+                e.preventDefault();
+            }
+        }
+
+        // Handle Escape key to close chat
+        if (e.key === 'Escape' && chatInputActive) {
+            chatInputContainer.style.display = 'none';
+            chatInput.value = '';
+            chatInput.blur();
+            chatInputActive = false;
+            e.preventDefault();
+        }
+    });
+}
+
 // Input handling
 const keys = {
     turnLeft: false, // A
@@ -314,6 +375,9 @@ const keys = {
 };
 
 document.addEventListener('keydown', (e) => {
+    // Disable game controls while chat is active
+    if (chatInputActive) return;
+
     switch (e.key.toLowerCase()) {
         case 'w': keys.sailUp = true; break;
         case 's': keys.sailDown = true; break;

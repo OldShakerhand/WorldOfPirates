@@ -276,7 +276,7 @@ class Player {
                 text: `☠️ ${shipSunkEvent.killerName} sank ${shipSunkEvent.victimName}'s ${shipSunkEvent.shipClass}`
             };
             this.io.emit('chatMessage', killMessage);
-            console.log(`Ship sunk: ${killMessage.text}`);
+            console.log(`[Chat] ${killMessage.text}`);
         }
 
         // Clear damage source after processing
@@ -321,12 +321,21 @@ class Player {
 
             // Derive ChatMessage from player_rafted event
             if (this.io) {
+                // Include killer name if available (from shipSunkEvent)
+                let messageText;
+                if (shipSunkEvent.killerName) {
+                    messageText = `🌊 ${raftedEvent.playerName} was rafted by ${shipSunkEvent.killerName}`;
+                } else {
+                    messageText = `🌊 ${raftedEvent.playerName} is adrift on a raft (reach harbor to recover)`;
+                }
+
                 const raftedMessage = {
                     type: 'system',
                     timestamp: raftedEvent.timestamp,
-                    text: `🌊 ${raftedEvent.playerName} is adrift on a raft (reach harbor to recover)`
+                    text: messageText
                 };
                 this.io.emit('chatMessage', raftedMessage);
+                console.log(`[Chat] ${raftedMessage.text}`);
             }
 
             // Create Wreck (Visual & Loot)

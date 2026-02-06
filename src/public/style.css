@@ -53,6 +53,42 @@ canvas {
     line-height: 1.4;
 }
 
+.chat-message-player {
+    color: #FFFFFF;
+    line-height: 1.4;
+}
+
+.chat-message-player .player-name {
+    color: #3498db;
+    font-weight: bold;
+}
+
+/* Chat Input */
+#chatInputContainer {
+    position: fixed;
+    bottom: 220px;
+    right: 10px;
+    width: 300px;
+    z-index: 101;
+}
+
+#chatInput {
+    width: 100%;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(139, 69, 19, 0.8);
+    border-radius: 5px;
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+#chatInput:focus {
+    outline: none;
+    border-color: #f1c40f;
+}
+
 
 /* Harbor UI Overlay */
 #harborUI {

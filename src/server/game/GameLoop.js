@@ -159,6 +159,7 @@ class GameLoop {
 
         // Pass io and world references for kill message emission
         const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
+        player.chatLogger = this.chatLogger;
 
         // DEBUG ONLY: Track player join for early-session collision diagnosis
         // NO gameplay behavior change
@@ -186,6 +187,15 @@ class GameLoop {
 
         // Send ship metadata to the new player (only once)
         this.sendShipMetadata(socket);
+
+        // Emit join message to all players
+        const joinMessage = {
+            type: 'system',
+            timestamp: Date.now(),
+            text: `⚓ ${playerName} joined the game`
+        };
+        this.io.emit('chatMessage', joinMessage);
+        console.log(`[Chat] ${joinMessage.text}`);
 
         console.log(`Player "${playerName}" (${socket.id}) joined the game`);
         return true;

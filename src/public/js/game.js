@@ -1105,22 +1105,24 @@ function renderTradeInterface(economy, cargo) {
 // Chat Feed Rendering
 function renderChatFeed(messages) {
     const chatMessagesDiv = document.getElementById('chatMessages');
+    if (!chatMessagesDiv) return;
 
-    // Clear existing messages
     chatMessagesDiv.innerHTML = '';
 
-    // Render each message
-    messages.forEach(message => {
-        const messageDiv = document.createElement('div');
+    messages.forEach(msg => {
+        const msgDiv = document.createElement('div');
 
-        // Apply styling based on message type
-        if (message.type === 'system') {
-            messageDiv.className = 'chat-message-system';
+        if (msg.type === 'player') {
+            // Player message: "PlayerName: message"
+            msgDiv.className = 'chat-message-player';
+            msgDiv.innerHTML = `<span class="player-name">${msg.playerName}:</span> ${msg.text}`;
+        } else {
+            // System message
+            msgDiv.className = 'chat-message-system';
+            msgDiv.textContent = msg.text;
         }
-        // Future: add 'chat-message-player' class for player messages
 
-        messageDiv.textContent = message.text;
-        chatMessagesDiv.appendChild(messageDiv);
+        chatMessagesDiv.appendChild(msgDiv);
     });
 
     // Auto-scroll to bottom (show latest messages)

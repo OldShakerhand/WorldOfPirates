@@ -14,6 +14,17 @@ const MAX_PLAYERS = 20; // Server capacity limit
 // Player tracking
 let playerCount = 0;
 
+// Ban system
+// To ban a player, add their IP address to this set
+// Example: bannedIPs.add('123.45.67.89');
+const bannedIPs = new Set([
+    // Add banned IPs here, one per line
+    // '123.45.67.89',
+]);
+
+// Chat system
+const playerChatCooldowns = new Map(); // Track last message time per player
+
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -22,7 +33,20 @@ const gameLoop = new GameLoop(io);
 gameLoop.start();
 
 io.on('connection', (socket) => {
-    console.log(`Socket connected: ${socket.id}, waiting for player name...`);
+    // Get client IP address
+    const clientIP = socket.handshake.address;
+
+    console.log(`Socket connected: ${socket.id} from IP: ${clientIP}, waiting for player name...`);
+
+    // Check if IP is banned
+    if (bannedIPs.has(clientIP)) {
+        console.log(`[BAN] Rejected banned IP: ${clientIP} (Socket: ${socket.id})`);
+        socket.emit('banned', {
+            reason: 'You have been banned from this server.'
+        });
+        socket.disconnect();
+        return;
+    }
 
     // Wait for player to set their name before adding to game
     socket.on('setPlayerName', (data) => {
@@ -45,6 +69,8 @@ io.on('connection', (socket) => {
 
         if (success) {
             playerCount++;
+            // Log IP address on successful join
+            console.log(`[JOIN] Player "${playerName}" (${socket.id}) joined from IP: ${clientIP}`);
             console.log(`Player count: ${playerCount}/${MAX_PLAYERS}`);
         }
         // If not successful, addPlayer already handled disconnect
@@ -56,7 +82,20 @@ io.on('connection', (socket) => {
         if (player) {
             playerCount--;
             console.log(`Player disconnected: ${socket.id} (${playerCount}/${MAX_PLAYERS})`);
+
+            // Emit leave message to all players
+            const leaveMessage = {
+                type: 'system',
+                timestamp: Date.now(),
+                text: `🚪 ${player.name} left the game`
+            };
+            io.emit('chatMessage', leaveMessage);
+            console.log(`[Chat] ${leaveMessage.text}`);
+
             gameLoop.removePlayer(socket.id);
+
+            // Clean up chat cooldown
+            playerChatCooldowns.delete(socket.id);
         } else {
             console.log(`Socket disconnected before joining: ${socket.id}`);
         }
@@ -176,6 +215,49 @@ io.on('connection', (socket) => {
         for (let i = 0; i < actualCount; i++) {
             gameLoop.world.npcManager.spawnPirate(player.x, player.y, socket.id);
         }
+    });
+
+    // Player Chat
+    socket.on('playerChat', (data) => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        // Validate message
+        if (!data || !data.message || typeof data.message !== 'string') return;
+
+        const message = data.message.trim();
+
+        // Ignore empty messages
+        if (message.length === 0) return;
+
+        // Validate message length (max 200 characters)
+        if (message.length > 200) {
+            console.log(`[Chat] ${player.name}: Message too long (${message.length} chars)`);
+            return;
+        }
+
+        // Spam protection: 1 message per second
+        const now = Date.now();
+        const lastMessageTime = playerChatCooldowns.get(socket.id) || 0;
+        if (now - lastMessageTime < 1000) {
+            console.log(`[Chat] ${player.name}: Spam protection triggered`);
+            return;
+        }
+        playerChatCooldowns.set(socket.id, now);
+
+        // Create chat message
+        const chatMessage = {
+            type: 'player',
+            timestamp: now,
+            playerName: player.name,
+            text: message
+        };
+
+        // Broadcast to all players
+        io.emit('chatMessage', chatMessage);
+
+        // Log to console (visible in Render.com dashboard)
+        console.log(`[Chat] ${player.name}: ${message}`);
     });
 
     // DEBUG: Start Mission (Phase 0: Mission scaffolding)
