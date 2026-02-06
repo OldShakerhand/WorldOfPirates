@@ -15,11 +15,6 @@
 - **Related:** `harbor_teleport_debug.js` (entire file is debug-only, will be removed)
 
 ---
- Tracking
-
-This document tracks all identified technical debt in the World of Pirates codebase. Each item includes why it's debt, what refactor would help, and when it becomes relevant.
-
----
 
 ## Purpose
 
@@ -29,176 +24,107 @@ Track magic numbers, hardcoded heuristics, and scaling issues that should be add
 
 ## Critical Technical Debt (High Priority)
 
-### TECH_DEBT_003: Naive Spawn Algorithm
-**File**: `GameLoop.js:175`  
-**Type**: Scaling Issue  
-**Why**: O(attempts * islands) complexity with no spatial partitioning  
-**Refactor**: Pre-compute safe spawn zones or use spatial grid  
-**When**: >10 islands or frequent respawns cause lag  
-**Impact**: HIGH - affects player experience during respawn
+### TECH_DEBT_013: Lack of Persistence
+**Type**: Architecture  
+**Why**: All player progress (ships, gold, stats) is lost when the server restarts.  
+**Refactor**: Integrate a database (SQLite/PostgreSQL/MongoDB) to store player data.  
+**When**: IMMEDIATE - Core requirement for progression gameplay.  
+**Impact**: CRITICAL - Players lose all progress daily (Render.com restarts).
 
-### TECH_DEBT_010: Linear Island Collision Check
-**File**: `World.js:78`  
-**Type**: Scaling Issue  
-**Why**: O(n) check for every ship position update (called 60 times/sec per player)  
-**Refactor**: Use spatial partitioning (quadtree or grid-based lookup)  
-**When**: >20 islands or >50 players cause performance issues  
-**Impact**: CRITICAL - affects core game loop performance
+### TECH_DEBT_016: No Authentication System
+**Type**: Security  
+**Why**: Players identify only by name. Anyone can claim any name.  
+**Refactor**: Implement user accounts with password hashing (bcrypt) and session tokens (JWT).  
+**When**: Before public release.  
+**Impact**: HIGH - Identity theft, impossible to ban users effectively.
 
 ### TECH_DEBT_011: Nested Loop Projectile Collision
-**File**: `World.js:131` (needs manual addition)  
+**File**: `World.js:131` (approx)  
 **Type**: Scaling Issue  
-**Why**: O(projectiles * players) complexity every tick  
-**Refactor**: Use spatial hash grid or broad-phase/narrow-phase collision  
-**When**: >100 active projectiles or >30 players cause lag  
-**Impact**: HIGH - combat-heavy scenarios will lag
+**Why**: O(projectiles * players) complexity every tick.  
+**Refactor**: Use spatial hash grid or broad-phase/narrow-phase collision.  
+**When**: >100 active projectiles or >30 players cause lag.  
+**Impact**: HIGH - Combat-heavy scenarios will cause server lag.
 
 ---
 
 ## Medium Priority Technical Debt
 
-### TECH_DEBT_001: Hardcoded Performance Monitoring Interval
-**File**: `GameLoop.js:24`  
-**Type**: Magic Number  
-**Why**: 10-second interval may be too frequent for production  
-**Refactor**: Move to `GameConfig.PERFORMANCE_LOG_INTERVAL`  
-**When**: Before production deployment  
-**Impact**: MEDIUM - affects log volume, not gameplay
+### TECH_DEBT_015: Weak Moderation Tools (IP Ban Only)
+**File**: `server.js`  
+**Type**: Limitation  
+**Why**: Bans are stored in memory (lost on restart) and rely on IP addresses (easily bypassed).  
+**Refactor**: Move bans to database, implement account-based banning.  
+**When**: When player base grows or griefing becomes an issue.  
+**Impact**: MEDIUM - Hard to manage toxicity.
 
-### TECH_DEBT_002: Hardcoded Performance Threshold
-**File**: `GameLoop.js:48`  
-**Type**: Magic Number  
-**Why**: 16.67ms threshold assumes 60 FPS requirement  
-**Refactor**: Move to `GameConfig.MAX_TICK_TIME_MS` with dynamic adjustment  
-**When**: If tick rate becomes configurable or variable  
-**Impact**: MEDIUM - affects monitoring accuracy
+### TECH_DEBT_014: Unused Dead Code (`ChatLogger.js`)
+**File**: `src/server/utils/ChatLogger.js`  
+**Type**: Cleanliness  
+**Why**: Replaced by console logging for Render.com compatibility, but file remains.  
+**Refactor**: Delete the file and cleanup any lingering references.  
+**When**: Next cleanup cycle.  
+**Impact**: LOW - Just clutter.
 
 ### TECH_DEBT_004: Hardcoded Cannon Spread Factor
-**File**: `GameLoop.js:253`  
+**File**: `GameLoop.js`  
 **Type**: Magic Number  
-**Why**: 0.4 spread factor doesn't allow per-ship customization  
-**Refactor**: Move to `ShipClass` property (`cannonSpreadFactor`)  
-**When**: When balancing different ship classes or adding new ships  
-**Impact**: MEDIUM - affects combat balance and ship variety
+**Why**: 0.4 spread factor doesn't allow per-ship customization.  
+**Refactor**: Move to `ShipClass` property (`cannonSpreadFactor`).  
+**When**: When balancing different ship classes.  
+**Impact**: MEDIUM - Affects combat balance.
 
-### TECH_DEBT_009: Hardcoded Island Generation Edge Buffer
-**File**: `World.js:39`  
-**Type**: Magic Number  
-**Why**: 200px buffer is not proportional to world size  
-**Refactor**: Calculate as percentage of world size (e.g., 10%)  
-**When**: When supporting different world sizes or procedural generation  
-**Impact**: MEDIUM - affects map generation quality
+### TECH_DEBT_012: Harbor Coordinate System Inconsistency
+**File**: `game.js`, `GameLoop.js`  
+**Type**: Architecture Issue  
+**Why**: Y-axis inverted between sprite rendering (-Y = South) and world positioning (-Y = North) due to rotation transform.  
+**Refactor**: Standardize on world coordinates everywhere.  
+**When**: Before adding more complex harbor features.  
+**Impact**: MEDIUM - Affects maintainability.
 
 ---
 
 ## Low Priority Technical Debt
 
 ### TECH_DEBT_005: Hardcoded Sail State Modifiers
-**File**: `Player.js:186`  
+**File**: `Player.js`  
 **Type**: Magic Number  
-**Why**: 0.5 for half sails doesn't allow ship-specific tuning  
-**Refactor**: Move to `ShipClass` properties or `PhysicsConfig`  
+**Why**: 0.5 for half sails doesn't allow ship-specific tuning.  
+**Refactor**: Move to `ShipClass` properties or `PhysicsConfig`.  
+**When**: When different ship types need different sail efficiency curves.  
+**Impact**: LOW - Fine-tuning only.
 
 ### TECH_DEBT_006: Hardcoded Harbor Visual Config
-**File**: `game.js:594`
-**Type**: Configuration
-**Why**: Visual offsets (-100px) and scale (0.35) are hardcoded in render loop
-**Refactor**: Move to `ClientConfig.js` or `HarborConfig.js`
-**When**: When adding more harbor types or customizable visuals
-**Impact**: LOW - visual only  
-**When**: When different ship types need different sail efficiency curves  
-**Impact**: LOW - nice-to-have for ship variety
+**File**: `game.js`  
+**Type**: Configuration  
+**Why**: Visual offsets (-100px) and scale (0.35) are hardcoded.  
+**Refactor**: Move to `ClientConfig.js` or `HarborConfig.js`.  
+**Impact**: LOW - Visual only.
 
-### TECH_DEBT_006: Hardcoded Shallow Water Physics Multipliers
-**File**: `Player.js:203`  
+### TECH_DEBT_007/008: Hardcoded Wind Math
+**File**: `Wind.js`  
 **Type**: Magic Number  
-**Why**: 0.5 accel and 1.5 decel multipliers are arbitrary  
-**Refactor**: Move to `PhysicsConfig.SHALLOW_WATER_ACCEL_MULTIPLIER` and `DECEL_MULTIPLIER`  
-**When**: When adding different water depth levels or ship draft mechanics  
-**Impact**: LOW - future feature enablement
-
-### TECH_DEBT_007: Hardcoded Wind Strength Probabilities
-**File**: `Wind.js:22`  
-**Type**: Hardcoded Heuristic  
-**Why**: 20%/40%/40% distribution is arbitrary, not data-driven  
-**Refactor**: Move to `GameConfig` with configurable probability weights  
-**When**: When adding weather systems or regional wind patterns  
-**Impact**: LOW - affects wind variety
-
-### TECH_DEBT_008: Hardcoded Wind Strength Modifiers
-**File**: `Wind.js:29`  
-**Type**: Magic Number  
-**Why**: 0.6/0.8/1.0 multipliers are not balanced through playtesting  
-**Refactor**: Move to `PhysicsConfig.WIND_STRENGTH_MULTIPLIERS`  
-**When**: When balancing wind impact on gameplay  
-**Impact**: LOW - gameplay tuning
-
-### TECH_DEBT_012: Harbor Coordinate System Inconsistency
-**File**: `game.js:585-603`, `GameLoop.js:665-667`  
-**Type**: Architecture Issue  
-**Why**: Y-axis inverted between sprite rendering (-Y = South) and world positioning (-Y = North) due to rotation transform  
-**Refactor**: Standardize on world coordinates everywhere, apply rotation transforms properly so offsets use consistent coordinate system  
-**When**: Before adding more harbor features or when coordinate confusion causes bugs  
-**Impact**: MEDIUM - affects maintainability and future harbor feature development  
-**Details**: See [COORDINATE_SYSTEM.md - Harbor Coordinate System](file:///C:/Development/WorldOfPirates/docs/architecture/COORDINATE_SYSTEM.md#harbor-coordinate-system)
+**Why**: Probabilities and multipliers are hardcoded.  
+**Refactor**: Move to `GameConfig` / `PhysicsConfig`.  
+**When**: When implementing weather systems.  
+**Impact**: LOW.
 
 ---
 
 ## Refactoring Roadmap
 
-### Phase 1: Performance (Before Scaling)
-1. **TECH_DEBT_010**: Implement spatial partitioning for island collision
-2. **TECH_DEBT_011**: Implement spatial hash for projectile collision
-3. **TECH_DEBT_003**: Pre-compute safe spawn zones
+### Phase 1: Foundation (Current Focus)
+1. **TECH_DEBT_013**: Database Integration (Persistence)
+2. **TECH_DEBT_016**: Authentication & Accounts
+3. **TECH_DEBT_014**: Cleanup Dead Code
 
-**Trigger**: When approaching 20 concurrent players or 50+ projectiles
+### Phase 2: Scalability (When >20 Players)
+4. **TECH_DEBT_011**: Spatial Partitioning for Projectiles
+5. **TECH_DEBT_010** (Retired but keep in mind): Spatial Partitioning for optimized Island collisions (if map grows)
 
-### Phase 2: Configuration (Before Content Expansion)
-4. **TECH_DEBT_004**: Move cannon spread to ShipClass
-5. **TECH_DEBT_009**: Make island buffer proportional to world size
-6. **TECH_DEBT_005**: Make sail modifiers configurable per ship
-
-**Trigger**: When adding new ship classes or expanding world size
-
-### Phase 3: Gameplay Tuning (Ongoing)
-7. **TECH_DEBT_007**: Make wind probabilities configurable
-8. **TECH_DEBT_008**: Make wind strength modifiers configurable
-9. **TECH_DEBT_006**: Make shallow water physics configurable
-
-**Trigger**: During gameplay balancing iterations
-
-### Phase 4: Production Readiness
-10. **TECH_DEBT_001**: Make performance monitoring interval configurable
-11. **TECH_DEBT_002**: Make performance thresholds dynamic
-
-**Trigger**: Before production deployment
-
----
-
-## Estimated Refactoring Effort
-
-| Priority | Items | Estimated Hours | Dependencies |
-|----------|-------|-----------------|--------------|
-| Critical | 3 | 16-24h | Spatial partitioning library |
-| Medium | 4 | 8-12h | Config refactoring |
-| Low | 4 | 4-6h | None |
-| **Total** | **11** | **28-42h** | - |
-
----
-
-## Performance Scaling Thresholds
-
-### Current Limits (Without Refactoring)
-- **Players**: ~20 concurrent (limited by collision checks)
-- **Projectiles**: ~100 active (limited by nested loops)
-- **Islands**: ~10 (limited by linear searches)
-- **Tick Time**: ~10ms average (leaves 6ms headroom for 60 FPS)
-
-### After Phase 1 Refactoring
-- **Players**: ~100 concurrent (spatial partitioning)
-- **Projectiles**: ~500 active (spatial hash)
-- **Islands**: ~50 (quadtree lookup)
-- **Tick Time**: ~8ms average (better algorithms)
+### Phase 3: Configuration & Tuning
+6. **TECH_DEBT_004**: Ship-specific cannon spread
+7. **TECH_DEBT_005/007/008**: Externalize Physics/Wind constants
 
 ---
 
@@ -207,21 +133,12 @@ Track magic numbers, hardcoded heuristics, and scaling issues that should be add
 ### When Adding New Features
 - Check if feature introduces new magic numbers → add TODO comment
 - Check if feature has O(n²) or worse complexity → add FIXME comment
-- Update this document with new technical debt items
 
 ### Before Scaling
-- Review "Critical Technical Debt" section
-- Implement Phase 1 refactoring
-- Load test with 2x target player count
-
-### Before Production
-- Review "Production Readiness" section
-- Make all monitoring configurable
-- Add feature flags for experimental features
+- Implement Phase 2 refactoring (Spatial Partitioning) if profiler shows physics bottlenecks.
 
 ---
 
-*Last Updated*: 2026-01-04  
-*Total Debt Items*: 11  
-*Critical Items*: 3  
-*Estimated Total Effort*: 28-42 hours
+*Last Updated*: 2026-02-06
+*Total Debt Items*: 10
+*Critical Items*: 3
