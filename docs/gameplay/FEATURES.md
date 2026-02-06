@@ -88,7 +88,70 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Player Rafted Messages** - Emphasizes recoverability (not death/elimination)
 - [x] **Ship Switching Messages** - Informational messages when switching flagships
 - [x] **Debug Minimap** - 304×160px terrain visualization with player/harbor markers
+- [x] **Zoomable Minimap** - Three zoom levels (0x, 5x, 10x) toggled with M key
 - [x] **Loot Notifications** - On-screen notifications showing collected loot with fade-out effect
+- [x] **Progression Display** - Shows gold, level, and XP in HUD
+- [x] **Player Names** - Display names above ships (entered on game start)
+- [x] **Controls Legend** - On-screen guide showing all keybinds
+
+### Progression System
+- [x] **Player Levels** - Level up by gaining XP from combat and missions
+- [x] **Experience Points** - Earned from sinking ships and completing missions
+- [x] **Gold Currency** - Earned from wreck loot and mission rewards
+- [x] **Ship Upgrades** - Purchase better ships with gold (level-gated)
+- [x] **Level Requirements** - Ships require minimum level to purchase
+- [x] **Combat Rewards** - XP and gold rewards for sinking enemy ships
+
+### Economy & Trading
+- [x] **Harbor Trading** - Buy and sell goods at harbors
+- [x] **Trade Goods** - Multiple goods with varying prices per harbor
+- [x] **Cargo System** - Ship-based cargo holds with capacity limits
+- [x] **Dynamic Pricing** - Goods have different buy/sell prices
+- [x] **Trade Tiers** - Export (cheap) and Import (expensive) goods per harbor
+- [x] **Fleet Cargo** - Cargo distributed across entire fleet
+
+### Mission System
+- [x] **Mission Framework** - Accept, track, and complete missions
+- [x] **Mission Types** - Sail to harbor, stay in area, defeat NPCs, escort missions
+- [x] **Mission UI** - On-screen mission tracker with objectives and status
+- [x] **Mission Rewards** - Gold and XP rewards on completion
+- [x] **Debug Mission Spawning** - Keyboard shortcuts (1-4) to test missions
+
+### NPC Ships
+- [x] **NPC Spawning** - Spawn merchant and pirate NPCs for testing
+- [x] **NPC Navigation** - Basic AI movement and pathfinding
+- [x] **NPC Combat** - Pirates attack players, merchants flee
+- [x] **NPC Behaviors** - Wander, patrol, evade, and attack intents
+- [x] **NPC Health** - NPCs can be damaged and sunk
+- [x] **NPC Rewards** - Sinking NPCs grants XP and loot
+
+### Audio System
+- [x] **Sound Manager** - Client-side audio system with spatial audio
+- [x] **Cannon Fire Sounds** - Positional audio for port/starboard cannons
+- [x] **Sail Sounds** - Deploy and remove sail audio feedback
+- [x] **Impact Sounds** - Wood impact and water splash sounds
+- [x] **Ambient Sounds** - Wind and wave ambient audio
+- [x] **Mute Toggle** - U key to toggle all sounds on/off
+
+### Visual Effects
+- [x] **Wake Effects** - Ship wakes based on speed and movement
+- [x] **Splash Effects** - Water splashes for missed cannon shots
+- [x] **Projectile Shadows** - 3D effect for cannonballs in flight
+
+### Chat & Social
+- [x] **Global Chat** - Player-to-player text messaging
+- [x] **Chat Input** - Enter to open, type message, Enter to send, Escape to cancel
+- [x] **System Messages** - Join, leave, rafted, and ship sunk notifications
+- [x] **Chat Logging** - Console logging for all chat messages (Render.com compatible)
+- [x] **Spam Protection** - 1 message per second rate limit per player
+- [x] **Message Validation** - Max 200 characters, trimmed, non-empty
+- [x] **Visual Distinction** - Different styling for player vs system messages
+
+### Moderation
+- [x] **IP Tracking** - Log player IP addresses on connection and join
+- [x] **IP-Based Banning** - Ban players by IP address
+- [x] **Ban Detection** - Automatic rejection of banned IPs on connection
+- [x] **Proxy Support** - Correct IP detection behind Render.com reverse proxy
 
 ### Server & Performance
 - [x] **Player Cap** - 20 concurrent players maximum
@@ -127,19 +190,20 @@ Currently no features in active development.
 - [x] **Player Names** - Display names above ships (entered on game start)
 - [x] **Kill Attribution** - Server tracks damage sources for accurate kill credit
 - [x] **Game Events System** - Semantic events (ship_sunk, player_rafted) separate from UI messages
+- [x] **Global Chat** - Text communication between all players
 - [ ] **Player List** - See all connected players
-- [ ] **Score/Stats** - Track kills, deaths, ships sunk
+- [ ] **Score/Stats Dashboard** - Persistent leaderboard and player statistics
 
 #### Core Gameplay Improvements
-- [ ] **Spawn System** - Better spawn locations (away from combat, near harbors)
-- [ ] **Ship Acquisition** - Define how players get new ships (beyond harbor raft upgrade)
-- [ ] **Progression System** - Economy, unlocks, or session-based progression
-- [ ] **Interactive Minimap** - Click-to-view, zoom controls, other player markers
+- [ ] **Better Spawn System** - Spawn away from combat, near safe harbors
+- [ ] **Persistent Player Data** - Database integration for saving progress
+- [ ] **Authentication System** - User accounts and login
 
 ### Medium Priority
 
 #### Multiplayer Features
-- [ ] **Chat System** - Text communication with multiple channels (global, team, local)
+- [ ] **Team Chat** - Private chat channels for teams
+- [ ] **Local Chat** - Proximity-based chat for nearby players
 - [ ] **Teams/Clans** - Cooperative gameplay with in-game recognition
 - [ ] **Friend System** - Mark specific players as friends for easier coordination
 
@@ -147,18 +211,19 @@ Currently no features in active development.
 - [ ] **Faction System** - 4 nations (like original Pirates!), harbors/ships belong to factions
 - [ ] **Boarding Mechanics** - Capture enemy ships without sinking them
 - [ ] **Fencing Mini-Game** - Optional enhancement for boarding (low priority)
-- [ ] **AI Ships** - NPC merchants and enemies
+- [ ] **Advanced AI** - More sophisticated NPC behaviors and strategies
 - [ ] **Treasure System** - Collectibles or objectives
-- [ ] **Quest System** - Define objectives for players
+- [ ] **Quest Chains** - Multi-step missions with story progression
 
 #### World Features
 - [ ] **Weather Effects** - Storms, fog affecting visibility/gameplay
 - [ ] **Map Expansion** - Extend to full Atlantic/Pacific if needed
 
 #### Polish
-- [ ] **Sound Effects** - Cannon fire, wind, waves, impacts
+- [x] **Sound Effects** - Cannon fire, wind, waves, impacts
+- [x] **Visual Effects** - Wake trails, water splashes, projectile shadows
 - [ ] **Music** - Background music and combat themes
-- [ ] **Visual Effects** - Explosions, splashes, smoke
+- [ ] **Explosion Effects** - Dramatic ship destruction visuals
 - [ ] **Ship Customization** - Flags, colors, cosmetics
 
 ### Low Priority / Future Ideas
@@ -304,11 +369,13 @@ Missions provide structured PvE content and progression. Players select missions
 **Required for Extended Game-Loop:**
 
 #### Chat & Social
-- [ ] **Chat System** - Multiple channels:
-  - **Global Channel** - All players can see
-  - **Team/Clan Channel** - Only team members
-  - **Local Channel** - Players within certain range
-  - **Whisper/Direct Message** - Private 1-on-1 communication
+- [x] **Global Chat** - All players can see and send messages
+- [x] **System Messages** - Join/leave/combat events broadcast to all
+- [x] **Chat Logging** - Console logging for moderation
+- [x] **Spam Protection** - Rate limiting to prevent abuse
+- [ ] **Team/Clan Channel** - Only team members
+- [ ] **Local Channel** - Players within certain range
+- [ ] **Whisper/Direct Message** - Private 1-on-1 communication
 - [ ] **Friend System** - Mark players as friends, see online status
 - [ ] **Teams/Clans** - Create/join groups, shared chat, in-game recognition (colors/tags)
 
