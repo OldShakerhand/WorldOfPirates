@@ -33,8 +33,10 @@ const gameLoop = new GameLoop(io);
 gameLoop.start();
 
 io.on('connection', (socket) => {
-    // Get client IP address
-    const clientIP = socket.handshake.address;
+    // Get client IP address (handle reverse proxy on Render.com)
+    // X-Forwarded-For header contains the real client IP when behind a proxy
+    const forwardedFor = socket.handshake.headers['x-forwarded-for'];
+    const clientIP = forwardedFor ? forwardedFor.split(',')[0].trim() : socket.handshake.address;
 
     console.log(`Socket connected: ${socket.id} from IP: ${clientIP}, waiting for player name...`);
 
