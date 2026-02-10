@@ -668,3 +668,137 @@ canvas {
     margin: 0;
     font-weight: bold;
 }
+
+/* Changelog Overlay */
+#changelogOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+    /* Above everything */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#changelogOverlay.show {
+    opacity: 1;
+}
+
+.changelog-content {
+    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+    border: 2px solid #4ecca3;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(78, 204, 163, 0.2);
+}
+
+.changelog-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.changelog-header h2 {
+    color: #4ecca3;
+    margin: 0;
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 1px;
+}
+
+.version-tag {
+    background: rgba(78, 204, 163, 0.2);
+    color: #4ecca3;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.changelog-body {
+    padding: 20px 30px;
+    overflow-y: auto;
+    color: #e0e0e0;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Markdown Styling within Changelog */
+.changelog-body h3 {
+    color: #FFD700;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 5px;
+}
+
+.changelog-body ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.changelog-body li {
+    margin-bottom: 8px;
+}
+
+.changelog-body strong {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Scrollbar Styling */
+.changelog-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.changelog-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.changelog-body::-webkit-scrollbar-thumb {
+    background: #4ecca3;
+    border-radius: 4px;
+}
+
+.changelog-footer {
+    padding: 20px 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#closeChangelogBtn {
+    background: #4ecca3;
+    color: #1a1a2e;
+    border: none;
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+#closeChangelogBtn:hover {
+    background: #45b691;
+    transform: scale(1.05);
+}
+
+.changelog-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+}

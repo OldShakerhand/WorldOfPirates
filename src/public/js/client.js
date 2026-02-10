@@ -234,6 +234,14 @@ function setupGameListeners() {
     setupChatInput();
 
 
+    // Changelog data from server
+    let currentChangelogData = null;
+
+    socket.on('changelogData', (data) => {
+        currentChangelogData = data;
+        checkAndShowChangelog(data);
+    });
+
     // Transaction results (loot notifications, trade results, etc.)
     let transactionStatusTimeout = null; // Track timeout to clear it
 
@@ -919,3 +927,86 @@ function showMissionComplete(gold, xp) {
         }, 300); // Match CSS transition duration
     }, 2500);
 }
+
+// --- Changelog System ---
+
+function checkAndShowChangelog(data) {
+    const lastSeenVersion = localStorage.getItem('last_seen_version');
+
+    // Show if version changed or never seen
+    if (data.version !== lastSeenVersion) {
+        showChangelog(data);
+    }
+}
+
+function showChangelog(data) {
+    if (!data) return;
+
+    const overlay = document.getElementById('changelogOverlay');
+    const versionTag = document.getElementById('changelogVersion');
+    const body = document.getElementById('changelogBody');
+
+    // Update content
+    versionTag.textContent = `v${data.version} (${data.date})`;
+
+    let html = '';
+
+    // Order sections: Added, Changed, Fixed, Removed...
+    const order = ['Added', 'Changed', 'Fixed', 'Removed', 'Deprecated', 'Security'];
+
+    order.forEach(section => {
+        if (data.sections[section] && data.sections[section].length > 0) {
+            html += `<h3>${section}</h3>`;
+            html += `<ul>`;
+            data.sections[section].forEach(item => {
+                // Formatting: Bold text between ** **
+                let formattedItem = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                // Handle newlines for sub-items
+                formattedItem = formattedItem.replace(/\n\s*-\s*/g, '<br>• ');
+
+                html += `<li>${formattedItem}</li>`;
+            });
+            html += `</ul>`;
+        }
+    });
+
+    body.innerHTML = html;
+
+    // Show overlay
+    overlay.style.display = 'flex';
+    setTimeout(() => {
+        overlay.classList.add('show');
+    }, 10);
+}
+
+function hideChangelog() {
+    const overlay = document.getElementById('changelogOverlay');
+    overlay.classList.remove('show');
+
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 300);
+
+    // Update local storage when closed
+    if (currentChangelogData) {
+        localStorage.setItem('last_seen_version', currentChangelogData.version);
+    }
+}
+
+// Changelog Event Listeners
+document.getElementById('closeChangelogBtn').addEventListener('click', hideChangelog);
+
+// Key binding for 'N' (News/Changelog)
+document.addEventListener('keydown', (e) => {
+    // Only if not typing in an input
+    if (document.activeElement.tagName === 'INPUT') return;
+
+    if (e.key === 'n' || e.key === 'N') {
+        const overlay = document.getElementById('changelogOverlay');
+        if (overlay.style.display === 'flex') {
+            hideChangelog();
+        } else if (currentChangelogData) {
+            showChangelog(currentChangelogData);
+        }
+    }
+});

@@ -32,25 +32,27 @@ This document tracks all notable changes to World of Pirates across versions. It
 ## [Unreleased]
 
 ### Added
-- **Mission Completion Overlay** - Visual notification when missions succeed
-  - Gold-bordered overlay with "MISSION COMPLETE" message and reward details
-  - Auto-fade after 2.5 seconds with smooth transitions
-  - Works for all mission types (SAIL_TO_HARBOR, STAY_IN_AREA, ESCORT, DEFEAT_NPCS)
-  - Z-index 10000 ensures visibility above all UI elements
-  - See: [`index.html`](file:///c:/Development/WorldOfPirates/src/public/index.html), [`style.css`](file:///c:/Development/WorldOfPirates/src/public/style.css), [`client.js:showMissionComplete()`](file:///c:/Development/WorldOfPirates/src/public/js/client.js)
-- **8-Directional Harbor Coastline Detection** - Harbors now detect diagonal coastlines for better orientation
-- **Harbor Positioning Algorithm** - New logic finds exact center of shallow water band for optimal placement
+- **Mission Experience Overhaul**
+  - **Harbor-Based Structure**: Missions are now accepted at Harbors via the UI, replacing debug keybinds.
+  - **Visual Indicators**: Added "!" (Active) and "?" (Available) markers above mission providers.
+  - **Navigation Aids**: Dynamic distance and direction indicators guide you to mission targets.
+  - **Completion Overlay**: New gold-bordered notification when completing missions (with rewards!).
+- **New Interface Features**
+  - **Changelog Overlay**: Added "What's New" screen on login to track updates (Press 'N' to toggle).
+  - **Mission Rewards**: Missions now grant Gold and XP upon completion.
+- **Harbor Logic Improvements**
+  - **Smart Positioning**: Harbors now automatically center themselves in shallow water bands.
+  - **Coastline Detection**: Piers align correctly with 8-directional coastline analysis.
 
 ### Changed
-- **Harbor Sprite Rendering** - Applied 4-tile (100px) visual offset toward land for better pier alignment
-- **Harbor Coordinate Logic** - Server logic position is now strictly in shallow water, decoupled from visual sprite position
+- **Visual Polish**: Harbors now render with a visual offset closer to land for better aesthetic alignment.
+- **System Internals**: Decoupled server logic position from visual sprite position for more accurate gameplay.
 
 ### Fixed
-- **Mission Completion Event** - Fixed `player.socket` → `player.io` reference for proper event emission
-- **Overlay Z-Index Stacking** - Moved overlay outside game-container to fix canvas rendering over HTML elements
-- **Duplicate Mission Reward Notification** - Removed old green "Mission Reward" box in favor of new overlay
-- **Harbor Placement Issues** - Resolved misaligned harbors on irregular coastlines (e.g., Nassau, Andros)
-- **Debug Visualization** - Fixed debug rectangle offset discrepancy
+- **Overlay Stacking**: Fixed UI elements randomly overlapping game canvas.
+- **Harbor Placement**: Resolved issues where some harbors (e.g., Nassau) appeared slightly offshore.
+- **Reward Notifications**: Fixed duplicate "Mission Reward" messages.
+- **Event Emission**: Fixed internal socket references for smoother event handling.
 
 ---
 

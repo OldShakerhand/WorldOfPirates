@@ -3,10 +3,15 @@ const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
 const GameLoop = require('./game/GameLoop');
+const ChangelogParser = require('./utils/ChangelogParser');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+
+// Initialize Changelog Parser
+const changelogParser = new ChangelogParser(path.join(__dirname, '../../docs/meta/CHANGELOG.md'));
+const latestChangelog = changelogParser.getLatest();
 
 const PORT = process.env.PORT || 3000;
 const MAX_PLAYERS = 20; // Server capacity limit
@@ -39,6 +44,11 @@ io.on('connection', (socket) => {
     const clientIP = forwardedFor ? forwardedFor.split(',')[0].trim() : socket.handshake.address;
 
     console.log(`Socket connected: ${socket.id} from IP: ${clientIP}, waiting for player name...`);
+
+    // Send latest changelog data to client
+    if (latestChangelog) {
+        socket.emit('changelogData', latestChangelog);
+    }
 
     // Check if IP is banned
     if (bannedIPs.has(clientIP)) {
