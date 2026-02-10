@@ -620,3 +620,51 @@ canvas {
     border-color: #5a6c7d;
     cursor: not-allowed;
 }
+
+/* Mission Complete Overlay */
+#missionCompleteOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    /* Above all other UI */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+    /* Don't block clicks */
+}
+
+#missionCompleteOverlay.show {
+    opacity: 1;
+}
+
+.mission-complete-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 3px solid #FFD700;
+    border-radius: 15px;
+    padding: 40px 60px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+.mission-complete-content h2 {
+    color: #FFD700;
+    font-size: 36px;
+    margin: 0 0 20px 0;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 2px;
+}
+
+.mission-complete-content p {
+    color: #FFF;
+    font-size: 20px;
+    margin: 0;
+    font-weight: bold;
+}

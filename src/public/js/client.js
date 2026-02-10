@@ -197,6 +197,11 @@ function setupGameListeners() {
         hideHarborUI();
     });
 
+    // Mission complete event
+    socket.on('missionComplete', (data) => {
+        showMissionComplete(data.gold, data.xp);
+    });
+
     // Ship metadata from server (single source of truth)
     socket.on('shipMetadata', (metadata) => {
         // Merge server metadata with client SHIP_PROPERTIES
@@ -887,3 +892,30 @@ document.addEventListener('keydown', (e) => {
         // Server authoritatively prevents double-looting by removing wreck before granting loot
     }
 });
+
+// Show mission complete overlay
+function showMissionComplete(gold, xp) {
+    const overlay = document.getElementById('missionCompleteOverlay');
+    const rewardText = document.getElementById('missionRewardText');
+
+    // Update reward text
+    rewardText.textContent = `Reward: ${gold} Gold, ${xp} XP`;
+
+    // Show overlay
+    overlay.style.display = 'flex';
+
+    // Trigger fade-in animation
+    setTimeout(() => {
+        overlay.classList.add('show');
+    }, 10);
+
+    // Auto-hide after 2.5 seconds
+    setTimeout(() => {
+        overlay.classList.remove('show');
+
+        // Hide completely after fade-out
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300); // Match CSS transition duration
+    }, 2500);
+}

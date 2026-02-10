@@ -160,11 +160,20 @@ class MissionManager {
             // Apply rewards on success (Phase 2: Centralized)
             if (previousState === 'ACTIVE' && mission.state === 'SUCCESS') {
                 if (mission.rewardKey) {
-                    this.world.rewardSystem.grant(
+                    const reward = this.world.rewardSystem.grant(
                         mission.playerId,
                         mission.rewardKey,
                         { source: `Mission: ${mission.type}` }
                     );
+
+                    // Emit mission complete event to client
+                    const player = this.world.getEntity(mission.playerId);
+                    if (player && player.io) {
+                        player.io.to(player.id).emit('missionComplete', {
+                            gold: reward.gold || 0,
+                            xp: reward.xp || 0
+                        });
+                    }
                 }
             }
 

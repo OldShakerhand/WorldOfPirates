@@ -45,15 +45,8 @@ class RewardSystem {
 
             // Notify client of gold update
             if (player.io) {
-                // Update state
                 player.io.to(player.id).emit('playerStateUpdate', {
                     gold: player.gold
-                });
-
-                // Show notification
-                player.io.to(player.id).emit('transactionResult', {
-                    success: true,
-                    message: `Mission Reward: ${reward.gold} gold!`
                 });
             }
         }
@@ -66,6 +59,9 @@ class RewardSystem {
         // Log reward event
         const contextStr = context.source ? ` (${context.source})` : '';
         console.log(`[RewardSystem] ${player.name} earned ${rewardKey}${contextStr}: ${reward.gold}g, ${reward.xp} XP`);
+
+        // Return reward data for caller to use (e.g., mission completion overlay)
+        return reward;
 
         // FUTURE: Track reward history
         // if (!this.rewardHistory.has(playerId)) {
