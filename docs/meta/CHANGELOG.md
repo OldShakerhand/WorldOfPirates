@@ -34,7 +34,6 @@ This document tracks all notable changes to World of Pirates across versions. It
 ### Added
 - **Mission Experience Overhaul**
   - **Harbor-Based Structure**: Missions are now accepted at Harbors via the UI, replacing debug keybinds.
-  - **Visual Indicators**: Added "!" (Active) and "?" (Available) markers above mission providers.
   - **Navigation Aids**: Dynamic distance and direction indicators guide you to mission targets.
   - **Completion Overlay**: New gold-bordered notification when completing missions (with rewards!).
 - **New Interface Features**
