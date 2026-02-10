@@ -3,6 +3,7 @@ let socket = null;
 
 // Store static map data (received once on connection)
 let mapData = null;
+let currentChangelogData = null;
 
 // Chat messages (kill feed)
 // ChatMessage: { type: 'system', timestamp: number, text: string }
@@ -235,8 +236,6 @@ function setupGameListeners() {
 
 
     // Changelog data from server
-    let currentChangelogData = null;
-
     socket.on('changelogData', (data) => {
         currentChangelogData = data;
         checkAndShowChangelog(data);
@@ -1001,12 +1000,26 @@ document.addEventListener('keydown', (e) => {
     // Only if not typing in an input
     if (document.activeElement.tagName === 'INPUT') return;
 
-    if (e.key === 'h' || e.key === 'H') {
+    // Use e.code for physical key location (works better across layouts)
+    if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H') {
+        console.log('[Client] H key pressed (code: KeyH). Toggle Changelog.');
+
         const overlay = document.getElementById('changelogOverlay');
-        if (overlay.style.display === 'flex') {
+        if (!overlay) {
+            console.error('[Client] Changelog overlay not found in DOM!');
+            return;
+        }
+
+        if (overlay.style.display === 'flex' || overlay.classList.contains('show')) {
+            console.log('[Client] Hiding changelog');
             hideChangelog();
         } else if (currentChangelogData) {
+            console.log('[Client] Showing changelog', currentChangelogData);
             showChangelog(currentChangelogData);
+        } else {
+            console.warn('[Client] No changelog data available to show. Requesting from server...');
+            // Optional: requesting data if missing?
+            // socket.emit('requestChangelog'); 
         }
     }
 });

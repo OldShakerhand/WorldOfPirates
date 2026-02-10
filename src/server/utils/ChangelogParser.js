@@ -81,23 +81,25 @@ class ChangelogParser {
             }
 
             // Parse list items
-            if (currentSection && line.trim().startsWith('-')) {
-                // Formatting: specific handling for our markdown style
-                // - **Bold**: description
-                let text = line.trim().substring(1).trim();
+            const trimmedLine = line.trim();
 
-                // Add to current section
-                sections[currentSection].push(text);
-            }
+            if (currentSection && trimmedLine.startsWith('-')) {
+                const text = trimmedLine.substring(1).trim();
+                const isSubItem = line.startsWith('  ') || line.startsWith('\t');
 
-            // Handle indented bullets (sub-items)
-            if (currentSection && line.trim().length > 0 && line.startsWith('  -')) {
-                let text = line.trim().substring(1).trim();
-                // Append to last item if possible, or just add
-                const lastIdx = sections[currentSection].length - 1;
-                if (lastIdx >= 0) {
-                    sections[currentSection][lastIdx] += `\n  - ${text}`;
+                if (isSubItem) {
+                    // Handle indented bullets (sub-items) -> Append to last item
+                    const lastIdx = sections[currentSection].length - 1;
+                    if (lastIdx >= 0) {
+                        // Use a marker that client side can easily parse, or keep markdown structure
+                        // We use \n  - to preserve it for the client to replace with <br>
+                        sections[currentSection][lastIdx] += `\n  - ${text}`;
+                    }
+                } else {
+                    // New top-level item
+                    sections[currentSection].push(text);
                 }
+                continue;
             }
         }
 
