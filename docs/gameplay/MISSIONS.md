@@ -15,7 +15,8 @@ The Mission System provides structured objectives for players to pursue. Mission
 Phase 0 focuses on **structural scaffolding** rather than content. The goal is to establish a clean, extensible architecture that can support future mission features without requiring major refactoring.
 
 ### Constraints
-- ❌ No rewards (gold, XP, items)
+- ✅ ~~No rewards (gold, XP, items)~~ **Rewards implemented** (Phase 1)
+- ✅ **Mission completion overlay** - Visual notification with reward details
 - ❌ No persistence (missions reset on disconnect)
 - ❌ No mission discovery UI (debug keybinds only)
 - ❌ No mission chains or dependencies
@@ -27,13 +28,14 @@ Phase 0 focuses on **structural scaffolding** rather than content. The goal is t
 **Objective**: Navigate to a specific harbor  
 **Success**: Player enters target harbor  
 **Failure**: Player becomes raft  
-**Reward**: Granted immediately upon docking at target harbor  
+**Reward**: 100 gold, 50 XP - Granted immediately upon docking at target harbor  
 **Keybind**: `1`
 
 #### 2. Stay in Area
 **Objective**: Remain in designated area for duration  
 **Success**: Stay inside area for 10 seconds  
 **Failure**: Player becomes raft  
+**Reward**: 150 gold, 75 XP  
 **Visual**: Golden dashed circle  
 **Keybind**: `2`
 
@@ -41,6 +43,7 @@ Phase 0 focuses on **structural scaffolding** rather than content. The goal is t
 **Objective**: Sink a number of NPC ships  
 **Success**: Defeat 3 NPCs (pirates or traders)  
 **Failure**: Player becomes raft  
+**Reward**: 200 gold, 100 XP  
 **Tracking**: Event-based (NPC defeat hooks)  
 **Keybind**: `3`
 
@@ -48,6 +51,7 @@ Phase 0 focuses on **structural scaffolding** rather than content. The goal is t
 **Objective**: Protect NPC trader to destination  
 **Success**: NPC reaches harbor safely  
 **Failure**: NPC destroyed, player too far (800px), or player becomes raft  
+**Reward**: 300 gold, 150 XP  
 **Visual**: Green circle (max distance) + line to NPC + distance  
 **Keybind**: `4`
 

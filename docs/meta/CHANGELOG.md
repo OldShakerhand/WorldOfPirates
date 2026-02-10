@@ -32,6 +32,12 @@ This document tracks all notable changes to World of Pirates across versions. It
 ## [Unreleased]
 
 ### Added
+- **Mission Completion Overlay** - Visual notification when missions succeed
+  - Gold-bordered overlay with "MISSION COMPLETE" message and reward details
+  - Auto-fade after 2.5 seconds with smooth transitions
+  - Works for all mission types (SAIL_TO_HARBOR, STAY_IN_AREA, ESCORT, DEFEAT_NPCS)
+  - Z-index 10000 ensures visibility above all UI elements
+  - See: [`index.html`](file:///c:/Development/WorldOfPirates/src/public/index.html), [`style.css`](file:///c:/Development/WorldOfPirates/src/public/style.css), [`client.js:showMissionComplete()`](file:///c:/Development/WorldOfPirates/src/public/js/client.js)
 - **8-Directional Harbor Coastline Detection** - Harbors now detect diagonal coastlines for better orientation
 - **Harbor Positioning Algorithm** - New logic finds exact center of shallow water band for optimal placement
 
@@ -40,6 +46,9 @@ This document tracks all notable changes to World of Pirates across versions. It
 - **Harbor Coordinate Logic** - Server logic position is now strictly in shallow water, decoupled from visual sprite position
 
 ### Fixed
+- **Mission Completion Event** - Fixed `player.socket` → `player.io` reference for proper event emission
+- **Overlay Z-Index Stacking** - Moved overlay outside game-container to fix canvas rendering over HTML elements
+- **Duplicate Mission Reward Notification** - Removed old green "Mission Reward" box in favor of new overlay
 - **Harbor Placement Issues** - Resolved misaligned harbors on irregular coastlines (e.g., Nassau, Andros)
 - **Debug Visualization** - Fixed debug rectangle offset discrepancy
 
