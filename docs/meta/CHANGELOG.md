@@ -38,15 +38,14 @@ This document tracks all notable changes to World of Pirates across versions. It
   - **Navigation Aids**: Dynamic distance and direction indicators guide you to mission targets.
   - **Completion Overlay**: New gold-bordered notification when completing missions (with rewards!).
 - **New Interface Features**
-  - **Changelog Overlay**: Added "What's New" screen on login to track updates (Press 'N' to toggle).
+  - **Changelog Overlay**: Added "What's New" screen on login to track updates (Press **'H'** to toggle).
   - **Mission Rewards**: Missions now grant Gold and XP upon completion.
-- **Harbor Logic Improvements**
-  - **Smart Positioning**: Harbors now automatically center themselves in shallow water bands.
-  - **Coastline Detection**: Piers align correctly with 8-directional coastline analysis.
 
 ### Changed
-- **Visual Polish**: Harbors now render with a visual offset closer to land for better aesthetic alignment.
-- **System Internals**: Decoupled server logic position from visual sprite position for more accurate gameplay.
+- **Harbor System Improvements**
+  - **Smart Positioning**: Harbors now automatically center themselves in shallow water bands.
+  - **Visual Polish**: Piers align correctly with coastlines and render closer to land.
+  - **Internal Logic**: Decoupled server position from visual sprite for accurate gameplay.
 
 ### Fixed
 - **Overlay Stacking**: Fixed UI elements randomly overlapping game canvas.

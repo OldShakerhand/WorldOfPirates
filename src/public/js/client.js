@@ -1001,7 +1001,7 @@ document.addEventListener('keydown', (e) => {
     // Only if not typing in an input
     if (document.activeElement.tagName === 'INPUT') return;
 
-    if (e.key === 'n' || e.key === 'N') {
+    if (e.key === 'h' || e.key === 'H') {
         const overlay = document.getElementById('changelogOverlay');
         if (overlay.style.display === 'flex') {
             hideChangelog();
