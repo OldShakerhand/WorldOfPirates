@@ -66,6 +66,12 @@
                 </select>
                 <button id="switchShipBtn" onclick="switchFlagship()">Switch Flagship</button>
 
+                <!-- Governor Section (Phase 1: Mission acceptance) -->
+                <div id="governorSection" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <h3>🎖️ Governor - Missions</h3>
+                    <div id="missionList"></div>
+                </div>
+
                 <!-- Ship Upgrade Section (Phase 1: Progression) -->
                 <div id="upgradeSection" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
                     <h3>Upgrade Ship</h3>
@@ -111,6 +117,15 @@
                     <button id="closeBtn" onclick="closeHarbor()">Set Sail</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Mission UI Overlay (Top Left) -->
+    <div id="missionUI" style="display: none;">
+        <div id="missionContent">
+            <h3 id="missionType">Current Mission</h3>
+            <p id="missionDescription">Mission details...</p>
+            <button id="cancelMissionBtn" onclick="cancelMission()">Cancel Mission</button>
         </div>
     </div>
 

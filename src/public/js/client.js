@@ -180,6 +180,11 @@ function setupGameListeners() {
 
             // Update sound system
             updateSoundSystem(state);
+
+            // Update Mission UI
+            if (window.updateMissionUI) {
+                window.updateMissionUI(state.players[socket.id]);
+            }
         }
     });
 
@@ -602,6 +607,87 @@ function sellAll(goodId) {
 
 window.buyAll = buyAll;
 window.sellAll = sellAll;
+
+// Mission Logic
+function cancelMission() {
+    if (!socket) return;
+    if (confirm("Are you sure you want to cancel the current mission?")) {
+        socket.emit('cancelMission');
+        console.log('[Mission] Requested cancellation');
+    }
+}
+window.cancelMission = cancelMission;
+
+function updateMissionUI(player) {
+    const missionUI = document.getElementById('missionUI');
+    const missionType = document.getElementById('missionType');
+    const missionDesc = document.getElementById('missionDescription');
+
+    if (!player || !player.mission) {
+        if (missionUI.style.display !== 'none') {
+            missionUI.style.display = 'none';
+        }
+        return;
+    }
+
+    // Show UI
+    if (missionUI.style.display === 'none') {
+        missionUI.style.display = 'block';
+    }
+
+    // Update text
+    missionType.textContent = player.mission.type.replace(/_/g, ' ');
+
+    // Add distance and direction if target position exists
+    let description = player.mission.description;
+    if (player.mission.targetPosition) {
+        const dx = player.mission.targetPosition.x - player.x;
+        const dy = player.mission.targetPosition.y - player.y;
+        const distancePixels = Math.hypot(dx, dy);
+        const distanceKm = (distancePixels / 1000).toFixed(1); // Approximate km conversion
+
+        // Calculate direction (8-point compass)
+        const angle = Math.atan2(dy, dx);
+        const degrees = (angle * 180 / Math.PI + 360) % 360;
+        let direction = '';
+        if (degrees >= 337.5 || degrees < 22.5) direction = 'E';
+        else if (degrees >= 22.5 && degrees < 67.5) direction = 'SE';
+        else if (degrees >= 67.5 && degrees < 112.5) direction = 'S';
+        else if (degrees >= 112.5 && degrees < 157.5) direction = 'SW';
+        else if (degrees >= 157.5 && degrees < 202.5) direction = 'W';
+        else if (degrees >= 202.5 && degrees < 247.5) direction = 'NW';
+        else if (degrees >= 247.5 && degrees < 292.5) direction = 'N';
+        else if (degrees >= 292.5 && degrees < 337.5) direction = 'NE';
+
+        description += ` – ${distanceKm} km ${direction}`;
+    }
+
+    missionDesc.textContent = description;
+}
+window.updateMissionUI = updateMissionUI;
+
+// Accept mission from harbor (Phase 1: Governor)
+function acceptMission(missionData) {
+    if (!socket) return;
+    console.log(`[Mission] Accepting mission: ${missionData.type}`);
+
+    // Show immediate feedback in harbor UI
+    const missionList = document.getElementById('missionList');
+    if (missionList) {
+        missionList.innerHTML = `
+            <div style="padding: 15px; background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; border-radius: 3px; text-align: center;">
+                <p style="color: #2ecc71; font-weight: bold; margin: 0 0 5px 0;">✓ Mission Accepted!</p>
+                <p style="color: #ccc; font-size: 12px; margin: 0 0 10px 0;">${missionData.name}</p>
+                <p style="color: #888; font-size: 11px; margin: 0;">Press F to leave harbor and begin your mission</p>
+            </div>
+        `;
+    }
+
+    // Send to server
+    socket.emit('acceptMission', missionData);
+}
+window.acceptMission = acceptMission;
+
 
 
 /**

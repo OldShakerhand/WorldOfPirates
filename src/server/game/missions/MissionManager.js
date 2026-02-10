@@ -9,6 +9,105 @@ class MissionManager {
         this.missions = new Map(); // missionId -> Mission
         this.playerMissions = new Map(); // playerId -> missionId
         this.nextMissionId = 1;
+
+        // Configuration: Max radius for harbor mission targets (in pixels)
+        // ~15000px = ~600 tiles = reasonable travel distance
+        // Can be adjusted for balancing
+        this.MAX_HARBOR_MISSION_RADIUS = 15000;
+    }
+
+    // Helper: Select target harbor within radius
+    selectTargetHarbor(originHarborId, maxRadius = this.MAX_HARBOR_MISSION_RADIUS) {
+        const harbors = this.world.harborRegistry.getAllHarbors();
+        const originHarbor = harbors.find(h => h.id === originHarborId);
+
+        if (!originHarbor) return null;
+
+        const { GAME } = require('../config/GameConfig');
+        const originX = originHarbor.tileX * GAME.TILE_SIZE;
+        const originY = originHarbor.tileY * GAME.TILE_SIZE;
+
+        // Filter valid candidates (not origin, within radius)
+        const candidates = harbors.filter(h => {
+            if (h.id === originHarborId) return false;
+
+            const targetX = h.tileX * GAME.TILE_SIZE;
+            const targetY = h.tileY * GAME.TILE_SIZE;
+            const distance = Math.hypot(targetX - originX, targetY - originY);
+
+            return distance <= maxRadius;
+        });
+
+        // If no harbors within radius, select nearest
+        if (candidates.length === 0) {
+            let nearest = null;
+            let minDist = Infinity;
+
+            harbors.forEach(h => {
+                if (h.id === originHarborId) return;
+
+                const targetX = h.tileX * GAME.TILE_SIZE;
+                const targetY = h.tileY * GAME.TILE_SIZE;
+                const distance = Math.hypot(targetX - originX, targetY - originY);
+
+                if (distance < minDist) {
+                    minDist = distance;
+                    nearest = h;
+                }
+            });
+
+            return nearest;
+        }
+
+        // Randomly select from candidates
+        const selected = candidates[Math.floor(Math.random() * candidates.length)];
+        return selected;
+    }
+
+    // Helper: Calculate compass direction between two points
+    getDirectionHint(fromX, fromY, toX, toY) {
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+
+        // Calculate angle in radians (0 = East, PI/2 = South, PI = West, 3PI/2 = North)
+        let angle = Math.atan2(dy, dx);
+
+        // Convert to degrees (0-360)
+        let degrees = (angle * 180 / Math.PI + 360) % 360;
+
+        // Map to 8 compass directions
+        if (degrees >= 337.5 || degrees < 22.5) return 'east';
+        if (degrees >= 22.5 && degrees < 67.5) return 'southeast';
+        if (degrees >= 67.5 && degrees < 112.5) return 'south';
+        if (degrees >= 112.5 && degrees < 157.5) return 'southwest';
+        if (degrees >= 157.5 && degrees < 202.5) return 'west';
+        if (degrees >= 202.5 && degrees < 247.5) return 'northwest';
+        if (degrees >= 247.5 && degrees < 292.5) return 'north';
+        if (degrees >= 292.5 && degrees < 337.5) return 'northeast';
+
+        return 'nearby';
+    }
+
+    // Helper: Generate mission description from template
+    generateMissionDescription(missionType, harborName, direction) {
+        const templates = {
+            SAIL_TO_HARBOR: [
+                `After the recent storm, our colony urgently needs supplies. Sail ${direction} to ${harborName}.`,
+                `A courier ship must reach ${harborName}. Set sail ${direction} and deliver them safely.`,
+                `Merchants await escort and goods at ${harborName}. Travel ${direction} and report in person.`
+            ],
+            ESCORT: [
+                `A merchant vessel requires protection to ${harborName}. Escort them ${direction}.`,
+                `Pirates threaten trade routes ${direction}. Guard a trader to ${harborName}.`,
+                `Valuable cargo must reach ${harborName}. Provide safe passage ${direction}.`
+            ]
+        };
+
+        const templateList = templates[missionType];
+        if (!templateList) return `Travel to ${harborName}`;
+
+        const template = templateList[Math.floor(Math.random() * templateList.length)];
+        return template;
     }
 
     // Create and assign mission to player
@@ -30,6 +129,26 @@ class MissionManager {
 
         console.log(`[MissionManager] Assigned ${mission.type} to player ${playerId}`);
         return mission;
+    }
+
+    // Cancel active mission for player
+    cancelMission(playerId) {
+        const missionId = this.playerMissions.get(playerId);
+        if (!missionId) return false;
+
+        const mission = this.missions.get(missionId);
+        if (!mission || mission.state !== 'ACTIVE') return false;
+
+        console.log(`[MissionManager] Cancelling mission ${mission.id} for player ${playerId}`);
+
+        // 1. Call mission.cancel() -> triggers onCancel() logic (cleanup listeners/NPCs)
+        mission.cancel();
+
+        // 2. Remove from tracking maps IMMEDIATELY so player can take new mission
+        this.playerMissions.delete(playerId);
+        this.missions.delete(missionId);
+
+        return true;
     }
 
     // Update all active missions
@@ -78,10 +197,65 @@ class MissionManager {
         }
     }
 
+    // Generate available missions for a harbor (Phase 1: Improved targeting and descriptions)
+    generateAvailableMissions(playerId, harborId) {
+        const { getReward } = require('../progression/RewardConfig');
+        const { GAME } = require('../config/GameConfig');
+
+        const missions = [];
+
+        // Get origin harbor
+        const originHarbor = this.world.harborRegistry.getAllHarbors().find(h => h.id === harborId);
+        if (!originHarbor) return missions;
+
+        const originX = originHarbor.tileX * GAME.TILE_SIZE;
+        const originY = originHarbor.tileY * GAME.TILE_SIZE;
+
+        // Mission 1: Sail to Harbor
+        const targetHarbor = this.selectTargetHarbor(harborId);
+        if (targetHarbor) {
+            const targetX = targetHarbor.tileX * GAME.TILE_SIZE;
+            const targetY = targetHarbor.tileY * GAME.TILE_SIZE;
+            const direction = this.getDirectionHint(originX, originY, targetX, targetY);
+            const description = this.generateMissionDescription('SAIL_TO_HARBOR', targetHarbor.name, direction);
+
+            const reward = getReward('MISSION.SAIL_TO_HARBOR');
+            missions.push({
+                type: 'SAIL_TO_HARBOR',
+                name: 'Sail to Harbor',
+                description: description,
+                reward: reward ? `${reward.gold} gold, ${reward.xp} XP` : 'Gold + XP',
+                targetHarborId: targetHarbor.id,
+                targetHarborName: targetHarbor.name
+            });
+        }
+
+        // Mission 2: Escort Trader
+        const escortTargetHarbor = this.selectTargetHarbor(harborId);
+        if (escortTargetHarbor) {
+            const targetX = escortTargetHarbor.tileX * GAME.TILE_SIZE;
+            const targetY = escortTargetHarbor.tileY * GAME.TILE_SIZE;
+            const direction = this.getDirectionHint(originX, originY, targetX, targetY);
+            const description = this.generateMissionDescription('ESCORT', escortTargetHarbor.name, direction);
+
+            const reward = getReward('MISSION.ESCORT');
+            missions.push({
+                type: 'ESCORT',
+                name: 'Escort Trader',
+                description: description,
+                reward: reward ? `${reward.gold} gold, ${reward.xp} XP` : 'Gold + XP',
+                targetHarborId: escortTargetHarbor.id,
+                targetHarborName: escortTargetHarbor.name
+            });
+        }
+
+        return missions;
+    }
+
     // Serialize missions for client
     serializeForPlayer(playerId) {
         const mission = this.getPlayerMission(playerId);
-        return mission ? mission.serialize() : null;
+        return mission ? mission.serialize(this.world) : null;
     }
 }
 

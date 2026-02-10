@@ -573,7 +573,8 @@ class GameLoop {
             harborName: harbor.name,
             fleet: player.fleet.map(ship => ship.serialize()),
             economy: economy,  // null if no trade available
-            cargo: player.fleetCargo.serialize()
+            cargo: player.fleetCargo.serialize(),
+            availableMissions: this.world.missionManager.generateAvailableMissions(socket.id, harbor.id)
         };
         socket.emit('harborData', harborData);
     }

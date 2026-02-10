@@ -33,6 +33,18 @@ class SailToHarborMission extends Mission {
         }
     }
 
+    getTargetPosition(world) {
+        // Find target harbor and return its position
+        const harbor = world.harbors.find(h => h.id === this.targetHarborId);
+        if (!harbor) return null;
+
+        // Harbor.x and Harbor.y are already in pixel coordinates
+        return {
+            x: harbor.x,
+            y: harbor.y
+        };
+    }
+
     getDescription() {
         return `Sail to ${this.targetHarborName}`;
     }

@@ -334,6 +334,69 @@ io.on('connection', (socket) => {
             gameLoop.world.missionManager.assignMission(socket.id, mission);
         }
     });
+
+    // Accept Mission (Phase 1: Harbor integration)
+    socket.on('acceptMission', (data) => {
+        const player = gameLoop.world.getEntity(socket.id);
+        if (!player) return;
+
+        // Validate player is docked
+        if (!player.inHarbor) {
+            console.log(`[Mission] ${player.name} tried to accept mission while not docked`);
+            return;
+        }
+
+        // Validate no active mission
+        const existingMission = gameLoop.world.missionManager.getPlayerMission(socket.id);
+        if (existingMission && existingMission.state === 'ACTIVE') {
+            console.log(`[Mission] ${player.name} already has active mission`);
+            return;
+        }
+
+        // Create mission based on type (reuse debug logic)
+        const SailToHarborMission = require('./game/missions/SailToHarborMission');
+        const EscortMission = require('./game/missions/EscortMission');
+
+        let mission = null;
+
+        switch (data.type) {
+            case 'SAIL_TO_HARBOR':
+                // Use target harbor from mission data (already selected by MissionManager)
+                if (data.targetHarborId && data.targetHarborName) {
+                    mission = new SailToHarborMission(null, socket.id, data.targetHarborId, data.targetHarborName);
+                    console.log(`[Mission] ${player.name} accepted: Sail to ${data.targetHarborName}`);
+                }
+                break;
+
+            case 'ESCORT':
+                // Spawn trader NPC
+                const trader = gameLoop.world.npcManager.spawnTrader(player.x, player.y);
+
+                // Use target harbor from mission data
+                if (trader && data.targetHarborId && data.targetHarborName) {
+                    trader.targetHarborId = data.targetHarborId;
+                    mission = new EscortMission(
+                        null, socket.id,
+                        trader.id,
+                        data.targetHarborId,
+                        data.targetHarborName,
+                        800
+                    );
+                    console.log(`[Mission] ${player.name} accepted: Escort to ${data.targetHarborName}`);
+                }
+                break;
+        }
+
+        if (mission) {
+            gameLoop.world.missionManager.assignMission(socket.id, mission);
+        }
+    });
+
+    // Cancel Mission
+    socket.on('cancelMission', () => {
+        gameLoop.world.missionManager.cancelMission(socket.id);
+        // UI update will happen via next gamestate_update where mission is null
+    });
 });
 
 // Helper: Find next closest harbor (skip current one)

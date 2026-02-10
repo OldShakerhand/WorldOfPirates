@@ -57,13 +57,25 @@ class EscortMission extends Mission {
         }
     }
 
+    getTargetPosition(world) {
+        // Return destination harbor position
+        const harbor = world.harbors.find(h => h.id === this.targetHarborId);
+        if (!harbor) return null;
+
+        // Harbor.x and Harbor.y are already in pixel coordinates
+        return {
+            x: harbor.x,
+            y: harbor.y
+        };
+    }
+
     getDescription() {
         return `Escort trader to ${this.targetHarborName}`;
     }
 
-    serialize() {
+    serialize(world) {
         return {
-            ...super.serialize(),
+            ...super.serialize(world),
             escortNpcId: this.escortNpcId,
             targetHarborId: this.targetHarborId,
             maxDistance: this.maxDistance

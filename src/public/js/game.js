@@ -453,6 +453,13 @@ function renderGame(state, mapData, myId) {
     }
 
 
+    // Draw mission target marker (if active mission with target position)
+    // MUST be drawn before ctx.restore() to be in world space
+    const playerShip = state.players[socket.id];
+    if (playerShip && playerShip.mission && playerShip.mission.targetPosition) {
+        const target = playerShip.mission.targetPosition;
+        drawMissionMarker(target.x, target.y);
+    }
 
     // Restore context to draw UI elements at fixed positions
     ctx.restore();
@@ -539,6 +546,42 @@ function renderGame(state, mapData, myId) {
         ctx.fillText(text, canvas.width / 2, boxY + 26);
         ctx.restore();
     }
+}
+
+// Draw mission target marker with pulsing animation
+function drawMissionMarker(x, y) {
+    const time = Date.now() / 1000;
+    const pulse = Math.sin(time * 2) * 0.3 + 0.7; // Oscillate between 0.4 and 1.0
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Outer pulsing circle
+    ctx.beginPath();
+    ctx.arc(0, 0, 40 * pulse, 0, Math.PI * 2);
+    ctx.strokeStyle = '#FFD700'; // Gold
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.6 * pulse;
+    ctx.stroke();
+
+    // Inner circle
+    ctx.beginPath();
+    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.2)'; // Semi-transparent gold
+    ctx.fill();
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.9;
+    ctx.stroke();
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(0, 0, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFD700';
+    ctx.globalAlpha = 1.0;
+    ctx.fill();
+
+    ctx.restore();
 }
 
 function drawIslandWithShallowWater(island) {
@@ -787,45 +830,11 @@ function drawSpeedDisplay(player) {
 
 // Mission UI (Phase 0: Mission scaffolding)
 function drawMissionUI(player) {
-    if (!player.mission) return; // No active mission
-
-    ctx.save();
-    ctx.font = '14px Arial';
-    ctx.textAlign = 'left';
-
-    // Background
-    const boxX = 10;
-    const boxY = 120; // Below fleet UI
-    const boxWidth = 250;
-    const boxHeight = 60;
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-
-    // Mission title
-    ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 14px Arial';
-    ctx.fillText('📜 MISSION', boxX + 10, boxY + 20);
-
-    // Mission description
-    ctx.fillStyle = 'white';
-    ctx.font = '12px Arial';
-    ctx.fillText(player.mission.description, boxX + 10, boxY + 40);
-
-    // Mission state
-    const stateColors = {
-        'ACTIVE': '#00FF00',
-        'SUCCESS': '#FFD700',
-        'FAILED': '#FF0000'
-    };
-    ctx.fillStyle = stateColors[player.mission.state] || 'white';
-    ctx.fillText(`Status: ${player.mission.state}`, boxX + 10, boxY + 55);
-
-    ctx.restore();
+    // Legacy HUD removed - replaced by DOM-based #missionUI in index.html
+    // Spatial indicators (circles, arrows) are handled directly in renderGame()
 }
+
+
 
 function drawShip(player, isMe) {
     ctx.save();
@@ -1018,6 +1027,25 @@ function showHarborUI(harborData) {
         renderTradeInterface(harborData.economy, harborData.cargo);
     } else {
         tradeSection.style.display = 'none';
+    }
+
+    // Display available missions (Phase 1: Governor)
+    const missionList = document.getElementById('missionList');
+    if (harborData.availableMissions && harborData.availableMissions.length > 0) {
+        let missionsHTML = '';
+        harborData.availableMissions.forEach(mission => {
+            missionsHTML += `
+                <div class="mission-card">
+                    <h4>${mission.name}</h4>
+                    <p>${mission.description}</p>
+                    <p style="color: #FFD700; font-size: 11px;">Reward: ${mission.reward}</p>
+                    <button onclick="acceptMission(${JSON.stringify(mission).replace(/"/g, '&quot;')})">Accept Mission</button>
+                </div>
+            `;
+        });
+        missionList.innerHTML = missionsHTML;
+    } else {
+        missionList.innerHTML = '<p style="color: #888; font-size: 12px;">No missions available</p>';
     }
 
     harborUI.style.display = 'flex';

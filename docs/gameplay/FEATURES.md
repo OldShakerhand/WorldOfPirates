@@ -233,6 +233,7 @@ Currently no features in active development.
 - [ ] **Death Screen** - Show what happened when ship sinks
 - [ ] **Settings Menu** - Control sensitivity, graphics options
 - [ ] **Tutorial** - First-time player guidance
+- [ ] **Off-Screen Target Indicator** - Arrow/marker at screen edge pointing toward off-screen mission targets or objectives with optional distance text
 
 #### Advanced Features
 - [ ] **Leaderboards** - Global rankings

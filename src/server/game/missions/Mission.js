@@ -53,20 +53,37 @@ class Mission {
         this.onFail();
     }
 
+    cancel() {
+        if (this.state !== 'ACTIVE') return;
+        this.state = 'CANCELLED';
+        this.endTime = Date.now();
+        console.log(`[Mission] ${this.type} CANCELLED for player ${this.playerId}`);
+        this.onCancel();
+    }
+
     // Subclass hooks
     onStart() { }
     onUpdate(world, deltaTime) { }
     onSuccess() { }
     onFail() { }
+    onCancel() { }
+
+    // Get mission target position (for markers/UI)
+    // Subclasses should override to return { x, y } or null
+    getTargetPosition(world) {
+        return null;
+    }
 
     // Serialization for client
-    serialize() {
+    serialize(world) {
+        const targetPos = this.getTargetPosition(world);
         return {
             id: this.id,
             type: this.type,
             state: this.state,
             description: this.getDescription(),
-            rewardKey: this.rewardKey  // Client can look up preview if needed
+            rewardKey: this.rewardKey,  // Client can look up preview if needed
+            targetPosition: targetPos  // { x, y } or null
         };
     }
 
