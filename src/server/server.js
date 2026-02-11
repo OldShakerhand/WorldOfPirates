@@ -317,25 +317,20 @@ io.on('connection', (socket) => {
                 const existingMission = gameLoop.world.missionManager.getPlayerMission(socket.id);
                 if (existingMission && existingMission.state === 'ACTIVE') {
                     console.log(`[Mission] ${player.name} already has active mission, cannot start escort`);
-                    return; // Don't spawn NPC if player has active mission
+                    return;
                 }
 
-                // Spawn a trader NPC
-                const trader = gameLoop.world.npcManager.spawnTrader(player.x, player.y);
+                // Find target harbor (NPC will spawn when player reaches rendezvous)
                 const escortTargetHarbor = findNextClosestHarbor(player, gameLoop.world);
 
-                if (trader && escortTargetHarbor) {
-                    // Override trader's target to mission harbor
-                    trader.targetHarborId = escortTargetHarbor.id;
-
+                if (escortTargetHarbor) {
                     mission = new EscortMission(
                         null, socket.id,
-                        trader.id,
                         escortTargetHarbor.id,
                         escortTargetHarbor.name,
                         800 // max distance
                     );
-                    console.log(`[Mission] ${player.name}: Escort ${trader.id} to ${escortTargetHarbor.name}`);
+                    console.log(`[Mission] ${player.name}: Escort to ${escortTargetHarbor.name} (NPC spawns on departure)`);
                 }
                 break;
         }
@@ -379,18 +374,13 @@ io.on('connection', (socket) => {
                 break;
 
             case 'ESCORT':
-                // Spawn trader NPC
-                const trader = gameLoop.world.npcManager.spawnTrader(player.x, player.y);
-
-                // Use target harbor from mission data
-                if (trader && data.targetHarborId && data.targetHarborName) {
-                    trader.targetHarborId = data.targetHarborId;
+                // Create escort mission (trader spawns when player reaches rendezvous)
+                if (data.targetHarborId && data.targetHarborName) {
                     mission = new EscortMission(
                         null, socket.id,
-                        trader.id,
                         data.targetHarborId,
                         data.targetHarborName,
-                        800
+                        800 // max distance
                     );
                     console.log(`[Mission] ${player.name} accepted: Escort to ${data.targetHarborName}`);
                 }
@@ -431,9 +421,9 @@ function findNextClosestHarbor(player, world) {
         return distA - distB;
     });
 
-    // Return second closest (index 1) to avoid picking the one we're at
-    // If we're not in a harbor, return closest (index 0)
-    const targetHarborData = player.inHarbor ? availableHarbors[1] : availableHarbors[0];
+    // Always return second closest (index 1) to ensure different origin/target
+    // This works for both docked (skip current harbor) and debug (skip nearest)
+    const targetHarborData = availableHarbors[1] || availableHarbors[0];
 
     if (targetHarborData) {
         return {

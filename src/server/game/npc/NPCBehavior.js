@@ -118,7 +118,7 @@ const NPCCombatConfig = {
     DEFAULT_COMBAT_SIDE: 'PORT',    // 'PORT' or 'STARBOARD'
 
     // Target selection (derived from projectile range)
-    MAX_ENGAGEMENT_RANGE_FACTOR: 2.0,  // Multiple of max projectile range (2x = 500px)
+    MAX_ENGAGEMENT_RANGE_FACTOR: 6.0,  // Multiple of max projectile range (6x = 1500px, allows escort mission pirates)
 
     get MAX_ENGAGEMENT_RANGE() {
         return CombatConfig.PROJECTILE_MAX_DISTANCE * this.MAX_ENGAGEMENT_RANGE_FACTOR;

@@ -112,6 +112,11 @@ class NPCShip {
         this.lastAttacker = null;      // ID of entity that last damaged this NPC
         this.lastAttackTime = 0;       // Timestamp of last attack
         this.lastLoggedHealth = null;  // Last health value we logged (for reducing spam)
+
+        // Escort mission support (Phase 4: Escort improvements)
+        this.speedMultiplier = 1.0;    // Speed adjustment for escort missions
+        this.spawnX = x;               // Original spawn position (for mission progress)
+        this.spawnY = y;               // Original spawn position (for mission progress)
     }
 
     get flagship() {
@@ -251,21 +256,27 @@ class NPCShip {
         }
 
         // 4. Steer toward currentHeading
-        let angleDiff = this.currentHeading - this.rotation;
+        // Steering
+        let angleDiff = this.desiredHeading - this.rotation;
         while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
         while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
-        const TURN_THRESHOLD = 0.1; // radians (~6 degrees)
+        const TURN_THRESHOLD = 0.1;
         if (angleDiff > TURN_THRESHOLD) {
             this.inputs.right = true;
         } else if (angleDiff < -TURN_THRESHOLD) {
             this.inputs.left = true;
         }
 
-        // 5. Sail management (use half sails)
-        if (this.sailState < 1) {
+        // Sail management: Pursuit vs Combat positioning
+        // - Far from target (pursuing): Full sails to catch up
+        // - Near target (combat positioning): Half sails for maneuvering
+        const PURSUIT_DISTANCE = NPCCombatOverlay.Config.COMBAT_DISTANCE * 1.5; // 1.5x combat distance
+        const targetSailState = distToPosition > PURSUIT_DISTANCE ? 2 : 1; // Full sails if pursuing, half if positioning
+
+        if (this.sailState < targetSailState) {
             this.inputs.sailUp = true;
-        } else if (this.sailState > 1) {
+        } else if (this.sailState > targetSailState) {
             this.inputs.sailDown = true;
         }
 
@@ -312,10 +323,12 @@ class NPCShip {
             this.inputs.left = true;
         }
 
-        // Sail management (use half sails)
-        if (this.sailState < 1) {
+        // Sail management
+        // TRAVEL intent = determined movement to destination (full sails)
+        // This allows speedMultiplier to work from maximum base speed
+        if (this.sailState < 2) {
             this.inputs.sailUp = true;
-        } else if (this.sailState > 1) {
+        } else if (this.sailState > 2) {
             this.inputs.sailDown = true;
         }
 
@@ -573,28 +586,62 @@ class NPCShip {
     /**
      * Combat: Select Combat Target
      * Finds nearest player within engagement range
+     * If combatTarget is already set (e.g., by mission), validates it instead of searching
      */
     selectCombatTarget(world) {
+        const previousTarget = this.combatTarget; // Track for logging
+
+        // If we already have a target assigned (e.g., by escort mission), validate it
+        if (this.combatTarget) {
+            const currentTarget = world.entities[this.combatTarget];
+
+            // Keep current target if it's valid (same criteria as search)
+            if (currentTarget && !currentTarget.inHarbor && !currentTarget.isRaft &&
+                currentTarget.flagship && !currentTarget.flagship.isSunk) {
+                const dist = Math.hypot(currentTarget.x - this.x, currentTarget.y - this.y);
+
+                // Keep target if within engagement range
+                if (dist < NPCCombatOverlay.Config.MAX_ENGAGEMENT_RANGE) {
+                    return; // Keep existing target
+                }
+            }
+
+            // Current target invalid, clear it
+            this.combatTarget = null;
+        }
+
+        // Search for nearest valid target
         let nearestPlayer = null;
         let nearestDist = Infinity;
 
         for (const id in world.entities) {
             const entity = world.entities[id];
-            if (entity.type === 'PLAYER') {
+            if (entity.type === 'PLAYER' || entity.type === 'NPC') {
                 const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
 
                 // Check if within engagement range
                 if (dist < NPCCombatOverlay.Config.MAX_ENGAGEMENT_RANGE && dist < nearestDist) {
                     // Validate target (not in harbor, not sunk)
                     if (!entity.inHarbor && !entity.isRaft && entity.flagship && !entity.flagship.isSunk) {
-                        nearestDist = dist;
-                        nearestPlayer = entity;
+                        // Don't target self
+                        if (entity.id !== this.id) {
+                            // Don't target NPCs with the same role (prevent pirate vs pirate)
+                            if (entity.type === 'PLAYER' || entity.roleName !== this.roleName) {
+                                nearestDist = dist;
+                                nearestPlayer = entity;
+                            }
+                        }
                     }
                 }
             }
         }
 
         this.combatTarget = nearestPlayer ? nearestPlayer.id : null;
+
+        // Only log when target changes
+        if (this.combatTarget !== previousTarget) {
+            console.log(`[NPC] ${this.id} target changed: ${previousTarget || 'none'} → ${this.combatTarget || 'none'} (${nearestPlayer?.type})`);
+        }
     }
 
     /**
@@ -887,9 +934,9 @@ class NPCShip {
             if (this.isInDeepWater) {
                 const windStrength = wind.getStrengthModifier();
                 windAngleModifier = wind.getAngleModifier(this.rotation, this.sailState);
-                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier;
+                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier * this.speedMultiplier;
             } else {
-                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER;
+                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER * this.speedMultiplier;
             }
         }
 

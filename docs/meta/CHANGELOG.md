@@ -30,6 +30,46 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.1] - 2026-02-11
+
+### 🚀 Highlights
+- **Two-Phase Escort Missions**: Escort missions now use a sophisticated two-phase system! First, sail to a rendezvous point (DEPARTURE phase), then protect the trader as they travel to their destination (ESCORT phase). This creates more engaging gameplay and prevents spawn issues.
+- **Improved NPC Spawn Validation**: All NPCs now spawn in validated water positions using intelligent spiral search, preventing land spawns and stuck NPCs.
+- **Fixed Pirate Targeting**: Pirates in escort missions now correctly attack the trader NPC instead of the player, making escort missions properly challenging.
+
+### Added
+- **DEPARTURE Phase**: New initial mission phase where player leaves harbor and reaches a rendezvous point
+  - Spawn point calculated 600px from harbor toward destination (when docked) or 300px from player (debug mode)
+  - Spawn point validated to ensure it's in navigable water
+  - Trader spawns only after player reaches rendezvous
+- **Spawn Validation System** (`NPCManager.findSafeSpawnPosition`): 8-direction spiral search to find valid water spawn positions
+  - Searches up to 200px radius in 25px increments
+  - Prevents NPCs spawning on land or in collision zones
+  - Used for both trader and pirate spawns
+
+### Changed
+- **Escort Mission Architecture**: Complete rewrite of `EscortMission.js` with state machine
+  - Phase management: `DEPARTURE` → `ESCORT`
+  - Conditional spawn distance based on mission trigger (harbor vs debug)
+  - Rendezvous point validation before proceeding to escort phase
+- **Pirate Spawn Logic**: Removed random offset from `NPCManager.spawnPirate()`, now uses validated coordinates from caller
+- **Target Selection**: Enhanced `NPCShip.selectCombatTarget()` to validate pre-assigned targets with same criteria as search
+  - Added flagship validation for pre-assigned targets
+  - Reduced debug logging to only show when targets change
+
+### Fixed
+- **Double NPC Spawn**: Removed immediate trader spawn from `server.js` acceptMission handler
+- **NaN Spawn Coordinates**: Added zero-distance validation when target harbor equals origin harbor
+- **Pirates Attacking Player**: Pirates now correctly maintain their pre-assigned escort NPC target
+- **Debug Escort Mission**: Fixed `findNextClosestHarbor()` to always skip nearest harbor, ensuring different origin/target
+- **Land Spawns**: Pirates no longer spawn on land during escort missions
+
+### Technical Details
+- Modified files: `EscortMission.js`, `NPCManager.js`, `NPCShip.js`, `server.js`
+- New helper: `NPCManager.findSafeSpawnPosition()`
+- Escort mission now properly manages NPC lifecycle through phase transitions
+
+
 ## [0.4.0] - 2026-02-11
 
 ### 🚀 Highlights
