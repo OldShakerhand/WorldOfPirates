@@ -306,8 +306,10 @@ io.on('connection', (socket) => {
                 break;
 
             case 'DEFEAT_NPCS':
-                mission = new DefeatNPCsMission(null, socket.id, data.count || 3);
-                console.log(`[Mission] ${player.name}: Defeat ${data.count || 3} NPCs`);
+                const targetX = data.targetX !== undefined ? data.targetX : null;
+                const targetY = data.targetY !== undefined ? data.targetY : null;
+                mission = new DefeatNPCsMission(null, socket.id, data.targetCount || 3, targetX, targetY);
+                console.log(`[Mission] ${player.name}: Defeat ${data.targetCount || 3} NPCs`);
                 break;
 
             case 'ESCORT':
@@ -361,10 +363,18 @@ io.on('connection', (socket) => {
         // Create mission based on type (reuse debug logic)
         const SailToHarborMission = require('./game/missions/SailToHarborMission');
         const EscortMission = require('./game/missions/EscortMission');
+        const DefeatNPCsMission = require('./game/missions/DefeatNPCsMission');
 
         let mission = null;
 
         switch (data.type) {
+            case 'DEFEAT_NPCS':
+                const targetX = data.targetX !== undefined ? data.targetX : null;
+                const targetY = data.targetY !== undefined ? data.targetY : null;
+                mission = new DefeatNPCsMission(null, socket.id, data.targetCount || 3, targetX, targetY);
+                console.log(`[Mission] ${player.name} accepted: Defeat ${data.targetCount || 3} NPCs`);
+                break;
+
             case 'SAIL_TO_HARBOR':
                 // Use target harbor from mission data (already selected by MissionManager)
                 if (data.targetHarborId && data.targetHarborName) {

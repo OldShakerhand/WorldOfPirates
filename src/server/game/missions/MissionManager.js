@@ -100,6 +100,11 @@ class MissionManager {
                 `A merchant vessel requires protection to ${harborName}. Escort them ${direction}.`,
                 `Pirates threaten trade routes ${direction}. Guard a trader to ${harborName}.`,
                 `Valuable cargo must reach ${harborName}. Provide safe passage ${direction}.`
+            ],
+            DEFEAT_NPCS: [
+                `Pirates have been spotted ${direction} of here. Hunt them down!`,
+                `A pirate fleet is gathering ${direction}. Destroy them before they attack!`,
+                `We need a brave captain to clear the waters ${direction} of here.`
             ]
         };
 
@@ -158,7 +163,9 @@ class MissionManager {
             mission.update(this.world, deltaTime);
 
             // Apply rewards on success (Phase 2: Centralized)
-            if (previousState === 'ACTIVE' && mission.state === 'SUCCESS') {
+            if (mission.state === 'SUCCESS' && !mission.rewardsGiven) {
+                mission.rewardsGiven = true;
+
                 if (mission.rewardKey) {
                     const reward = this.world.rewardSystem.grant(
                         mission.playerId,
@@ -169,6 +176,7 @@ class MissionManager {
                     // Emit mission complete event to client
                     const player = this.world.getEntity(mission.playerId);
                     if (player && player.io) {
+                        console.log(`[MissionManager] Emitting missionComplete to ${player.name} (Gold: ${reward.gold}, XP: ${reward.xp})`);
                         player.io.to(player.id).emit('missionComplete', {
                             gold: reward.gold || 0,
                             xp: reward.xp || 0
@@ -257,6 +265,37 @@ class MissionManager {
                 targetHarborName: escortTargetHarbor.name
             });
         }
+
+        // Mission 3: Defeat NPCs (Pirate Hunt)
+        const huntAngle = Math.random() * Math.PI * 2;
+        const huntDist = 1000 + Math.random() * 1000; // 1000-2000px (adjusted per user request)
+        const huntX = originX + Math.cos(huntAngle) * huntDist;
+        const huntY = originY + Math.sin(huntAngle) * huntDist;
+
+        // Find direction string from angle
+        const huntDegrees = (huntAngle * 180 / Math.PI + 360) % 360;
+        let huntDirection = 'nearby';
+        if (huntDegrees >= 337.5 || huntDegrees < 22.5) huntDirection = 'east';
+        else if (huntDegrees >= 22.5 && huntDegrees < 67.5) huntDirection = 'southeast';
+        else if (huntDegrees >= 67.5 && huntDegrees < 112.5) huntDirection = 'south';
+        else if (huntDegrees >= 112.5 && huntDegrees < 157.5) huntDirection = 'southwest';
+        else if (huntDegrees >= 157.5 && huntDegrees < 202.5) huntDirection = 'west';
+        else if (huntDegrees >= 202.5 && huntDegrees < 247.5) huntDirection = 'northwest';
+        else if (huntDegrees >= 247.5 && huntDegrees < 292.5) huntDirection = 'north';
+        else if (huntDegrees >= 292.5 && huntDegrees < 337.5) huntDirection = 'northeast';
+
+        const huntDescription = this.generateMissionDescription('DEFEAT_NPCS', null, huntDirection);
+        const huntReward = getReward('MISSION.DEFEAT_NPCS');
+
+        missions.push({
+            type: 'DEFEAT_NPCS',
+            name: 'Pirate Hunt',
+            description: huntDescription,
+            reward: huntReward ? `${huntReward.gold} gold, ${huntReward.xp} XP` : 'Gold + XP',
+            targetCount: 3,
+            targetX: huntX,
+            targetY: huntY
+        });
 
         return missions;
     }

@@ -1035,14 +1035,17 @@ function showHarborUI(harborData) {
     // Display available missions (Phase 1: Governor)
     const missionList = document.getElementById('missionList');
     if (harborData.availableMissions && harborData.availableMissions.length > 0) {
+        // Store missions globally to avoid JSON stringification issues in HTML attributes
+        window.availableHarborMissions = harborData.availableMissions;
+
         let missionsHTML = '';
-        harborData.availableMissions.forEach(mission => {
+        harborData.availableMissions.forEach((mission, index) => {
             missionsHTML += `
                 <div class="mission-card">
                     <h4>${mission.name}</h4>
                     <p>${mission.description}</p>
                     <p style="color: #FFD700; font-size: 11px;">Reward: ${mission.reward}</p>
-                    <button onclick="acceptMission(${JSON.stringify(mission).replace(/"/g, '&quot;')})">Accept Mission</button>
+                    <button onclick="acceptMission(${index})">Accept Mission</button>
                 </div>
             `;
         });

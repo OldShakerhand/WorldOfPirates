@@ -747,6 +747,18 @@ window.updateMissionUI = updateMissionUI;
 // Accept mission from harbor (Phase 1: Governor)
 function acceptMission(missionData) {
     if (!socket) return;
+
+    // Resolve mission data if index is passed (FIX for JSON serialization issues)
+    if (typeof missionData === 'number' || (typeof missionData === 'string' && !isNaN(missionData))) {
+        const index = parseInt(missionData);
+        if (window.availableHarborMissions && window.availableHarborMissions[index]) {
+            missionData = window.availableHarborMissions[index];
+        } else {
+            console.error('[Mission] Invalid mission index:', index);
+            return;
+        }
+    }
+
     console.log(`[Mission] Accepting mission: ${missionData.type}`);
 
     // Show immediate feedback in harbor UI
@@ -991,6 +1003,8 @@ function showMissionComplete(gold, xp) {
             overlay.style.display = 'none';
         }, 300); // Match CSS transition duration
     }, 2500);
+
+    console.log(`[UI] Showed mission complete overlay: ${gold} Gold, ${xp} XP`);
 }
 
 // --- Changelog System ---

@@ -105,6 +105,66 @@ class NPCManager {
     }
 
     /**
+     * Find a safe, open-water spawn position (away from land)
+     * Not just "not land", but "Deep Water" and with a buffer from land.
+     * @param {number} targetX - Desired X coordinate
+     * @param {number} targetY - Desired Y coordinate
+     * @param {number} bufferRadius - Buffer distance from land (default 300)
+     * @returns {{ x: number, y: number } | null} Safe position or null if none found
+     */
+    findDeepWaterSpawn(targetX, targetY, bufferRadius = 300) {
+        // Helper to check if a point is "good" (Deep water)
+        const isGoodWater = (x, y) => {
+            return this.world.worldMap.isWater(x, y); // Strictly DEEP water
+        };
+
+        // Helper to check if area around point is clear of land
+        const isAreaClear = (cx, cy, radius) => {
+            const steps = 8;
+            for (let i = 0; i < steps; i++) {
+                const angle = (i / steps) * Math.PI * 2;
+                const tx = cx + Math.cos(angle) * radius;
+                const ty = cy + Math.sin(angle) * radius;
+                // Ensure no land nearby (shallow is okay for buffer, but not land)
+                if (this.world.worldMap.isLand(tx, ty)) return false;
+            }
+            return true;
+        };
+
+        // 1. Check target point first
+        if (isGoodWater(targetX, targetY) && isAreaClear(targetX, targetY, bufferRadius)) {
+            return { x: targetX, y: targetY };
+        }
+
+        // 2. Search nearby (expanding rings) - Larger search due to increased mission distance
+        const searchRadius = 1000;
+        const rings = 5;
+
+        for (let ring = 1; ring <= rings; ring++) {
+            const currentRadius = (searchRadius / rings) * ring;
+            const steps = Math.max(8, ring * 4); // Increase steps for outer rings
+
+            for (let i = 0; i < steps; i++) {
+                const angle = (i / steps) * Math.PI * 2;
+                const testX = targetX + Math.cos(angle) * currentRadius;
+                const testY = targetY + Math.sin(angle) * currentRadius;
+
+                if (isGoodWater(testX, testY) && isAreaClear(testX, testY, bufferRadius)) {
+                    // Start search from random angle to avoid directional bias? No, deterministic is fine for now.
+                    // Actually, let's randomize start index? No need.
+
+                    console.log(`[NPCManager] Found deep water spawn at (${Math.round(testX)}, ${Math.round(testY)})`);
+                    return { x: testX, y: testY };
+                }
+            }
+        }
+
+        console.warn(`[NPCManager] No deep water spawn found near (${Math.round(targetX)}, ${Math.round(targetY)})`);
+        // Fallback to "safe spawn" (just !land) if rigorous check fails
+        return this.findSafeSpawnPosition(targetX, targetY, searchRadius);
+    }
+
+    /**
      * Spawn a hostile pirate NPC
      * @param {number} x - X coordinate
      * @param {number} y - Y coordinate

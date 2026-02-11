@@ -579,25 +579,31 @@ class GameLoop {
         }
 
         // Force mission update to check completion logic IMMEDIATELY
-        // This ensures rewards are granted (and notifications sent) 
-        // BEFORE the client receives the harborData and renders the UI.
         this.world.missionManager.update(0);
 
-        // Send harbor data to client (Phase 0: Economy)
-        // Get economy data (may be null if harbor doesn't support trade)
+        // Send harbor data to client
+        this.sendHarborData(socket.id, player, harbor);
+    }
+
+    /**
+     * Helper to send consistent harbor data (including missions)
+     */
+    sendHarborData(socketId, player, harbor) {
+        if (!player || !harbor) return;
+
         const economy = this.world.harborRegistry.getHarborEconomy(harbor.id);
 
         const harborData = {
-            harborId: harbor.id,  // Add harbor ID for trade requests
+            harborId: harbor.id,
             harborName: harbor.name,
             fleet: player.fleet.map(ship => ship.serialize()),
-            economy: economy,  // null if no trade available
+            economy: economy,
             cargo: player.fleetCargo.serialize(),
-            availableMissions: this.world.missionManager.generateAvailableMissions(socket.id, harbor.id),
-            // Harbor Occupants (Phase 1: Multiplayer)
+            availableMissions: this.world.missionManager.generateAvailableMissions(socketId, harbor.id),
             occupants: this.getHarborOccupantsList(harbor.id)
         };
-        socket.emit('harborData', harborData);
+
+        this.io.to(socketId).emit('harborData', harborData);
     }
 
     handleRepairShip(playerId) {
@@ -648,15 +654,7 @@ class GameLoop {
         // Send updated harbor data with economy and cargo (same as enterHarbor)
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
-            const economy = this.world.harborRegistry.getHarborEconomy(harbor.id);
-            const harborData = {
-                harborId: harbor.id,
-                harborName: harbor.name,
-                fleet: player.fleet.map(ship => ship.serialize()),
-                economy: economy,
-                cargo: player.fleetCargo.serialize()
-            };
-            this.io.to(playerId).emit('harborData', harborData);
+            this.sendHarborData(playerId, player, harbor);
         }
     }
 
@@ -678,11 +676,7 @@ class GameLoop {
         // Send updated harbor data
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
-            const harborData = {
-                harborName: harbor.name,
-                fleet: player.fleet.map(ship => ship.serialize())
-            };
-            this.io.to(playerId).emit('harborData', harborData);
+            this.sendHarborData(playerId, player, harbor);
         }
     }
 
@@ -766,12 +760,7 @@ class GameLoop {
         // Send updated harbor data
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
-            const harborData = {
-                harborId: harbor.id,
-                harborName: harbor.name,
-                fleet: player.fleet.map(ship => ship.serialize())
-            };
-            this.io.to(socketId).emit('harborData', harborData);
+            this.sendHarborData(socketId, player, harbor);
         }
     }
 

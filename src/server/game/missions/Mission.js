@@ -22,6 +22,9 @@ class Mission {
 
         // FUTURE: Reputation
         // this.reputationReward = { faction: 'PIRATES', amount: 10 };
+
+        // Tracks if reward has been granted (MissionManager)
+        this.rewardsGiven = false;
     }
 
     // Lifecycle

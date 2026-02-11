@@ -30,6 +30,26 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.2] - 2026-02-12
+
+### 🚀 Highlights
+- **"Pirate Hunt" Mission Overhaul**: The "Defeat NPCs" mission is now a proper hunt! Sail to a specific deep-water location 1-2km away to find your targets.
+- **Smarter Spawns**: Enemies now spawn exclusively in deep water with a safe buffer from land, ensuring clean naval battles.
+- **Mission Stability**: Fixed issues with mission acceptance and persistence during harbor operations.
+
+### Changed
+- **Kill Mission Logic**: Refactored `DefeatNPCsMission` to use a two-phase system (Departure -> Combat).
+  - Target location generated 1000-2000px away.
+  - Pirates spawn only when player reaches the hunting ground.
+  - Target pirates fight to the death (no fleeing).
+- **Spawn System**: Added `NPCManager.findDeepWaterSpawn()` to prioritize open ocean for mission targets.
+- **Harbor Data Sync**: Centralized harbor data emission to ensure mission list persists after repairs or ship switching.
+
+### Fixed
+- **Mission Acceptance**: Fixed bug where "Pirate Hunt" missions were ignored by the server upon acceptance.
+- **UI Persistence**: Fixed bug where missions disappeared from the board after interacting with shipyard services.
+- **Escort Mission**: Fixed potential cancellation issues during harbor exit.
+
 ## [0.4.1] - 2026-02-11
 
 ### 🚀 Highlights
