@@ -53,7 +53,8 @@ class ChangelogParser {
 
         // Regex patterns
         const versionRegex = /^## \[(.*?)\](?: - (\d{4}-\d{2}-\d{2}))?/;
-        const sectionRegex = /^### (Added|Changed|Fixed|Removed|Deprecated|Security)/;
+        // Capture any level 3 header as a section (e.g., "🚀 Highlights")
+        const sectionRegex = /^### (.*)/;
 
         for (const line of lines) {
             // Stop if we find the second version header (we only want the latest)

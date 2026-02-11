@@ -950,8 +950,14 @@ function showChangelog(data) {
 
     let html = '';
 
-    // Order sections: Added, Changed, Fixed, Removed...
-    const order = ['Added', 'Changed', 'Fixed', 'Removed', 'Deprecated', 'Security'];
+    // Order sections: Prioritize new thematic sections, then fallback to standard
+    const order = [
+        '🚀 Highlights',
+        '⚔️ Gameplay & Balance',
+        '🎨 Visuals & Immersion',
+        '🔧 Fixes & Polish',
+        'Added', 'Changed', 'Fixed', 'Removed', 'Deprecated', 'Security'
+    ];
 
     order.forEach(section => {
         if (data.sections[section] && data.sections[section].length > 0) {

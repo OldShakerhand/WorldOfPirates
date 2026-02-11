@@ -29,28 +29,33 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
-## [Unreleased]
 
-### Added
-- **Mission Experience Overhaul**
-  - **Harbor-Based Structure**: Missions are now accepted at Harbors via the UI, replacing debug keybinds.
-  - **Navigation Aids**: Dynamic distance and direction indicators guide you to mission targets.
-  - **Completion Overlay**: New gold-bordered notification when completing missions (with rewards!).
-- **New Interface Features**
-  - **Changelog Overlay**: Added "What's New" screen on login to track updates (Press **'H'** to toggle).
-  - **Mission Rewards**: Missions now grant Gold and XP upon completion.
+## [0.3.1] - 2026-02-11
 
-### Changed
-- **Harbor System Improvements**
-  - **Smart Positioning**: Harbors now automatically center themselves in shallow water bands.
-  - **Visual Polish**: Piers align correctly with coastlines and render closer to land.
-  - **Internal Logic**: Decoupled server position from visual sprite for accurate gameplay.
+### 🚀 Highlights
+- **In-Game "What's New" Overlay**: Stay up to date without leaving the game! Press **'H'** on the login screen to see recent changes.
+- **Mission Experience Overhaul**: Missions are now fully integrated into the Harbor UI.
+- **Global Chat**: New chat system with IP-based moderation.
+- **Improved Harbors**: overhauled positioning, 8-direction support, and smarter centering in shallow water.
 
-### Fixed
-- **Overlay Stacking**: Fixed UI elements randomly overlapping game canvas.
+### ⚔️ Gameplay & Balance
+- **Unified Interaction**: Docker at harbors and loot wrecks using a single key: **'F'**.
+- **Starter Ship**: New players now begin their journey in a **Fluyt** (better cargo capacity).
+- **Harbor Logic**: Improved spawn logic when exiting harbors to prevent getting stuck in land.
+- **Mission Rewards**: Missions now grant Gold and XP upon completion.
+- **Mission Markers**: Added visual markers to world and minimap for easier navigation.
+
+### 🎨 Visuals & Immersion
+- **Harbor Aesthetics**: Harbors now render closer to land with better coastline alignment.
+- **Mission Overlay**: New gold-bordered notification validation when completing tasks.
+- **Navigation Aids**: Dynamic distance and direction indicators guide you to mission targets.
+
+### 🔧 Fixes & Polish
 - **Harbor Placement**: Resolved issues where some harbors (e.g., Nassau) appeared slightly offshore.
+- **Overlay Stacking**: Fixed UI elements randomly overlapping game canvas.
 - **Reward Notifications**: Fixed duplicate "Mission Reward" messages.
-- **Event Emission**: Fixed internal socket references for smoother event handling.
+- **Chat**: Cleaned up unused logger code and clarified player limits in documentation.
+- **Security**: Fixed IP detection for users behind Render.com proxies.
 
 ---
 
