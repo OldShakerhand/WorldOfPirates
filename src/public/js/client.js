@@ -189,13 +189,50 @@ function setupGameListeners() {
         }
     });
 
+    // Harbor Occupants UI Helper
+    const updateOccupantsList = (occupants) => {
+        // console.log('[Harbor] Updating occupants list:', occupants);
+        const list = document.getElementById('harborOccupantsList');
+        if (!list) return;
+
+        list.innerHTML = '';
+        if (!occupants || occupants.length === 0) {
+            list.innerHTML = '<div style="color: #aaa; font-style: italic; padding: 10px;">No other ships in port.</div>';
+        } else {
+            occupants.forEach(occ => {
+                const div = document.createElement('div');
+                div.className = 'occupant-item';
+                if (occ.id === socket.id) {
+                    div.classList.add('self');
+                    div.title = "That's you!";
+                }
+                div.innerHTML = `<span class="occupant-name">${occ.name}</span><span class="occupant-ship">${occ.shipName}</span>`;
+                list.appendChild(div);
+            });
+        }
+    };
+
     // Harbor UI events
     socket.on('harborData', (harborData) => {
         showHarborUI(harborData);
+        if (harborData.occupants) {
+            updateOccupantsList(harborData.occupants);
+        }
+    });
+
+    socket.on('updateHarborOccupants', (occupants) => {
+        updateOccupantsList(occupants);
     });
 
     socket.on('harborClosed', () => {
         hideHarborUI();
+    });
+
+    // Changelog data
+    socket.on('changelogData', (data) => {
+        console.log('[Client] Received changelog:', data);
+        currentChangelogData = data;
+        checkAndShowChangelog(data);
     });
 
     // Mission complete event
@@ -480,9 +517,38 @@ function repairShip() {
     socket.emit('repairShip');
 }
 
+// Function to switch Harbor Views (Redesign)
+function showHarborView(viewName) {
+    // Hide all views
+    const views = document.querySelectorAll('.harbor-view');
+    views.forEach(v => v.classList.add('hidden'));
+
+    // Show target view
+    const target = document.getElementById(`harbor-view-${viewName}`);
+    if (target) {
+        target.classList.remove('hidden');
+    } else {
+        console.error(`View not found: harbor-view-${viewName}`);
+        // Fallback to main
+        document.getElementById('harbor-view-main').classList.remove('hidden');
+    }
+
+    // Update Title based on view
+    const title = document.getElementById('harborTitle');
+    if (window.currentHarborName) {
+        // We assume we have the harbor name from somewhere? 
+        // Actually, the original code set innerText "Harbor: [Name]" when opening.
+        // We can keep it generic or append context.
+    }
+}
+
 function closeHarbor() {
     socket.emit('closeHarbor');
     hideHarborUI();
+    // Reset view to main for next open
+    setTimeout(() => {
+        showHarborView('main');
+    }, 300);
 }
 
 function switchFlagship() {
@@ -929,103 +995,153 @@ function showMissionComplete(gold, xp) {
 
 // --- Changelog System ---
 
+
 function checkAndShowChangelog(data) {
+    // Normalize to array
+    const versions = Array.isArray(data) ? data : [data];
+    if (versions.length === 0) return;
+
+    const latestVersion = versions[0].version;
     const lastSeenVersion = localStorage.getItem('last_seen_version');
 
-    // Show if version changed or never seen
-    if (data.version !== lastSeenVersion) {
-        showChangelog(data);
+    // Show if new version available
+    if (latestVersion !== lastSeenVersion) {
+        // Determine which versions to show
+        let versionsToShow = [];
+
+        if (!lastSeenVersion) {
+            // First time: Show only latest to avoid overwhelm
+            versionsToShow = [versions[0]];
+        } else {
+            // Show all versions newer than lastSeen
+            for (const v of versions) {
+                if (v.version === lastSeenVersion) break;
+                versionsToShow.push(v);
+            }
+            // If all 3 are new (user skipped many), show all 3
+            if (versionsToShow.length === 0 && versions.length > 0) {
+                // Should not happen if latest != lastSeen, unless lastSeen is newer? (Impossible)
+                // Or if lastSeen is in the list? handled by break.
+                // If lastSeen is NOT in list (too old), show all.
+                versionsToShow = versions;
+            }
+        }
+
+        if (versionsToShow.length > 0) {
+            showChangelog(versionsToShow);
+        }
     }
 }
 
 function showChangelog(data) {
     if (!data) return;
+    const versions = Array.isArray(data) ? data : [data];
+    if (versions.length === 0) return;
 
     const overlay = document.getElementById('changelogOverlay');
     const versionTag = document.getElementById('changelogVersion');
     const body = document.getElementById('changelogBody');
 
-    // Update content
-    versionTag.textContent = `v${data.version} (${data.date})`;
+    // Update version tag to latest
+    versionTag.textContent = `v${versions[0].version} (${versions[0].date})`;
 
     let html = '';
+    const order = ['🚀 Highlights', '⚔️ Gameplay & Balance', '🎨 Visuals & Immersion', '🔧 Fixes & Polish', 'Added', 'Changed', 'Fixed'];
 
-    // Order sections: Prioritize new thematic sections, then fallback to standard
-    const order = [
-        '🚀 Highlights',
-        '⚔️ Gameplay & Balance',
-        '🎨 Visuals & Immersion',
-        '🔧 Fixes & Polish',
-        'Added', 'Changed', 'Fixed', 'Removed', 'Deprecated', 'Security'
-    ];
-
-    order.forEach(section => {
-        if (data.sections[section] && data.sections[section].length > 0) {
-            html += `<h3>${section}</h3>`;
-            html += `<ul>`;
-            data.sections[section].forEach(item => {
-                // Formatting: Bold text between ** **
-                let formattedItem = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                // Handle newlines for sub-items
-                formattedItem = formattedItem.replace(/\n\s*-\s*/g, '<br>• ');
-
-                html += `<li>${formattedItem}</li>`;
-            });
-            html += `</ul>`;
+    versions.forEach((ver, index) => {
+        // Visual separator for older versions
+        if (index > 0) {
+            html += `<hr class="changelog-separator">`;
+            html += `<h2 class="changelog-version-header">v${ver.version} <span style="font-size:0.6em; opacity:0.7">${ver.date}</span></h2>`;
+        } else if (versions.length > 1) {
+            html += `<h2 class="changelog-version-header">v${ver.version} <span style="font-size:0.6em; opacity:0.7">${ver.date}</span></h2>`;
         }
+
+        order.forEach(section => {
+            if (ver.sections[section] && ver.sections[section].length > 0) {
+                html += `<h3>${section}</h3>`;
+                html += `<ul>`;
+                ver.sections[section].forEach(item => {
+                    let formattedItem = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    formattedItem = formattedItem.replace(/\n\s*-\s*/g, '<br>• ');
+                    html += `<li>${formattedItem}</li>`;
+                });
+                html += `</ul>`;
+            }
+        });
     });
 
     body.innerHTML = html;
-
-    // Show overlay
     overlay.style.display = 'flex';
-    setTimeout(() => {
-        overlay.classList.add('show');
-    }, 10);
+    setTimeout(() => overlay.classList.add('show'), 10);
 }
 
 function hideChangelog() {
     const overlay = document.getElementById('changelogOverlay');
     overlay.classList.remove('show');
+    setTimeout(() => overlay.style.display = 'none', 300);
 
-    setTimeout(() => {
-        overlay.style.display = 'none';
-    }, 300);
-
-    // Update local storage when closed
+    // Update local storage to LATEST version when closed
     if (currentChangelogData) {
-        localStorage.setItem('last_seen_version', currentChangelogData.version);
+        const latestInfo = Array.isArray(currentChangelogData) ? currentChangelogData[0] : currentChangelogData;
+        if (latestInfo && latestInfo.version) {
+            localStorage.setItem('last_seen_version', latestInfo.version);
+        }
     }
 }
 
 // Changelog Event Listeners
 document.getElementById('closeChangelogBtn').addEventListener('click', hideChangelog);
 
-// Key binding for 'N' (News/Changelog)
 document.addEventListener('keydown', (e) => {
-    // Only if not typing in an input
     if (document.activeElement.tagName === 'INPUT') return;
-
-    // Use e.code for physical key location (works better across layouts)
     if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H') {
-        console.log('[Client] H key pressed (code: KeyH). Toggle Changelog.');
-
         const overlay = document.getElementById('changelogOverlay');
-        if (!overlay) {
-            console.error('[Client] Changelog overlay not found in DOM!');
-            return;
-        }
+        if (!overlay) return;
 
-        if (overlay.style.display === 'flex' || overlay.classList.contains('show')) {
-            console.log('[Client] Hiding changelog');
+        if (overlay.style.display === 'flex') {
             hideChangelog();
         } else if (currentChangelogData) {
-            console.log('[Client] Showing changelog', currentChangelogData);
+            // Manually opening: Show ALL available history (recent 3)
             showChangelog(currentChangelogData);
-        } else {
-            console.warn('[Client] No changelog data available to show. Requesting from server...');
-            // Optional: requesting data if missing?
-            // socket.emit('requestChangelog'); 
         }
     }
+});
+
+window.showHarborView = showHarborView;
+
+// Harbor Occupants (Phase 1: Multiplayer)
+socket.on('updateHarborOccupants', (occupants) => {
+    const list = document.getElementById('harborOccupantsList');
+    if (!list) return;
+
+    list.innerHTML = '';
+
+    if (!occupants || occupants.length === 0) {
+        list.innerHTML = '<div style="color: #aaa; font-style: italic; padding: 10px;">No other ships in port.</div>';
+        return;
+    }
+
+    occupants.forEach(occ => {
+        const div = document.createElement('div');
+        div.className = 'occupant-item';
+
+        // Highlight self
+        if (occ.id === socket.id) {
+            div.classList.add('self');
+            div.title = "That's you!";
+        }
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'occupant-name';
+        nameSpan.textContent = occ.name;
+
+        const shipSpan = document.createElement('span');
+        shipSpan.className = 'occupant-ship';
+        shipSpan.textContent = occ.shipName || 'Ship';
+
+        div.appendChild(nameSpan);
+        div.appendChild(shipSpan);
+        list.appendChild(div);
+    });
 });

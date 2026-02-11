@@ -43,74 +43,87 @@ class ChangelogParser {
         return null;
     }
 
-    parseContent(markdown) {
+    parseContent(markdown, limit = 1) {
         const lines = markdown.split('\n');
-        let version = null;
-        let date = null;
-        let sections = {};
+        const versions = [];
+        let currentVersion = null;
         let currentSection = null;
-        let findingVersion = true;
 
         // Regex patterns
         const versionRegex = /^## \[(.*?)\](?: - (\d{4}-\d{2}-\d{2}))?/;
-        // Capture any level 3 header as a section (e.g., "🚀 Highlights")
         const sectionRegex = /^### (.*)/;
 
         for (const line of lines) {
-            // Stop if we find the second version header (we only want the latest)
-            if (version && versionRegex.test(line)) {
-                break;
-            }
-
-            // Find first version header
-            if (findingVersion) {
-                const match = line.match(versionRegex);
-                if (match) {
-                    version = match[1];
-                    date = match[2] || 'Just now'; // Default for Unreleased
-                    findingVersion = false;
+            // Check for version header
+            const versionMatch = line.match(versionRegex);
+            if (versionMatch) {
+                // If we were processing a version, save it
+                if (currentVersion) {
+                    versions.push(currentVersion);
+                    if (versions.length >= limit) break;
                 }
+
+                // Start new version
+                currentVersion = {
+                    version: versionMatch[1],
+                    date: versionMatch[2] || 'Just now',
+                    sections: {}
+                };
+                currentSection = null;
                 continue;
             }
 
-            // Parse sections
+            // If we haven't found a version yet, skip preamble
+            if (!currentVersion) continue;
+
+            // Check for section header
             const sectionMatch = line.match(sectionRegex);
             if (sectionMatch) {
-                currentSection = sectionMatch[1];
-                sections[currentSection] = [];
+                currentSection = sectionMatch[1].trim();
+                currentVersion.sections[currentSection] = [];
                 continue;
             }
 
             // Parse list items
             const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
 
             if (currentSection && trimmedLine.startsWith('-')) {
-                const text = trimmedLine.substring(1).trim();
+                let text = trimmedLine.substring(1).trim();
                 const isSubItem = line.startsWith('  ') || line.startsWith('\t');
 
                 if (isSubItem) {
-                    // Handle indented bullets (sub-items) -> Append to last item
-                    const lastIdx = sections[currentSection].length - 1;
-                    if (lastIdx >= 0) {
-                        // Use a marker that client side can easily parse, or keep markdown structure
-                        // We use \n  - to preserve it for the client to replace with <br>
-                        sections[currentSection][lastIdx] += `\n  - ${text}`;
+                    const sectionList = currentVersion.sections[currentSection];
+                    if (sectionList && sectionList.length > 0) {
+                        sectionList[sectionList.length - 1] += `\n  - ${text}`;
                     }
                 } else {
-                    // New top-level item
-                    sections[currentSection].push(text);
+                    currentVersion.sections[currentSection].push(text);
                 }
-                continue;
             }
         }
 
-        if (!version) return null;
+        // Push the last version if loop finished normally
+        if (currentVersion && versions.length < limit) {
+            versions.push(currentVersion);
+        }
 
-        return {
-            version,
-            date,
-            sections // { Added: [...], Fixed: [...] }
-        };
+        return versions;
+    }
+
+    getRecent(limit = 3) {
+        try {
+            const content = fs.readFileSync(this.changelogPath, 'utf8');
+            return this.parseContent(content, limit);
+        } catch (err) {
+            console.error('[ChangelogParser] Error reading changelog:', err);
+            return [];
+        }
+    }
+
+    getLatest() {
+        const versions = this.getRecent(1);
+        return versions.length > 0 ? versions[0] : null;
     }
 }
 

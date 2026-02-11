@@ -378,6 +378,9 @@ function renderGame(state, mapData, myId) {
     for (const id in state.players) {
         const player = state.players[id];
 
+        // Skip rendering if player is docked in a harbor
+        if (player.inHarbor) continue;
+
         // Spawn wake particles if moving
         wakeRenderer.spawnFor(player, getShipProperties(player.shipClassName), 0.016);
 

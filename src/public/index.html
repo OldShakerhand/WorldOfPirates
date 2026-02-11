@@ -49,72 +49,115 @@
         <div id="harborContent">
             <h2 id="harborTitle">🏴‍☠️ Harbor</h2>
             <div id="harborInfo">
-                <h3>Your Fleet:</h3>
-                <div id="fleetList"></div>
+                <!-- VIEW: Main Hub -->
+                <div id="harbor-view-main" class="harbor-view">
+                    <div class="harbor-main-layout">
+                        <!-- Left: Actions -->
+                        <div class="harbor-menu-column">
+                            <button class="harbor-btn governor" onclick="showHarborView('governor')">🏛️ Governor's
+                                Mansion</button>
+                            <button class="harbor-btn merchant" onclick="showHarborView('merchant')">⚖️ Merchant's
+                                Market</button>
+                            <button class="harbor-btn shipyard" onclick="showHarborView('shipyard')">⚓ Shipyard &
+                                Docks</button>
+                            <!-- Future: Tavern -->
+                            <button class="harbor-btn tavern" disabled title="Coming Soon">🍻 Tavern (Rumors)</button>
+                        </div>
 
-                <h3>Change Flagship:</h3>
-                <!-- IMPORTANT: Ship stats must match src/server/game/ShipClass.js -->
-                <!-- When updating ship classes, update these option texts to reflect current stats -->
-                <select id="shipSelector">
-                    <option value="SLOOP">Sloop (2 cannons/side, 131 speed)</option>
-                    <option value="BARQUE">Barque (3 cannons/side, 120 speed)</option>
-                    <option value="FLUYT">Fluyt (4 cannons/side, 115 speed)</option>
-                    <option value="MERCHANT">Merchant (5 cannons/side, 104 speed)</option>
-                    <option value="FRIGATE">Frigate (6 cannons/side, 112 speed)</option>
-                    <option value="SPANISH_GALLEON">Spanish Galleon (8 cannons/side, 100 speed)</option>
-                    <option value="WAR_GALLEON">War Galleon (12 cannons/side, 91 speed)</option>
-                </select>
-                <button id="switchShipBtn" onclick="switchFlagship()">Switch Flagship</button>
+                        <!-- Right: Occupants -->
+                        <div class="harbor-occupants-panel">
+                            <h3>⚓ Docked Captains</h3>
+                            <div id="harborOccupantsList">
+                                <div style="color: #aaa; font-style: italic; padding: 10px;">Checking manifest...</div>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Governor Section (Phase 1: Mission acceptance) -->
-                <div id="governorSection" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
-                    <h3>🎖️ Governor - Missions</h3>
-                    <div id="missionList"></div>
+                    <div id="harborActions" style="margin-top: 20px;">
+                        <button id="repairBtn" onclick="repairShip()">Repair Flagship</button>
+                        <button id="closeBtn" onclick="closeHarbor()">🌊 Set Sail</button>
+                    </div>
                 </div>
 
-                <!-- Ship Upgrade Section (Phase 1: Progression) -->
-                <div id="upgradeSection" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
-                    <h3>Upgrade Ship</h3>
-                    <p id="playerResources" style="font-weight: bold; color: #FFD700;">Gold: 0 | Level: 1</p>
-                    <select id="upgradeShipSelector">
-                        <option value="SLOOP">Sloop (500g, Lv1) - 2 cannons, 131 speed</option>
-                        <option value="BARQUE">Barque (1000g, Lv2) - 3 cannons, 120 speed</option>
-                        <option value="FLUYT">Fluyt (1500g, Lv3) - 4 cannons, 115 speed</option>
-                        <option value="MERCHANT">Merchant (2000g, Lv4) - 5 cannons, 104 speed</option>
-                        <option value="FRIGATE">Frigate (3000g, Lv5) - 6 cannons, 112 speed</option>
-                        <option value="SPANISH_GALLEON">Spanish Galleon (5000g, Lv7) - 8 cannons, 100 speed</option>
-                        <option value="WAR_GALLEON">War Galleon (8000g, Lv10) - 12 cannons, 91 speed</option>
+                <!-- VIEW: Shipyard -->
+                <div id="harbor-view-shipyard" class="harbor-view hidden">
+                    <div class="view-header">
+                        <button class="back-btn" onclick="showHarborView('main')">⬅ Back to Harbor</button>
+                        <h3>⚓ Shipyard</h3>
+                    </div>
+
+                    <h3>Your Fleet:</h3>
+                    <div id="fleetList"></div>
+
+                    <h3>Change Flagship:</h3>
+                    <!-- IMPORTANT: Ship stats must match src/server/game/ShipClass.js -->
+                    <select id="shipSelector">
+                        <option value="SLOOP">Sloop (2 cannons/side, 131 speed)</option>
+                        <option value="BARQUE">Barque (3 cannons/side, 120 speed)</option>
+                        <option value="FLUYT">Fluyt (4 cannons/side, 115 speed)</option>
+                        <option value="MERCHANT">Merchant (5 cannons/side, 104 speed)</option>
+                        <option value="FRIGATE">Frigate (6 cannons/side, 112 speed)</option>
+                        <option value="SPANISH_GALLEON">Spanish Galleon (8 cannons/side, 100 speed)</option>
+                        <option value="WAR_GALLEON">War Galleon (12 cannons/side, 91 speed)</option>
                     </select>
-                    <button id="upgradeShipBtn" onclick="upgradeShip()">Upgrade Ship</button>
-                    <p id="upgradeStatus" style="color: red; font-size: 12px; margin-top: 5px;"></p>
+                    <button id="switchShipBtn" onclick="switchFlagship()">Switch Flagship</button>
+
+                    <!-- Ship Upgrade Section -->
+                    <div id="upgradeSection" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+                        <h3>Upgrade Ship</h3>
+                        <p id="playerResources" style="font-weight: bold; color: #FFD700;">Gold: 0 | Level: 1</p>
+                        <select id="upgradeShipSelector">
+                            <option value="SLOOP">Sloop (500g, Lv1) - 2 cannons, 131 speed</option>
+                            <option value="BARQUE">Barque (1000g, Lv2) - 3 cannons, 120 speed</option>
+                            <option value="FLUYT">Fluyt (1500g, Lv3) - 4 cannons, 115 speed</option>
+                            <option value="MERCHANT">Merchant (2000g, Lv4) - 5 cannons, 104 speed</option>
+                            <option value="FRIGATE">Frigate (3000g, Lv5) - 6 cannons, 112 speed</option>
+                            <option value="SPANISH_GALLEON">Spanish Galleon (5000g, Lv7) - 8 cannons, 100 speed</option>
+                            <option value="WAR_GALLEON">War Galleon (8000g, Lv10) - 12 cannons, 91 speed</option>
+                        </select>
+                        <button id="upgradeShipBtn" onclick="upgradeShip()">Upgrade Ship</button>
+                        <p id="upgradeStatus" style="color: red; font-size: 12px; margin-top: 5px;"></p>
+                    </div>
                 </div>
 
-                <!-- Economy: Trade Goods (Phase 0) -->
-                <div id="tradeSection"
-                    style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; display: none;">
-                    <h3>⚓ Trade Goods</h3>
-
-                    <!-- Cargo Display -->
-                    <div id="cargoDisplay" style="margin-bottom: 15px;">
-                        <p style="font-weight: bold;">Your Cargo:</p>
-                        <div id="cargoList" style="font-size: 12px; margin-left: 10px;"></div>
-                        <p id="cargoCapacity" style="font-size: 12px; color: #888;"></p>
+                <!-- VIEW: Governor -->
+                <div id="harbor-view-governor" class="harbor-view hidden">
+                    <div class="view-header">
+                        <button class="back-btn" onclick="showHarborView('main')">⬅ Back to Harbor</button>
+                        <h3>🏛️ Governor's Mansion</h3>
                     </div>
 
-                    <!-- Trade Interface -->
-                    <div id="tradeInterface">
-                        <p style="font-weight: bold;">Available Goods:</p>
-                        <div id="goodsList"></div>
+                    <div id="governorSection">
+                        <h3>Available Missions</h3>
+                        <div id="missionList"></div>
                     </div>
-
-                    <!-- Transaction Feedback -->
-                    <p id="transactionStatus"
-                        style="color: #FFD700; font-size: 12px; margin-top: 10px; min-height: 16px;"></p>
                 </div>
 
-                <div id="harborActions">
-                    <button id="repairBtn" onclick="repairShip()">Repair Flagship</button>
-                    <button id="closeBtn" onclick="closeHarbor()">Set Sail</button>
+                <!-- VIEW: Merchant -->
+                <div id="harbor-view-merchant" class="harbor-view hidden">
+                    <div class="view-header">
+                        <button class="back-btn" onclick="showHarborView('main')">⬅ Back to Harbor</button>
+                        <h3>⚖️ Merchant's Market</h3>
+                    </div>
+
+                    <div id="tradeSection">
+                        <!-- Cargo Display -->
+                        <div id="cargoDisplay" style="margin-bottom: 15px;">
+                            <p style="font-weight: bold;">Your Cargo:</p>
+                            <div id="cargoList" style="font-size: 12px; margin-left: 10px;"></div>
+                            <p id="cargoCapacity" style="font-size: 12px; color: #888;"></p>
+                        </div>
+
+                        <!-- Trade Interface -->
+                        <div id="tradeInterface">
+                            <p style="font-weight: bold;">Available Goods:</p>
+                            <div id="goodsList"></div>
+                        </div>
+
+                        <!-- Transaction Feedback -->
+                        <p id="transactionStatus"
+                            style="color: #FFD700; font-size: 12px; margin-top: 10px; min-height: 16px;"></p>
+                    </div>
                 </div>
             </div>
         </div>

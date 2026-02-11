@@ -24,6 +24,10 @@ class GameLoop {
 
         // Economy system (Phase 0: Harbor Master)
         this.economySystem = new EconomySystem(this.world.harborRegistry);
+
+        // Harbor Occupants (Phase 1: Multiplayer)
+        // Map<harborId, Set<socketId>>
+        this.harborOccupants = new Map();
     }
 
     start() {
@@ -294,6 +298,10 @@ class GameLoop {
     }
 
     removePlayer(id) {
+        const player = this.world.getEntity(id);
+        if (player && player.dockedHarborId) {
+            this.removePlayerFromHarbor(id, player.dockedHarborId);
+        }
         this.world.removeEntity(id);
     }
 
@@ -545,6 +553,17 @@ class GameLoop {
         player.speed = 0;
         player.sailState = 0;
 
+        // Add to harbor occupants tracking
+        if (!this.harborOccupants.has(harbor.id)) {
+            this.harborOccupants.set(harbor.id, new Set());
+        }
+        this.harborOccupants.get(harbor.id).add(socket.id);
+
+        // Join socket room for this harbor
+        socket.join(`harbor_${harbor.id}`);
+
+        this.broadcastHarborOccupants(harbor.id);
+
         // Grant invulnerability shield while docked (infinite duration)
         // This prevents attacks while player is in harbor menu
         player.shieldEndTime = Infinity;
@@ -574,7 +593,9 @@ class GameLoop {
             fleet: player.fleet.map(ship => ship.serialize()),
             economy: economy,  // null if no trade available
             cargo: player.fleetCargo.serialize(),
-            availableMissions: this.world.missionManager.generateAvailableMissions(socket.id, harbor.id)
+            availableMissions: this.world.missionManager.generateAvailableMissions(socket.id, harbor.id),
+            // Harbor Occupants (Phase 1: Multiplayer)
+            occupants: this.getHarborOccupantsList(harbor.id)
         };
         socket.emit('harborData', harborData);
     }
@@ -671,7 +692,18 @@ class GameLoop {
 
         // Undock and respawn ship outside harbor
         if (player.inHarbor && player.dockedHarborId) {
-            const harbor = this.world.harbors.find(h => h.id === player.dockedHarborId);
+            const harborId = player.dockedHarborId;
+            const harbor = this.world.harbors.find(h => h.id === harborId);
+
+            // Remove from harbor occupants tracking
+            this.removePlayerFromHarbor(playerId, harborId);
+
+            // Leave socket room
+            const socket = this.io.sockets.sockets.get(playerId);
+            if (socket) {
+                socket.leave(`harbor_${harborId}`);
+            }
+
             if (harbor && harbor.island) {
                 // Spawn player in direction harbor opens (toward water)
                 // Use stored exitDirection data directly
@@ -791,6 +823,57 @@ class GameLoop {
                 cargo: player.fleetCargo.serialize()
             });
         }
+    }
+
+    // Harbor Occupants Helper (Phase 1: Multiplayer)
+    removePlayerFromHarbor(socketId, harborId) {
+        if (!this.harborOccupants.has(harborId)) return;
+
+        const occupants = this.harborOccupants.get(harborId);
+        if (occupants.delete(socketId)) {
+            // Only broadcast if player was actually removed
+            this.broadcastHarborOccupants(harborId);
+        }
+
+        // Clean up empty harbors? Not strictly necessary but good practice
+        if (occupants.size === 0) {
+            this.harborOccupants.delete(harborId);
+        }
+    }
+
+    getHarborOccupantsList(harborId) {
+        // Safe access (if map not initialized or harbor empty)
+        if (!this.harborOccupants || !this.harborOccupants.has(harborId)) return [];
+
+        const occupants = this.harborOccupants.get(harborId);
+        const occupantsList = [];
+        for (const socketId of occupants) {
+            const player = this.world.getEntity(socketId);
+            if (player) {
+                // Determine ship name (e.g. Sloop, Frigate)
+                // Use safe access in case flagship is missing
+                const shipName = player.flagship?.shipClass?.name || 'Unknown Ship';
+
+                occupantsList.push({
+                    id: player.id,
+                    name: player.name,
+                    shipName: shipName
+                });
+            }
+        }
+        return occupantsList;
+    }
+
+    broadcastHarborOccupants(harborId) {
+        const occupantsList = this.getHarborOccupantsList(harborId);
+
+        // Debug room
+        const roomName = `harbor_${harborId}`;
+        const room = this.io.sockets.adapter.rooms.get(roomName);
+        console.log(`[HarborSync] Broadcasting update to ${roomName} | Occupants: ${occupantsList.length} | Sockets in room: ${room ? room.size : 0}`);
+
+        // Broadcast to room
+        this.io.to(roomName).emit('updateHarborOccupants', occupantsList);
     }
 }
 

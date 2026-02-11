@@ -11,7 +11,7 @@ const io = socketIo(server);
 
 // Initialize Changelog Parser
 const changelogParser = new ChangelogParser(path.join(__dirname, '../../docs/meta/CHANGELOG.md'));
-const latestChangelog = changelogParser.getLatest();
+const recentChangelogs = changelogParser.getRecent(3); // Fetch last 3 versions
 
 const PORT = process.env.PORT || 3000;
 const MAX_PLAYERS = 20; // Server capacity limit
@@ -46,8 +46,8 @@ io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.id} from IP: ${clientIP}, waiting for player name...`);
 
     // Send latest changelog data to client
-    if (latestChangelog) {
-        socket.emit('changelogData', latestChangelog);
+    if (recentChangelogs && recentChangelogs.length > 0) {
+        socket.emit('changelogData', recentChangelogs);
     }
 
     // Check if IP is banned

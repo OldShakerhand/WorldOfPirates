@@ -85,7 +85,7 @@ async function processCommits(commits) {
 
     for (const commit of commits) {
         const match = commit.message.match(/^(\w+)(?:\((.*?)\))?: (.*)$/);
-        const type = match ? match[1] : 'other';
+        const type = match ? match[1].toLowerCase() : 'other';
         const scope = match ? match[2] : null;
         let desc = match ? match[3] : commit.message;
 
@@ -94,8 +94,15 @@ async function processCommits(commits) {
 
         console.log(`${colors.cyan}[${commit.hash}]${colors.reset} ${commit.message}`);
 
-        // Ask for Highlight
-        const isHighlight = await askQuestion(`   Is this a ${colors.green}Highlight${colors.reset}? (y/n/skip) [n]: `);
+        // Only ask for Highlight if it's a feature
+        let isHighlight = 'n';
+        if (type === 'feat') {
+            isHighlight = await askQuestion(`   Is this a ${colors.green}Highlight${colors.reset}? (y/n/skip) [n]: `);
+        } else if (category) {
+            console.log(`   -> Auto-categorized to: ${category}`);
+        } else {
+            console.log(`   -> Skipped (Ignored type)`);
+        }
 
         if (isHighlight.toLowerCase().startsWith('y')) {
             category = '🚀 Highlights';

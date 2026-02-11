@@ -499,6 +499,7 @@ class Player {
             fleetSize: this.fleet.length,
             navigationSkill: this.navigationSkill,
             nearHarbor: this.nearHarbor,
+            inHarbor: this.inHarbor,
             reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
             reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
             maxReload: this.fireRate,

@@ -30,6 +30,19 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.0] - 2026-02-11
+
+### 🚀 Highlights
+- **Immersive Harbor Experience**: The harbor menu has been reimagined! Instead of a simple list, you now visit specific locations: the Governor's Mansion, Merchant's Market, and Shipyard.
+- **Harbor Occupants List**: You can now see a list of other captains currently docked in the same harbor.
+- **Improved Docking**: Ships now properly disappear from the world map when docked, reducing clutter and improving immersion.
+
+### 🔧 Tech & Polish
+- **Socket Rooms**: Refactored harbor synchronization to use robust socket rooms, ensuring reliable updates for all players.
+- **Visuals**: New split-view layout for the Harbor interface.
+
+---
+
 ## [0.3.1] - 2026-02-11
 
 ### 🚀 Highlights

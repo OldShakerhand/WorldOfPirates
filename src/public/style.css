@@ -97,7 +97,7 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -800,5 +800,173 @@ canvas {
 
 .changelog-hint {
     color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+}
+
+/* Harbor Redesign Styles */
+.harbor-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.harbor-view.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.harbor-menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.harbor-btn {
+    padding: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #3e2723;
+    /* Dark wood */
+    color: #f4e4bc;
+    /* Parchment text */
+    border: 2px solid #8d6e63;
+    /* Bronze/Light Wood border */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.harbor-btn:hover {
+    background: #5d4037;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+    border-color: #ffd700;
+    /* Gold highlight */
+}
+
+.harbor-btn.tavern {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    background: #2c1e1a;
+}
+
+.view-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #8d6e63;
+    padding-bottom: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.view-header h3 {
+    margin: 0;
+    margin-left: 15px;
+    color: #f1c40f;
+    font-size: 20px;
+}
+
+.back-btn {
+    background: none;
+    border: 1px solid #8d6e63;
+    color: #ffd700;
+    cursor: pointer;
+    padding: 5px 15px;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: #ffd700;
+}
+
+/* Harbor Occupants Layout */
+.harbor-main-layout {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    /* Important for scroll */
+}
+
+.harbor-menu-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.harbor-occupants-panel {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid #8d6e63;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.harbor-occupants-panel h3 {
+    margin: 0 0 10px 0;
+    color: #f1c40f;
+    font-size: 16px;
+    text-align: center;
+    border-bottom: 1px solid #8d6e63;
+    padding-bottom: 5px;
+}
+
+#harborOccupantsList {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.occupant-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    border-radius: 3px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.occupant-item.self {
+    border: 1px solid #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.occupant-name {
+    font-weight: bold;
+    color: #fff;
+}
+
+.occupant-ship {
+    color: #aaa;
     font-size: 12px;
 }
