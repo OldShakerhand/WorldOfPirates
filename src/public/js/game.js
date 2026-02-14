@@ -122,6 +122,13 @@ function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
+
+    // Ensure container matches valid canvas size (important for mobile address bar)
+    const container = document.getElementById('game-container');
+    if (container) {
+        container.style.width = canvas.width + 'px';
+        container.style.height = canvas.height + 'px';
+    }
 }
 
 // Initial resize
@@ -167,20 +174,39 @@ function renderGame(state, mapData, myId) {
     // Find my ship for camera tracking
     const myShip = state.players[myId];
 
+    // Camera Zoom Logic (Mobile Polish)
+    // Zoom out slightly on mobile to see more world
+    const isMobile = window.MobileControls && window.MobileControls.touchEnabled;
+    const ZOOM_LEVEL = isMobile ? 0.8 : 1.0;
+
     // Camera offset to center on player
+    // Note: We calculate this differently if zoomed
     let cameraX = 0;
     let cameraY = 0;
-
-    if (myShip) {
-        cameraX = canvas.width / 2 - myShip.x;
-        cameraY = canvas.height / 2 - myShip.y;
-    }
 
     // Save context for UI elements that should stay fixed
     ctx.save();
 
-    // Apply camera transform for world objects
-    ctx.translate(cameraX, cameraY);
+    if (myShip) {
+        // Transform Sequence:
+        // 1. Center of Screen
+        // 2. Scale (Zoom)
+        // 3. World Position (tracking ship)
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(ZOOM_LEVEL, ZOOM_LEVEL);
+        ctx.translate(-myShip.x, -myShip.y);
+
+        // VisualAdapter needs the top-left coordinate of the *visible* world area
+        // We calculate this by reversing the transform from screen(0,0) to world
+        // WorldX = ShipX - (ScreenWidth / 2) / Zoom
+        cameraX = myShip.x - (canvas.width / 2) / ZOOM_LEVEL;
+        cameraY = myShip.y - (canvas.height / 2) / ZOOM_LEVEL;
+    } else {
+        // Default center if no ship
+        cameraX = -canvas.width / 2;
+        cameraY = -canvas.height / 2;
+    }
 
     // Use map data for world dimensions
     const worldWidth = mapData.width;
@@ -189,11 +215,10 @@ function renderGame(state, mapData, myId) {
     // Visual Adapter Layer - Always-on terrain rendering
     // This provides visual representation of the world without affecting gameplay
     if (worldTilemap && typeof VisualAdapter !== 'undefined') {
-        // Convert camera offset to world position
-        // Camera is negative offset, so negate to get world position
-        const worldCameraX = -cameraX;
-        const worldCameraY = -cameraY;
-        VisualAdapter.render(ctx, worldTilemap, worldCameraX, worldCameraY, canvas.width, canvas.height);
+        const viewportWidth = canvas.width / ZOOM_LEVEL;
+        const viewportHeight = canvas.height / ZOOM_LEVEL;
+
+        VisualAdapter.render(ctx, worldTilemap, cameraX, cameraY, viewportWidth, viewportHeight);
     }
 
     // DEBUG ONLY: Optional debug grid overlay
