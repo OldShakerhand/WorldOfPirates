@@ -9,6 +9,24 @@ World of Pirates uses client-side visual enhancement systems to improve player e
 - **Server Authority**: Server remains 100% authoritative for all game logic
 - **Performance**: Optimized for smooth 60fps rendering
 - **Graceful Degradation**: Missing assets or disabled features don't break the game
+- **Dynamic Resolution**: Adapts to any window size or aspect ratio
+
+---
+
+## Viewport & Resolution
+
+### Dynamic Resizing
+As of v0.4.4, the game no longer uses a fixed 1024x768 resolution. Instead, the canvas dynamically resizes to fill the entire browser window (`100vw`, `100vh`).
+
+**Implementation**:
+- `style.css`: Sets canvas and container to `width: 100%; height: 100%;`
+- `game.js`: Listens for `window.resize` events (debounced) and updates `canvas.width` and `canvas.height` to match `window.innerWidth` and `window.innerHeight`.
+
+### UI Anchoring
+To support variable resolutions, UI elements are anchored relative to screen edges rather than fixed coordinates:
+- **Top-Center**: Notifications, Harbor Prompt
+- **Bottom-Right**: Speed Gauge, Chat, Minimap
+- **Center**: Login Screen, Main Menu
 
 ---
 

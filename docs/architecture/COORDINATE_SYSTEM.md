@@ -360,8 +360,8 @@ The camera follows the player with smooth interpolation:
 
 ```javascript
 // Camera position (centered on player)
-const cameraX = player.x - canvas.width / 2;
-const cameraY = player.y - canvas.height / 2;
+const cameraX = player.x - canvas.width / 2;  // dynamic canvas.width
+const cameraY = player.y - canvas.height / 2; // dynamic canvas.height
 
 // Apply transform
 ctx.translate(-cameraX, -cameraY);
