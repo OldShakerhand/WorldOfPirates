@@ -11,15 +11,15 @@ body {
 
 #game-container {
     position: relative;
-    /* Added for minimap absolute positioning */
-    width: 1024px;
-    height: 768px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    box-shadow: none;
+    /* Shadow not needed for full screen */
 }
 
 canvas {
-    width: 1024px;
-    height: 768px;
+    width: 100%;
+    height: 100%;
     background-color: #3498db;
     display: block;
 }

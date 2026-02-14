@@ -30,6 +30,16 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.4] - 2026-02-14
+
+### 🖥️ UI Improvements
+- **Dynamic Viewport**: Game canvas now resizes dynamically to fill the entire browser window (Removed fixed 1024x768 resolution).
+- **Responsive UI**: HUD elements (Speed, Notifications, Chat) anchor correctly to screen edges on all resolutions.
+- **Minimap**: Optimized minimap rendering to persist across window resizes without flickering.
+
+### Fixed
+- **Minimap Black Screen**: Fixed an issue where resizing the window would clear the minimap content.
+
 ## [0.4.3] - 2026-02-14
 
 ### 🖥️ UI Improvements

@@ -111,9 +111,24 @@ const WORLD_HEIGHT = 42525;
 
 let frameCount = 0;  // For debug logging throttling
 
-// Set canvas resolution to 1024x768
-canvas.width = 1024;
-canvas.height = 768;
+// Set canvas resolution to full window
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+// Initial resize
+resizeCanvas();
+
+// Handle window resize (debounced)
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        resizeCanvas();
+        console.log(`[System] Resized canvas to ${canvas.width}x${canvas.height}`);
+    }, 100);
+});
 
 // Load tilemap for visual rendering
 // Used by Visual Adapter Layer for terrain visualization
@@ -502,8 +517,8 @@ function renderGame(state, mapData, myId) {
             ctx.lineWidth = 3;
             ctx.textAlign = 'center';
             const text = 'Press F to enter harbor';
-            ctx.strokeText(text, canvas.width / 2, canvas.height - 50);
-            ctx.fillText(text, canvas.width / 2, canvas.height - 50);
+            ctx.strokeText(text, canvas.width / 2, canvas.height - 180); // Raised to not overlap with chat
+            ctx.fillText(text, canvas.width / 2, canvas.height - 180);
             ctx.restore();
         }
     }
