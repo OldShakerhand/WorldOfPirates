@@ -19,6 +19,22 @@
                 <button id="cancelMissionBtn" onclick="cancelMission()">Cancel Mission</button>
             </div>
         </div>
+
+        <!-- Controls Hint (Bottom Left, inside game view) -->
+        <div id="controlsHint"
+            style="position: absolute; bottom: 10px; left: 10px; color: rgba(255,255,255,0.7); font-size: 12px; font-family: monospace; z-index: 50; pointer-events: none; text-shadow: 1px 1px 2px black;">
+            [H] Controls | [L] Changelog | [C] Chat
+        </div>
+
+        <!-- Chat Panel (Bottom Right) -->
+        <div id="chatPanel">
+            <div id="chatMessages"></div>
+        </div>
+
+        <!-- Chat Input (Bottom Right, above panel or overlay) -->
+        <div id="chatInputContainer" style="display: none;">
+            <input type="text" id="chatInput" placeholder="Press Enter to chat..." maxlength="200" autocomplete="off">
+        </div>
     </div>
 
     <!-- Name Input Overlay -->
@@ -41,15 +57,7 @@
         </div>
     </div>
 
-    <!-- Chat Panel (Kill Feed) -->
-    <div id="chatPanel">
-        <div id="chatMessages"></div>
-    </div>
 
-    <!-- Chat Input -->
-    <div id="chatInputContainer" style="display: none;">
-        <input type="text" id="chatInput" placeholder="Press Enter to chat..." maxlength="200" autocomplete="off">
-    </div>
 
 
     <!-- Harbor UI Overlay -->
@@ -193,13 +201,15 @@
             </div>
             <div class="changelog-footer">
                 <button id="closeChangelogBtn">Awesome!</button>
-                <div class="changelog-hint">Press <strong>H</strong> to view anytime</div>
+                <div class="changelog-hint">Press <strong>L</strong> to view anytime</div>
             </div>
         </div>
     </div>
 
-    <!-- Controls Legend (Temporary - for testing) -->
-    <div id="controlsLegend">
+
+
+    <!-- Controls Legend (Hidden by default, toggle with H) -->
+    <div id="controlsLegend" style="display: none;">
         <h3>⚓ Controls</h3>
 
         <div class="legend-section">
@@ -221,7 +231,8 @@
             <div class="control-item-note">Get new ships, repair, switch flagship, collect loot</div>
             <div class="control-item"><kbd>Enter</kbd> - Open chat</div>
             <div class="control-item-note">Send messages to other players</div>
-            <div class="control-item"><kbd>H</kbd> - What's New</div>
+            <div class="control-item"><kbd>H</kbd> - Toggle Controls</div>
+            <div class="control-item"><kbd>L</kbd> - What's New</div>
         </div>
 
         <div class="legend-section">

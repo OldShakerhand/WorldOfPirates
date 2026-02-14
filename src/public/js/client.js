@@ -389,6 +389,8 @@ function setupChatInput() {
             if (!chatInputActive) {
                 // Open chat input
                 chatInputContainer.style.display = 'block';
+                const chatPanel = document.getElementById('chatPanel');
+                if (chatPanel) chatPanel.style.display = 'block';
                 chatInput.focus();
                 chatInputActive = true;
                 e.preventDefault();
@@ -1109,7 +1111,25 @@ document.getElementById('closeChangelogBtn').addEventListener('click', hideChang
 
 document.addEventListener('keydown', (e) => {
     if (document.activeElement.tagName === 'INPUT') return;
+
+    // H: Toggle Controls Legend
     if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H') {
+        const legend = document.getElementById('controlsLegend');
+        if (legend) {
+            legend.style.display = legend.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    // C: Toggle Chat Panel
+    if (e.code === 'KeyC' || e.key === 'c' || e.key === 'C') {
+        const chat = document.getElementById('chatPanel');
+        if (chat) {
+            chat.style.display = chat.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    // L: Toggle Changelog
+    if (e.code === 'KeyL' || e.key === 'l' || e.key === 'L') {
         const overlay = document.getElementById('changelogOverlay');
         if (!overlay) return;
 

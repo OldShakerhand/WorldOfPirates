@@ -30,6 +30,18 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.3] - 2026-02-14
+
+### 🖥️ UI Improvements
+- **Mission Display**: Moved the "Active Mission" window into the game view (overlay) and reduced its width to 50% for better visibility.
+- **Chat Integration**: 
+  - Chat Log and Input are now anchored to the game window (Bottom-Right).
+  - Added **`C`** key toggle to hide/show chat.
+- **Controls Legend**: 
+  - Legend is now hidden by default. Added **`H`** key toggle.
+  - Rebound Changelog check to **`L`**.
+  - Added a persistent "Controls Hint" in the bottom-left corner.
+
 ## [0.4.2] - 2026-02-12
 
 ### 🚀 Highlights
