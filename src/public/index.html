@@ -11,6 +11,14 @@
 <body>
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
+        <!-- Mission UI Overlay (Top Left, below stats) -->
+        <div id="missionUI" style="display: none;">
+            <div id="missionContent">
+                <h3 id="missionType">Current Mission</h3>
+                <p id="missionDescription">Mission details...</p>
+                <button id="cancelMissionBtn" onclick="cancelMission()">Cancel Mission</button>
+            </div>
+        </div>
     </div>
 
     <!-- Name Input Overlay -->
@@ -171,14 +179,7 @@
         </div>
     </div>
 
-    <!-- Mission UI Overlay (Top Left) -->
-    <div id="missionUI" style="display: none;">
-        <div id="missionContent">
-            <h3 id="missionType">Current Mission</h3>
-            <p id="missionDescription">Mission details...</p>
-            <button id="cancelMissionBtn" onclick="cancelMission()">Cancel Mission</button>
-        </div>
-    </div>
+
 
     <!-- Changelog Overlay -->
     <div id="changelogOverlay" style="display: none;">

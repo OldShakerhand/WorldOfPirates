@@ -531,17 +531,23 @@ canvas {
 
 /* Mission UI */
 #missionUI {
-    position: fixed;
-    top: 10px;
+    position: absolute;
+    top: 230px;
+    /* Moved below stats HUD */
     left: 10px;
-    width: 250px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid #FFD700;
+    width: 125px;
+    background: rgba(0, 0, 0, 0.4);
+    /* Subtle background */
     border-radius: 5px;
     padding: 10px;
     color: white;
     font-family: Arial, sans-serif;
-    z-index: 90;
+    z-index: 100;
+}
+
+#missionContent {
+    pointer-events: auto;
+    /* Enable interactions for button */
 }
 
 #missionType {
