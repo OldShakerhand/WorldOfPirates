@@ -177,7 +177,7 @@ function renderGame(state, mapData, myId) {
     // Camera Zoom Logic (Mobile Polish)
     // Zoom out slightly on mobile to see more world
     const isMobile = window.MobileControls && window.MobileControls.touchEnabled;
-    const ZOOM_LEVEL = isMobile ? 0.8 : 1.0;
+    const ZOOM_LEVEL = isMobile ? 0.6 : 1.0;
 
     // Camera offset to center on player
     // Note: We calculate this differently if zoomed
