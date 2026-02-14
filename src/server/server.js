@@ -210,7 +210,21 @@ io.on('connection', (socket) => {
         if (!player) return;
 
         console.log(`[COMBAT] ${player.name} requested pirate spawn`);
-        gameLoop.world.npcManager.spawnPirate(player.x, player.y, socket.id);
+
+        // Generate random position 400-800px away
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 400 + Math.random() * 400;
+        const targetX = player.x + Math.cos(angle) * distance;
+        const targetY = player.y + Math.sin(angle) * distance;
+
+        // Ensure deep water spawn
+        const spawnPos = gameLoop.world.npcManager.findDeepWaterSpawn(targetX, targetY, 200);
+
+        if (spawnPos) {
+            gameLoop.world.npcManager.spawnPirate(spawnPos.x, spawnPos.y, socket.id);
+        } else {
+            console.warn(`[COMBAT] Could not find valid spawn for debug pirate near ${player.name}`);
+        }
     });
 
     // DEBUG: Spawn multiple pirates (command: /spawn_pirates N)
