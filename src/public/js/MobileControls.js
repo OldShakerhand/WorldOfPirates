@@ -30,6 +30,7 @@ class MobileControls {
     init() {
         console.log('[MobileControls] Touch device detected, initializing controls...');
         this.active = true;
+        document.body.classList.add('mobile-mode');
         this.createOverlay();
         this.setupOrientationLock();
         this.setupEventListeners();

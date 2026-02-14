@@ -163,3 +163,13 @@
 #mobile-overlay {
     display: block;
 }
+
+/* Mobile Minimap Overrides */
+body.mobile-mode #minimapCanvas {
+    /* 0.8x Scale for Mobile (304 * 0.8 = 243, 160 * 0.8 = 128) */
+    max-width: 243px;
+    max-height: 128px;
+    top: 5px;
+    /* Slightly closer to edge */
+    right: 5px;
+}
