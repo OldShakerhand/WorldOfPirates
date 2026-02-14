@@ -30,6 +30,14 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.5] - 2026-02-14
+
+### 📱 Mobile Controls
+- **Touch Overlay**: Added virtual joystick (Left) and action pad (Right) for mobile devices.
+- **Interact Button**: New 'Anchor' button for docking and looting.
+- **Viewport Stabilization**: Added logic to handle mobile browser address bars and notches.
+- **Orientation Lock**: Added "Rotate Device" warning for portrait mode.
+
 ## [0.4.4] - 2026-02-14
 
 ### 🖥️ UI Improvements
