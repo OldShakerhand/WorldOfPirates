@@ -1,0 +1,165 @@
+/* --- Mobile Controls --- */
+#mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Let touches pass through to canvas where no controls exist */
+    z-index: 1000;
+    display: none;
+    /* Hidden by default, JS enables it */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Joystick (Left) */
+#joystick-zone {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 150px;
+    height: 150px;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#joystick-base {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    position: relative;
+    transition: transform 0.1s;
+}
+
+#joystick-knob {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -20px;
+    margin-left: -20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Action Pad (Right) */
+#aim-zone {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 160px;
+    height: 160px;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.middle-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.action-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.action-btn.active {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0.95);
+}
+
+/* Interact Button */
+#btn-interact {
+    position: absolute;
+    bottom: 180px;
+    /* Above aim zone */
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 215, 0, 0.2);
+    /* Gold tint */
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    border-radius: 50%;
+    color: gold;
+    font-size: 24px;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#btn-interact:active,
+#btn-interact.active {
+    background: rgba(255, 215, 0, 0.5);
+    transform: scale(0.95);
+}
+
+/* Orientation Lock */
+#orientation-lock {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    z-index: 9999;
+    display: none;
+    /* Flex when active */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+#orientation-lock .icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+    animation: rotate-phone 2s infinite;
+}
+
+@keyframes rotate-phone {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(90deg);
+    }
+
+    75% {
+        transform: rotate(90deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Show controls when overlay is active */
+#mobile-overlay {
+    display: block;
+}

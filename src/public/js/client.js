@@ -430,10 +430,49 @@ const keys = {
     shootRight: false // E
 };
 
+// Track previous state for edge detection and bandwidth optimization
+let lastSentInput = {};
+let lastMobileF = false;
+
 document.addEventListener('keydown', (e) => {
     // Disable game controls while chat is active
     if (chatInputActive) return;
 
+    // Handle one-off actions (that don't need continuous state)
+    switch (e.key.toLowerCase()) {
+        case 'f':
+            socket.emit('enterHarbor');
+            break;
+        case 'n':
+            socket.emit('spawnNPC');
+            console.log('[NPC] Requested NPC spawn');
+            break;
+        case 'p':
+            socket.emit('spawnCombatNPC');
+            console.log('[COMBAT] Requested pirate spawn');
+            break;
+        case '1':
+            socket.emit('debug_start_mission', { type: 'SAIL_TO_HARBOR' });
+            break;
+        case '2':
+            socket.emit('debug_start_mission', { type: 'STAY_IN_AREA' });
+            break;
+        case '3':
+            socket.emit('debug_start_mission', { type: 'DEFEAT_NPCS', count: 3 });
+            break;
+        case '4':
+            socket.emit('debug_start_mission', { type: 'ESCORT' });
+            break;
+        case 'm':
+            if (typeof cycleMinimapZoom !== 'undefined') cycleMinimapZoom();
+            break;
+        case 'u':
+            const muted = soundManager.toggleMute();
+            console.log('[Sound] Muted:', muted);
+            break;
+    }
+
+    // Handle continuous state keys
     switch (e.key.toLowerCase()) {
         case 'w': keys.sailUp = true; break;
         case 's': keys.sailDown = true; break;
@@ -441,52 +480,9 @@ document.addEventListener('keydown', (e) => {
         case 'd': keys.turnRight = true; break;
         case 'q': keys.shootLeft = true; break;
         case 'e': keys.shootRight = true; break;
-        case 'f':
-            socket.emit('enterHarbor');
-            break;
-        case 'n':
-            // Spawn NPC trader near player
-            socket.emit('spawnNPC');
-            console.log('[NPC] Requested NPC spawn');
-            break;
-        case 'p':
-            // Spawn combat NPC (pirate) near player
-            socket.emit('spawnCombatNPC');
-            console.log('[COMBAT] Requested pirate spawn');
-            break;
-        case '1':
-            // Mission: Sail to Harbor
-            socket.emit('debug_start_mission', { type: 'SAIL_TO_HARBOR' });
-            console.log('[Mission] Starting: Sail to Harbor');
-            break;
-        case '2':
-            // Mission: Stay in Area
-            socket.emit('debug_start_mission', { type: 'STAY_IN_AREA' });
-            console.log('[Mission] Starting: Stay in Area');
-            break;
-        case '3':
-            // Mission: Defeat NPCs
-            socket.emit('debug_start_mission', { type: 'DEFEAT_NPCS', count: 3 });
-            console.log('[Mission] Starting: Defeat 3 NPCs');
-            break;
-        case '4':
-            // Mission: Escort Trader
-            socket.emit('debug_start_mission', { type: 'ESCORT' });
-            console.log('[Mission] Starting: Escort Trader');
-            break;
-        case 'm':
-            // Cycle minimap zoom
-            if (typeof cycleMinimapZoom !== 'undefined') {
-                cycleMinimapZoom();
-            }
-            break;
-        case 'u':
-            // Toggle mute
-            const muted = soundManager.toggleMute();
-            console.log('[Sound] Muted:', muted);
-            break;
     }
-    sendInput();
+
+    processInput();
 });
 
 document.addEventListener('keyup', (e) => {
@@ -498,21 +494,45 @@ document.addEventListener('keyup', (e) => {
         case 'q': keys.shootLeft = false; break;
         case 'e': keys.shootRight = false; break;
     }
-    sendInput();
+    processInput();
 });
 
-function sendInput() {
-    if (!socket) return; // Don't send input before connected
+function processInput() {
+    if (!socket) return;
 
-    socket.emit('input', {
-        left: keys.turnLeft,
-        right: keys.turnRight,
-        sailUp: keys.sailUp,
-        sailDown: keys.sailDown,
-        shootLeft: keys.shootLeft,
-        shootRight: keys.shootRight
-    });
+    // 1. Get Mobile State
+    let mobileState = { up: false, down: false, left: false, right: false, q: false, e: false, f: false };
+    if (window.MobileControls) {
+        mobileState = window.MobileControls.getInputState();
+    }
+
+    // 2. Combine Inputs (OR logic)
+    const currentInput = {
+        left: keys.turnLeft || mobileState.left,
+        right: keys.turnRight || mobileState.right,
+        sailUp: keys.sailUp || mobileState.up,
+        sailDown: keys.sailDown || mobileState.down,
+        shootLeft: keys.shootLeft || mobileState.q,
+        shootRight: keys.shootRight || mobileState.e
+    };
+
+    // 3. Handle Mobile "F" (Interact) Edge Detection
+    // Trigger only when going from false -> true
+    if (mobileState.f && !lastMobileF) {
+        socket.emit('enterHarbor'); // Mimics 'F' key behavior
+    }
+    lastMobileF = mobileState.f;
+
+    // 4. Send to server only if changed
+    if (JSON.stringify(currentInput) !== JSON.stringify(lastSentInput)) {
+        socket.emit('input', currentInput);
+        lastSentInput = currentInput;
+    }
 }
+
+// Input Loop: Check for mobile input changes periodically
+// 20Hz (every 50ms) is sufficient for responsive controls without flooding
+setInterval(processInput, 50);
 
 // Harbor UI functions (called from HTML buttons)
 function repairShip() {

@@ -1,0 +1,1150 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #2c3e50;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    box-shadow: none;
+    /* Shadow not needed for full screen */
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    background-color: #3498db;
+    display: block;
+}
+
+/* Chat Panel (Kill Feed) */
+#chatPanel {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 300px;
+    max-height: 200px;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(139, 69, 19, 0.8);
+    border-radius: 5px;
+    padding: 10px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    z-index: 1100;
+}
+
+#chatMessages {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.chat-message-system {
+    color: #FFD700;
+    text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+    line-height: 1.4;
+}
+
+.chat-message-player {
+    color: #FFFFFF;
+    line-height: 1.4;
+}
+
+.chat-message-player .player-name {
+    color: #3498db;
+    font-weight: bold;
+}
+
+/* Chat Input */
+#chatInputContainer {
+    position: absolute;
+    bottom: 220px;
+    right: 10px;
+    width: 300px;
+    z-index: 1101;
+}
+
+#chatInput {
+    width: 100%;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(139, 69, 19, 0.8);
+    border-radius: 5px;
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+#chatInput:focus {
+    outline: none;
+    border-color: #f1c40f;
+}
+
+
+/* Harbor UI Overlay */
+#harborUI {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#harborContent {
+    background-color: #2c3e50;
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    padding: 30px;
+    min-width: 400px;
+    max-width: 600px;
+    max-height: 90vh;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+#harborTitle {
+    text-align: center;
+    margin-top: 0;
+    color: #f1c40f;
+    flex-shrink: 0;
+}
+
+#harborInfo {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+#fleetList {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #34495e;
+    border-radius: 5px;
+}
+
+#harborActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-shrink: 0;
+}
+
+#harborActions button {
+    flex: 1;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#repairBtn {
+    background-color: #2ecc71;
+    color: white;
+}
+
+#repairBtn:hover {
+    background-color: #27ae60;
+}
+
+#closeBtn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+#closeBtn:hover {
+    background-color: #c0392b;
+}
+
+/* Name Input Overlay */
+#nameInputOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+#nameInputContent {
+    background-color: #2c3e50;
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    padding: 40px;
+    min-width: 400px;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#nameInputContent h1 {
+    margin-top: 0;
+    color: #f1c40f;
+    font-size: 32px;
+}
+
+#nameInputContent p {
+    color: #ecf0f1;
+    margin: 10px 0;
+}
+
+#nameInputContent .hint {
+    font-size: 12px;
+    color: #95a5a6;
+    margin-top: 10px;
+}
+
+#playerNameInput {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border: 2px solid #8B4513;
+    border-radius: 5px;
+    background-color: #34495e;
+    color: white;
+    text-align: center;
+    margin: 20px 0;
+    box-sizing: border-box;
+}
+
+#playerNameInput:focus {
+    outline: none;
+    border-color: #f1c40f;
+}
+
+#nameError {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+#setSailBtn {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#setSailBtn:hover {
+    background-color: #229954;
+}
+
+#setSailBtn:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+#shipSelector,
+#switchShipBtn {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #8B4513;
+}
+
+#switchShipBtn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#switchShipBtn:hover {
+    background-color: #2980b9;
+}
+
+/* DEBUG MINIMAP - Remove before production */
+#minimapCanvas {
+    position: absolute;
+    /* Changed from fixed - now relative to game-container */
+    top: 10px;
+    right: 10px;
+    /* Width and height controlled by JavaScript based on aspect ratio */
+    /* CSS scales it down to fit in corner - 62.5% of calculated size (50% * 1.25) */
+    max-width: 304px;
+    /* 243px * 1.25 */
+    max-height: 160px;
+    /* 128px * 1.25 */
+    width: auto;
+    height: auto;
+    border: 2px solid #8B4513;
+    background-color: #000;
+    z-index: 50;
+    image-rendering: pixelated;
+    /* Crisp pixel rendering */
+    image-rendering: crisp-edges;
+}
+
+/* Controls Legend (Temporary - for testing) */
+#controlsLegend {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 280px;
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95));
+    border: 2px solid rgba(139, 69, 19, 0.8);
+    border-radius: 8px;
+    padding: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ecf0f1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 90;
+}
+
+#controlsLegend h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    color: #f39c12;
+    text-align: center;
+    border-bottom: 2px solid rgba(243, 156, 18, 0.3);
+    padding-bottom: 8px;
+}
+
+.legend-section {
+    margin-bottom: 12px;
+}
+
+.legend-section strong {
+    display: block;
+    color: #3498db;
+    font-size: 13px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.control-item {
+    font-size: 12px;
+    padding: 3px 0;
+    color: #bdc3c7;
+}
+
+.control-item kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: rgba(236, 240, 241, 0.9);
+    border: 1px solid rgba(189, 195, 199, 0.8);
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.control-item-note {
+    font-size: 11px;
+    padding: 2px 0 2px 8px;
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Trade Interface Styles (Phase 0: Economy) */
+.trade-good-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    margin: 5px 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.trade-good-info {
+    flex: 1;
+}
+
+.trade-good-name {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.trade-good-prices {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.trade-good-controls {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.trade-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid #666;
+    background: #444;
+    color: white;
+    border-radius: 3px;
+}
+
+.trade-btn:hover {
+    background: #555;
+}
+
+.trade-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.trade-btn.buy {
+    background: #2ecc71;
+    border-color: #27ae60;
+}
+
+.trade-btn.buy:hover:not(:disabled) {
+    background: #27ae60;
+}
+
+.trade-btn.sell {
+    background: #e74c3c;
+    border-color: #c0392b;
+}
+
+.trade-btn.sell:hover:not(:disabled) {
+    background: #c0392b;
+}
+
+.trade-quantity-input {
+    width: 50px;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #666;
+    background: #333;
+    color: white;
+    border-radius: 3px;
+}
+
+.cargo-item {
+    padding: 3px 0;
+    font-size: 12px;
+}
+
+.trade-btn-group {
+    display: flex;
+    margin: 0 2px;
+}
+
+.trade-btn-group .trade-btn {
+    border-radius: 0;
+}
+
+.trade-btn-group .trade-btn:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-right: none;
+}
+
+.trade-btn-group .trade-btn:last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    width: 30px;
+    /* Fixed width for "All" */
+    padding: 4px 0;
+    /* Center text */
+    font-weight: bold;
+}
+
+.trade-btn.buy-all {
+    background: #27ae60;
+    /* Darker green */
+}
+
+.trade-btn.buy-all:hover:not(:disabled) {
+    background: #1e8449;
+}
+
+.trade-btn.sell-all {
+    background: #c0392b;
+    /* Darker red */
+}
+
+.trade-btn.sell-all:hover:not(:disabled) {
+    background: #922b21;
+}
+
+/* Trade Tiers */
+.tier-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 3px;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+.tier-export {
+    background-color: #2ecc71;
+    color: #000;
+}
+
+.tier-import {
+    background-color: #e67e22;
+    /* Orange for high demand */
+    color: #fff;
+}
+
+
+.tier-standard {
+    display: none;
+    /* No badge for standard */
+}
+
+/* Mission UI */
+#missionUI {
+    position: absolute;
+    top: 230px;
+    /* Moved below stats HUD */
+    left: 10px;
+    width: 125px;
+    background: rgba(0, 0, 0, 0.4);
+    /* Subtle background */
+    border-radius: 5px;
+    padding: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 100;
+}
+
+#missionContent {
+    pointer-events: auto;
+    /* Enable interactions for button */
+}
+
+#missionType {
+    margin: 0 0 5px 0;
+    color: #FFD700;
+    font-size: 14px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 5px;
+}
+
+#missionDescription {
+    margin: 5px 0 10px 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+#cancelMissionBtn {
+    width: 100%;
+    padding: 5px;
+    background-color: #e74c3c;
+    /* Red */
+    border: 1px solid #c0392b;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+
+#cancelMissionBtn:hover {
+    background-color: #c0392b;
+}
+
+/* Governor Section - Mission List */
+.mission-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.mission-card h4 {
+    margin: 0 0 5px 0;
+    color: #FFD700;
+    font-size: 14px;
+}
+
+.mission-card p {
+    margin: 5px 0;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.mission-card button {
+    width: 100%;
+    padding: 5px;
+    background-color: #27ae60;
+    border: 1px solid #229954;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.mission-card button:hover {
+    background-color: #229954;
+}
+
+.mission-card button:disabled {
+    background-color: #7f8c8d;
+    border-color: #5a6c7d;
+    cursor: not-allowed;
+}
+
+/* Mission Complete Overlay */
+#missionCompleteOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    /* Above all other UI */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+    /* Don't block clicks */
+}
+
+#missionCompleteOverlay.show {
+    opacity: 1;
+}
+
+.mission-complete-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 3px solid #FFD700;
+    border-radius: 15px;
+    padding: 40px 60px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+.mission-complete-content h2 {
+    color: #FFD700;
+    font-size: 36px;
+    margin: 0 0 20px 0;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 2px;
+}
+
+.mission-complete-content p {
+    color: #FFF;
+    font-size: 20px;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Changelog Overlay */
+#changelogOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+    /* Above everything */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#changelogOverlay.show {
+    opacity: 1;
+}
+
+.changelog-content {
+    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+    border: 2px solid #4ecca3;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(78, 204, 163, 0.2);
+}
+
+.changelog-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.changelog-header h2 {
+    color: #4ecca3;
+    margin: 0;
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 1px;
+}
+
+.version-tag {
+    background: rgba(78, 204, 163, 0.2);
+    color: #4ecca3;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.changelog-body {
+    padding: 20px 30px;
+    overflow-y: auto;
+    color: #e0e0e0;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Markdown Styling within Changelog */
+.changelog-body h3 {
+    color: #FFD700;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 5px;
+}
+
+.changelog-body ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.changelog-body li {
+    margin-bottom: 8px;
+}
+
+.changelog-body strong {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Scrollbar Styling */
+.changelog-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.changelog-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.changelog-body::-webkit-scrollbar-thumb {
+    background: #4ecca3;
+    border-radius: 4px;
+}
+
+.changelog-footer {
+    padding: 20px 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#closeChangelogBtn {
+    background: #4ecca3;
+    color: #1a1a2e;
+    border: none;
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+#closeChangelogBtn:hover {
+    background: #45b691;
+    transform: scale(1.05);
+}
+
+.changelog-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+}
+
+/* Harbor Redesign Styles */
+.harbor-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.harbor-view.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.harbor-menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.harbor-btn {
+    padding: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #3e2723;
+    /* Dark wood */
+    color: #f4e4bc;
+    /* Parchment text */
+    border: 2px solid #8d6e63;
+    /* Bronze/Light Wood border */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.harbor-btn:hover {
+    background: #5d4037;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+    border-color: #ffd700;
+    /* Gold highlight */
+}
+
+.harbor-btn.tavern {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    background: #2c1e1a;
+}
+
+.view-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #8d6e63;
+    padding-bottom: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.view-header h3 {
+    margin: 0;
+    margin-left: 15px;
+    color: #f1c40f;
+    font-size: 20px;
+}
+
+.back-btn {
+    background: none;
+    border: 1px solid #8d6e63;
+    color: #ffd700;
+    cursor: pointer;
+    padding: 5px 15px;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: #ffd700;
+}
+
+/* Harbor Occupants Layout */
+.harbor-main-layout {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    /* Important for scroll */
+}
+
+.harbor-menu-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.harbor-occupants-panel {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid #8d6e63;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.harbor-occupants-panel h3 {
+    margin: 0 0 10px 0;
+    color: #f1c40f;
+    font-size: 16px;
+    text-align: center;
+    border-bottom: 1px solid #8d6e63;
+    padding-bottom: 5px;
+}
+
+#harborOccupantsList {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.occupant-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    border-radius: 3px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.occupant-item.self {
+    border: 1px solid #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.occupant-name {
+    font-weight: bold;
+    color: #fff;
+}
+
+.occupant-ship {
+    color: #aaa;
+    font-size: 12px;
+}
+/**
+ * MobileControls.js
+ * Handles touch input for mobile devices:
+ * - Virtual Joystick (Left) for steering
+ * - Action Pad (Right) for sails and combat
+ * - Interaction Button
+ * - Orientation Lock
+ */
+class MobileControls {
+    constructor() {
+        this.touchEnabled = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        this.active = false;
+
+        // Input state mirroring the keyboard input
+        this.inputState = {
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+            q: false,
+            e: false,
+            f: false
+        };
+
+        if (this.touchEnabled) {
+            this.init();
+        }
+    }
+
+    init() {
+        console.log('[MobileControls] Touch device detected, initializing controls...');
+        this.active = true;
+        this.createOverlay();
+        this.setupOrientationLock();
+        this.setupEventListeners();
+    }
+
+    createOverlay() {
+        const overlay = document.createElement('div');
+        overlay.id = 'mobile-overlay';
+        overlay.innerHTML = `
+            <div id="joystick-zone">
+                <div id="joystick-base">
+                    <div id="joystick-knob"></div>
+                </div>
+            </div>
+            
+            <div id="aim-zone">
+                <!-- Action Pad -->
+                <button id="btn-sail-up" class="action-btn" data-key="up">▲</button>
+                <div class="middle-row">
+                    <button id="btn-fire-left" class="action-btn side" data-key="q">◀</button>
+                    <button id="btn-fire-right" class="action-btn side" data-key="e">▶</button>
+                </div>
+                <button id="btn-sail-down" class="action-btn" data-key="down">▼</button>
+            </div>
+
+            <button id="btn-interact" class="interactive-btn" data-key="f">⚓</button>
+        `;
+        document.body.appendChild(overlay);
+
+        // References
+        this.joystickBase = document.getElementById('joystick-base');
+        this.joystickKnob = document.getElementById('joystick-knob');
+        this.interactBtn = document.getElementById('btn-interact');
+    }
+
+    setupOrientationLock() {
+        const lock = document.createElement('div');
+        lock.id = 'orientation-lock';
+        lock.innerHTML = `
+            <div class="msg">
+                <div class="icon">📱</div>
+                <h2>Please Rotate Device</h2>
+                <p>Landscape mode required</p>
+            </div>
+        `;
+        document.body.appendChild(lock);
+
+        const checkOrientation = () => {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            lock.style.display = isPortrait ? 'flex' : 'none';
+        };
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        checkOrientation();
+    }
+
+    setupEventListeners() {
+        // Joystick Logic
+        const zone = document.getElementById('joystick-zone');
+        const knob = this.joystickKnob;
+        const base = this.joystickBase;
+
+        // Joystick state
+        let joystickActive = false;
+        let startX = 0;
+        let startY = 0; // Not used for steering but needed for distance calc if we wanted 2D
+        const maxDist = 40;
+
+        zone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            joystickActive = true;
+            startX = touch.clientX;
+            // Visual feedback
+            base.style.transform = `scale(1.1)`;
+        }, { passive: false });
+
+        zone.addEventListener('touchmove', (e) => {
+            if (!joystickActive) return;
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+
+            const deltaX = touch.clientX - startX;
+            // Clamp distance for visual
+            const dist = Math.min(Math.abs(deltaX), maxDist);
+            const sign = Math.sign(deltaX);
+
+            knob.style.transform = `translateX(${dist * sign}px)`;
+
+            // Update Input State (Threshold based)
+            this.inputState.left = deltaX < -10;
+            this.inputState.right = deltaX > 10;
+        }, { passive: false });
+
+        const endJoystick = (e) => {
+            joystickActive = false;
+            knob.style.transform = `translateX(0px)`;
+            base.style.transform = `scale(1)`;
+            this.inputState.left = false;
+            this.inputState.right = false;
+        };
+
+        zone.addEventListener('touchend', endJoystick);
+        zone.addEventListener('touchcancel', endJoystick);
+
+        // Button Logic (Delegation)
+        const handleButton = (e, state) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            e.preventDefault();
+
+            const key = btn.dataset.key; // 'up', 'down', 'q', 'e', 'f'
+            if (key) {
+                this.inputState[key] = state;
+                if (state) btn.classList.add('active');
+                else btn.classList.remove('active');
+            }
+        };
+
+        const aimZone = document.getElementById('aim-zone');
+        // Add listeners to aimZone and interactBtn
+        [aimZone, this.interactBtn].forEach(el => {
+            if (!el) return;
+            el.addEventListener('touchstart', (e) => handleButton(e, true), { passive: false });
+            el.addEventListener('touchend', (e) => handleButton(e, false));
+            el.addEventListener('touchcancel', (e) => handleButton(e, false));
+            // Prevent mouse emulation
+            el.addEventListener('mousedown', (e) => e.preventDefault());
+        });
+    }
+
+    // Public method to get combined input
+    getInputState() {
+        return this.inputState;
+    }
+}
+
+// Export global instance
+window.MobileControls = new MobileControls();

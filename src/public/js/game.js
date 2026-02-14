@@ -113,8 +113,15 @@ let frameCount = 0;  // For debug logging throttling
 
 // Set canvas resolution to full window
 function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    if (window.visualViewport) {
+        canvas.width = window.visualViewport.width;
+        canvas.height = window.visualViewport.height;
+        // Scroll to top-left to ensure canvas is visible
+        window.scrollTo(0, 0);
+    } else {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
 }
 
 // Initial resize
@@ -122,13 +129,18 @@ resizeCanvas();
 
 // Handle window resize (debounced)
 let resizeTimeout;
-window.addEventListener('resize', () => {
+const handleResize = () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         resizeCanvas();
         console.log(`[System] Resized canvas to ${canvas.width}x${canvas.height}`);
     }, 100);
-});
+};
+
+window.addEventListener('resize', handleResize);
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleResize);
+}
 
 // Load tilemap for visual rendering
 // Used by Visual Adapter Layer for terrain visualization
