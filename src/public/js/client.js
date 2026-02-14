@@ -1073,7 +1073,18 @@ function showChangelog(data) {
             html += `<h2 class="changelog-version-header">v${ver.version} <span style="font-size:0.6em; opacity:0.7">${ver.date}</span></h2>`;
         }
 
-        order.forEach(section => {
+        // Collect and sort all sections
+        const sections = Object.keys(ver.sections);
+        sections.sort((a, b) => {
+            const idxA = order.indexOf(a);
+            const idxB = order.indexOf(b);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return a.localeCompare(b);
+        });
+
+        sections.forEach(section => {
             if (ver.sections[section] && ver.sections[section].length > 0) {
                 html += `<h3>${section}</h3>`;
                 html += `<ul>`;
