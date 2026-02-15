@@ -100,6 +100,9 @@ class World {
             this.entities[id].update(deltaTime, this.wind, this.worldMap);
         }
 
+        // Resolve Ship-to-Ship Collisions (SAT-based separation)
+        this.resolveShipCollisions();
+
         // Update Projectiles
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const proj = this.projectiles[i];
@@ -271,6 +274,166 @@ class World {
             // Islands removed - now using tile-based world map
             harbors: this.harbors.map(h => h.serialize())
         };
+    }
+
+    /**
+     * Resolve collisions between ships using Separating Axis Theorem (SAT)
+     * Pushes overlapping ships apart gently without physics simulation
+     */
+    resolveShipCollisions() {
+        const entityIds = Object.keys(this.entities);
+        const ships = [];
+
+        // Filter valid ships (Player or NPC)
+        for (const id of entityIds) {
+            const ent = this.entities[id];
+            // Check type and ensure flagship exists and is alive
+            if ((ent.type === 'PLAYER' || ent.type === 'NPC') &&
+                !ent.isSunk && ent.flagship && ent.flagship.health > 0) {
+                ships.push(ent);
+            }
+        }
+
+        // Check every unique pair
+        for (let i = 0; i < ships.length; i++) {
+            for (let j = i + 1; j < ships.length; j++) {
+                const shipA = ships[i];
+                const shipB = ships[j];
+
+                // Skip if either is a Raft (rafts don't collide with ships)
+                if (shipA.isRaft || shipB.isRaft) continue;
+
+                // Broad Phase: Circle check
+                const dimA = Math.max(shipA.flagship.shipClass.spriteWidth, shipA.flagship.shipClass.spriteHeight);
+                const dimB = Math.max(shipB.flagship.shipClass.spriteWidth, shipB.flagship.shipClass.spriteHeight);
+                const radiussum = (dimA + dimB) * 0.6;
+
+                const dx = shipB.x - shipA.x;
+                const dy = shipB.y - shipA.y;
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq < radiussum * radiussum) {
+                    // Narrow Phase: SAT
+                    this.solveSAT(shipA, shipB);
+                }
+            }
+        }
+    }
+
+    /**
+     * Solve OBB collision between two ships and apply separation
+     */
+    solveSAT(shipA, shipB) {
+        const hitboxA = shipA.flagship.getHitbox();
+        const hitboxB = shipB.flagship.getHitbox();
+
+        const cornersA = this.getRotatedCorners(shipA.x, shipA.y, hitboxA.width, hitboxA.height, shipA.rotation);
+        const cornersB = this.getRotatedCorners(shipB.x, shipB.y, hitboxB.width, hitboxB.height, shipB.rotation);
+
+        const axes = [
+            ...this.getAxes(cornersA),
+            ...this.getAxes(cornersB)
+        ];
+
+        let minOverlap = Infinity;
+        let smallestAxis = null;
+
+        for (const axis of axes) {
+            const rangeA = this.projectPolygon(cornersA, axis);
+            const rangeB = this.projectPolygon(cornersB, axis);
+
+            if (!this.overlap(rangeA, rangeB)) {
+                return; // Separating axis found
+            } else {
+                const o = this.getOverlapAmount(rangeA, rangeB);
+                if (o < minOverlap) {
+                    minOverlap = o;
+                    smallestAxis = axis;
+                }
+            }
+        }
+
+        // Collision detected, apply MTV
+        if (smallestAxis && minOverlap > 0) {
+            const centerDx = shipB.x - shipA.x;
+            const centerDy = shipB.y - shipA.y;
+            const dot = smallestAxis.x * centerDx + smallestAxis.y * centerDy;
+
+            if (dot < 0) {
+                smallestAxis.x = -smallestAxis.x;
+                smallestAxis.y = -smallestAxis.y;
+            }
+
+            const correctionFactor = 0.5;
+            const pushX = smallestAxis.x * minOverlap * correctionFactor;
+            const pushY = smallestAxis.y * minOverlap * correctionFactor;
+
+            const aMovable = !shipA.dockedHarborId;
+            const bMovable = !shipB.dockedHarborId;
+
+            if (aMovable && bMovable) {
+                shipA.x -= pushX * 0.5;
+                shipA.y -= pushY * 0.5;
+                shipB.x += pushX * 0.5;
+                shipB.y += pushY * 0.5;
+            } else if (aMovable) {
+                shipA.x -= pushX;
+                shipA.y -= pushY;
+            } else if (bMovable) {
+                shipB.x += pushX;
+                shipB.y += pushY;
+            }
+        }
+    }
+
+    getRotatedCorners(cx, cy, w, h, rotation) {
+        const hw = w / 2;
+        const hh = h / 2;
+        const corners = [
+            { x: -hw, y: -hh },
+            { x: hw, y: -hh },
+            { x: hw, y: hh },
+            { x: -hw, y: hh }
+        ];
+        const cos = Math.cos(rotation);
+        const sin = Math.sin(rotation);
+        return corners.map(p => ({
+            x: cx + (p.x * cos - p.y * sin),
+            y: cy + (p.x * sin + p.y * cos)
+        }));
+    }
+
+    getAxes(corners) {
+        const axes = [];
+        for (let i = 0; i < corners.length; i++) {
+            const p1 = corners[i];
+            const p2 = corners[(i + 1) % corners.length];
+            const edgeX = p2.x - p1.x;
+            const edgeY = p2.y - p1.y;
+            const normal = { x: -edgeY, y: edgeX };
+            const len = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+            if (len > 0) axes.push({ x: normal.x / len, y: normal.y / len });
+        }
+        return axes;
+    }
+
+    projectPolygon(corners, axis) {
+        let min = Infinity;
+        let max = -Infinity;
+        for (const p of corners) {
+            const dot = p.x * axis.x + p.y * axis.y;
+            if (dot < min) min = dot;
+            if (dot > max) max = dot;
+        }
+        return { min, max };
+    }
+
+    overlap(rangeA, rangeB) {
+        return !(rangeA.max < rangeB.min || rangeB.max < rangeA.min);
+    }
+
+    getOverlapAmount(rangeA, rangeB) {
+        return Math.min(rangeA.max, rangeB.max) - Math.max(rangeA.min, rangeB.min);
     }
 }
 
