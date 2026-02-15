@@ -57,6 +57,7 @@ class MobileControls {
             </div>
 
             <button id="btn-interact" class="interactive-btn" data-key="f">⚓</button>
+            <button id="btn-fullscreen" class="utility-btn">⛶</button>
         `;
         document.body.appendChild(overlay);
 
@@ -161,6 +162,32 @@ class MobileControls {
             // Prevent mouse emulation
             el.addEventListener('mousedown', (e) => e.preventDefault());
         });
+
+        // Fullscreen Toggle
+        const fsBtn = document.getElementById('btn-fullscreen');
+        if (fsBtn) {
+            // Use click for fullscreen as it requires user interaction trust
+            fsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleFullscreen();
+            });
+            fsBtn.addEventListener('touchstart', (e) => e.stopPropagation()); // Prevent game input
+        }
+    }
+
+    // Fullscreen Toggle
+    toggleFullscreen(force = false) {
+        if (!this.active) return;
+
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`[MobileControls] Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+            });
+        } else if (!force) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
     }
 
     // Public method to get combined input

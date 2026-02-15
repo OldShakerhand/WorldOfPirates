@@ -173,3 +173,28 @@ body.mobile-mode #minimapCanvas {
     /* Slightly closer to edge */
     right: 5px;
 }
+
+/* Utility Buttons (Fullscreen) */
+.utility-btn {
+    position: absolute;
+    top: 10px;
+    right: 260px;
+    /* Left of minimap (Assumes minimap max width ~243px + margins) */
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 1001;
+}
+
+.utility-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+}

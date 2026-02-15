@@ -76,6 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Try to trigger fullscreen on mobile (must be direct user interaction)
+        if (window.MobileControls && window.MobileControls.active) {
+            window.MobileControls.toggleFullscreen(true);
+        }
+
         // Save to localStorage for convenience
         localStorage.setItem('playerName', playerName);
 
