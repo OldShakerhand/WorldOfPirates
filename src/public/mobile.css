@@ -98,11 +98,11 @@
     right: 30px;
     width: 60px;
     height: 60px;
-    background: rgba(255, 215, 0, 0.2);
-    /* Gold tint */
-    border: 2px solid rgba(255, 215, 0, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+    /* Neutral tint */
+    border: 2px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
-    color: gold;
+    color: white;
     font-size: 24px;
     pointer-events: auto;
     display: flex;
@@ -113,7 +113,7 @@
 
 #btn-interact:active,
 #btn-interact.active {
-    background: rgba(255, 215, 0, 0.5);
+    background: rgba(255, 255, 255, 0.4);
     transform: scale(0.95);
 }
 

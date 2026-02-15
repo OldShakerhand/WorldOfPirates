@@ -56,7 +56,7 @@ class MobileControls {
                 <button id="btn-sail-down" class="action-btn" data-key="down">▼</button>
             </div>
 
-            <button id="btn-interact" class="interactive-btn" data-key="f">⚓</button>
+            <button id="btn-interact" class="interactive-btn" data-key="f">🖐️</button>
             <button id="btn-fullscreen" class="utility-btn">⛶</button>
         `;
         document.body.appendChild(overlay);
