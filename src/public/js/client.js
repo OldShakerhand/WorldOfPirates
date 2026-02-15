@@ -446,7 +446,26 @@ document.addEventListener('keydown', (e) => {
     // Handle one-off actions (that don't need continuous state)
     switch (e.key.toLowerCase()) {
         case 'f':
-            socket.emit('enterHarbor');
+            // Logic duplicated from mobile until refactored
+            // Check for Wrecks first
+            let attemptedKeyboardLoot = false;
+            if (window.gameState && window.gameState.wrecks) {
+                const myShip = window.gameState.players[socket.id];
+                if (myShip) {
+                    const closestWreck = window.gameState.wrecks.find(w => {
+                        const dist = Math.hypot(w.x - myShip.x, w.y - myShip.y);
+                        return dist < 150;
+                    });
+                    if (closestWreck) {
+                        socket.emit('lootWreck', closestWreck.id);
+                        attemptedKeyboardLoot = true;
+                    }
+                }
+            }
+
+            if (!attemptedKeyboardLoot) {
+                socket.emit('enterHarbor');
+            }
             break;
         case 'n':
             socket.emit('spawnNPC');
@@ -524,7 +543,30 @@ function processInput() {
     // 3. Handle Mobile "F" (Interact) Edge Detection
     // Trigger only when going from false -> true
     if (mobileState.f && !lastMobileF) {
-        socket.emit('enterHarbor'); // Mimics 'F' key behavior
+        // Check for Wrecks first
+        // Simple client-side check to see if we should try to loot
+        // We need to access the world state to find wrecks
+        let attemptedLoot = false;
+        if (window.gameState && window.gameState.wrecks) {
+            const myShip = window.gameState.players[socket.id];
+            if (myShip) {
+                // Find closest wreck
+                const closestWreck = window.gameState.wrecks.find(w => {
+                    const dist = Math.hypot(w.x - myShip.x, w.y - myShip.y);
+                    return dist < 150; // Match game.js draw distance
+                });
+
+                if (closestWreck) {
+                    socket.emit('lootWreck', closestWreck.id);
+                    attemptedLoot = true;
+                }
+            }
+        }
+
+        // If not looting, try to dock
+        if (!attemptedLoot) {
+            socket.emit('enterHarbor');
+        }
     }
     lastMobileF = mobileState.f;
 

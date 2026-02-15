@@ -13,8 +13,8 @@
 <body>
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
-        <!-- Mission UI Overlay (Top Left, below stats) -->
-        <div id="missionUI" style="display: none;">
+        <!-- Mission UI Overlay (Top Left, to the right of HUD) -->
+        <div id="missionUI" style="display: none; position: absolute; top: 10px; left: 140px; z-index: 20;">
             <div id="missionContent">
                 <h3 id="missionType">Current Mission</h3>
                 <p id="missionDescription">Mission details...</p>
