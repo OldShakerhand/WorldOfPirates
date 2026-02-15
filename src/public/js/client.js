@@ -76,10 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Try to trigger fullscreen on mobile (must be direct user interaction)
-        if (window.MobileControls && window.MobileControls.active) {
-            window.MobileControls.toggleFullscreen(true);
-        }
+        // Auto-fullscreen removed due to iOS Safari blocking issues
+        // Players can use the manual fullscreen button in-game
 
         // Save to localStorage for convenience
         localStorage.setItem('playerName', playerName);
