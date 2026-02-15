@@ -50,7 +50,7 @@ const MINIMAP_CONFIG = {
 };
 
 // Zoom state
-let currentZoom = 0; // Current zoom level (0, 1, or 2)
+let currentZoom = 2; // Default to Local (10x) for better context
 
 // Minimap canvas element
 let minimapCanvas = null;

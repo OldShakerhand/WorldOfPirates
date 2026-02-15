@@ -48,16 +48,19 @@ class MobileControls {
             
             <div id="aim-zone">
                 <!-- Action Pad -->
-                <button id="btn-sail-up" class="action-btn" data-key="up">▲</button>
+                <button id="btn-sail-up" class="action-btn" data-key="up">⛵</button>
                 <div class="middle-row">
-                    <button id="btn-fire-left" class="action-btn side" data-key="q">◀</button>
-                    <button id="btn-fire-right" class="action-btn side" data-key="e">▶</button>
+                    <button id="btn-fire-left" class="action-btn side" data-key="q">💥⬅️</button>
+                    <button id="btn-fire-right" class="action-btn side" data-key="e">➡️💥</button>
                 </div>
-                <button id="btn-sail-down" class="action-btn" data-key="down">▼</button>
+                <button id="btn-sail-down" class="action-btn" data-key="down">⚓</button>
             </div>
 
             <button id="btn-interact" class="interactive-btn" data-key="f">🖐️</button>
-            <button id="btn-fullscreen" class="utility-btn">⛶</button>
+            <div id="utility-buttons">
+                <button id="btn-fullscreen" class="utility-btn">⛶</button>
+                <button id="btn-zoom" class="utility-btn">🔍</button>
+            </div>
         `;
         document.body.appendChild(overlay);
 
@@ -163,15 +166,25 @@ class MobileControls {
             el.addEventListener('mousedown', (e) => e.preventDefault());
         });
 
-        // Fullscreen Toggle
+        // Utility Buttons
         const fsBtn = document.getElementById('btn-fullscreen');
         if (fsBtn) {
-            // Use click for fullscreen as it requires user interaction trust
             fsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.toggleFullscreen();
             });
-            fsBtn.addEventListener('touchstart', (e) => e.stopPropagation()); // Prevent game input
+            fsBtn.addEventListener('touchstart', (e) => e.stopPropagation());
+        }
+
+        const zoomBtn = document.getElementById('btn-zoom');
+        if (zoomBtn) {
+            zoomBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof cycleMinimapZoom !== 'undefined') {
+                    cycleMinimapZoom();
+                }
+            });
+            zoomBtn.addEventListener('touchstart', (e) => e.stopPropagation());
         }
     }
 

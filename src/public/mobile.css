@@ -166,20 +166,28 @@
 
 /* Mobile Minimap Overrides */
 body.mobile-mode #minimapCanvas {
-    /* 0.8x Scale for Mobile (304 * 0.8 = 243, 160 * 0.8 = 128) */
-    max-width: 243px;
-    max-height: 128px;
+    /* 0.6x Scale for Mobile (304 * 0.6 = 182, 160 * 0.6 = 96) */
+    max-width: 182px;
+    max-height: 96px;
     top: 5px;
-    /* Slightly closer to edge */
     right: 5px;
 }
 
-/* Utility Buttons (Fullscreen) */
-.utility-btn {
+/* Utility Buttons Container */
+#utility-buttons {
     position: absolute;
     top: 10px;
-    right: 260px;
-    /* Left of minimap (Assumes minimap max width ~243px + margins) */
+    right: 200px;
+    /* Left of minimap (182px + margins) */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1001;
+    pointer-events: none;
+    /* Let clicks pass through container */
+}
+
+.utility-btn {
     width: 40px;
     height: 40px;
     background: rgba(0, 0, 0, 0.4);
@@ -191,7 +199,7 @@ body.mobile-mode #minimapCanvas {
     align-items: center;
     justify-content: center;
     pointer-events: auto;
-    z-index: 1001;
+    /* Re-enable for buttons */
 }
 
 .utility-btn:active {
