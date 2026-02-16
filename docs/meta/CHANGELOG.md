@@ -30,6 +30,16 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.6] - 2026-02-16
+
+### ⚖️ Gameplay Tuning
+- **Collision Physics**: Reduced collision speed penalty from 50% to **5%**. Ships now slide against each other with friction rather than coming to a dead stop.
+- **NPC Formation**: Pirates now use formation offsets during combat to fan out (~23° spread) instead of stacking on top of each other.
+- **Pirate AI**: Fixed a bug where Pirates ignored their avoidance logic during combat. They now correctly steer around obstacles while pursuing targets.
+
+### 🐛 Bug Fixes
+- **Cargo Capacity**: Fixed a critical bug where players would lose their cargo capacity (0t) after recovering from a raft or upgrading their ship.
+
 ## [0.4.5] - 2026-02-14
 
 ### 📱 Mobile Controls

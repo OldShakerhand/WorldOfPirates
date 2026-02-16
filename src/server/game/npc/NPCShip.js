@@ -252,12 +252,12 @@ class NPCShip {
         // 3. Update navigation (obstacle avoidance)
         if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
             this.navUpdateCounter = 0;
-            this.updateNavigation(world.worldMap);
+            this.updateNavigation(world);
         }
 
         // 4. Steer toward currentHeading
         // Steering
-        let angleDiff = this.desiredHeading - this.rotation;
+        let angleDiff = this.currentHeading - this.rotation;
         while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
         while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
@@ -306,7 +306,7 @@ class NPCShip {
         // 2. Update navigation (check for obstacles and adjust currentHeading)
         if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
             this.navUpdateCounter = 0;
-            this.updateNavigation(world.worldMap);
+            this.updateNavigation(world);
         }
 
         // 3. Steer toward currentHeading (not desiredHeading)
@@ -438,7 +438,7 @@ class NPCShip {
         // Update navigation (obstacle avoidance)
         if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
             this.navUpdateCounter = 0;
-            this.updateNavigation(world.worldMap);
+            this.updateNavigation(world);
         }
 
         // Steer toward desired heading
@@ -463,12 +463,18 @@ class NPCShip {
      * Update Navigation - Predictive obstacle avoidance
      * Checks for obstacles ahead and adjusts currentHeading accordingly
      */
-    updateNavigation(worldMap) {
+    /**
+     * Update Navigation - Predictive obstacle avoidance
+     * Checks for obstacles ahead and adjusts currentHeading accordingly
+     */
+    updateNavigation(world) {
         const lookAhead = NAVIGATION.LOOK_AHEAD_TILES * GAME.TILE_SIZE;
+        const worldMap = world.worldMap;
 
         // Check both current and desired headings
-        const currentIsClear = this.isHeadingClear(this.currentHeading, lookAhead, worldMap);
-        const desiredIsClear = this.isHeadingClear(this.desiredHeading, lookAhead, worldMap);
+        // Now checks for BOTH land (via worldMap) and ships (via world.entities)
+        const currentIsClear = this.isHeadingClear(this.currentHeading, lookAhead, world);
+        const desiredIsClear = this.isHeadingClear(this.desiredHeading, lookAhead, world);
 
         if (currentIsClear && desiredIsClear) {
             // Both paths clear - gradually converge to desired heading
@@ -494,7 +500,7 @@ class NPCShip {
             }
         } else if (!currentIsClear) {
             // Current path blocked - find alternative
-            const alternative = this.findClearHeading(worldMap, lookAhead);
+            const alternative = this.findClearHeading(world, lookAhead);
             if (alternative !== null) {
                 this.currentHeading = alternative;
 
@@ -514,23 +520,52 @@ class NPCShip {
     }
 
     /**
-     * Check if a heading is clear of obstacles
+     * Check if a heading is clear of obstacles (Land AND Ships)
      * @param {number} heading - Heading to test (radians)
      * @param {number} lookAheadDistance - Distance to look ahead (pixels)
-     * @param {WorldMap} worldMap - World map for collision detection
+     * @param {World} world - World instance for entity & map access
      * @returns {boolean} True if path is clear
      */
-    isHeadingClear(heading, lookAheadDistance, worldMap) {
+    isHeadingClear(heading, lookAheadDistance, world) {
         const samples = Math.ceil(lookAheadDistance / GAME.TILE_SIZE);
+        const worldMap = world.worldMap;
 
+        // 1. Check Land Obstacles along the ray
         for (let i = 1; i <= samples; i++) {
             const dist = i * GAME.TILE_SIZE;
-            // Convert heading to world coordinates (heading - PI/2 for ship convention)
             const x = this.x + Math.cos(heading - Math.PI / 2) * dist;
             const y = this.y + Math.sin(heading - Math.PI / 2) * dist;
 
             if (worldMap.isLand(x, y)) {
-                return false; // Obstacle detected
+                return false; // Land Detected
+            }
+        }
+
+        // 2. Check Ship Obstacles (Simple Bounding Circle Check)
+        // Check a point halfway along the lookAhead ray for nearby ships
+        const checkDist = lookAheadDistance * 0.5;
+        const checkX = this.x + Math.cos(heading - Math.PI / 2) * checkDist;
+        const checkY = this.y + Math.sin(heading - Math.PI / 2) * checkDist;
+
+        // Radius to check for other ships (LookAhead/2 radius covers the path roughly)
+        // Optimization: Don't iterate all entities if possible, but for <50 ships it's fine
+        const detectionRadius = lookAheadDistance * 0.6;
+
+        for (const id in world.entities) {
+            const entity = world.entities[id];
+
+            // Skip self and non-ships (e.g. projectiles if stored in entities, though they aren't)
+            if (entity.id === this.id) continue;
+            if (entity.type !== 'PLAYER' && entity.type !== 'NPC') continue;
+            if (entity.isRaft) continue; // Ignore rafts for navigation (can sail through/push)
+
+            const dx = entity.x - checkX;
+            const dy = entity.y - checkY;
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq < detectionRadius * detectionRadius) {
+                // Ship detected in path
+                return false;
             }
         }
 
@@ -540,16 +575,16 @@ class NPCShip {
     /**
      * Find a clear alternative heading
      * Tests search angles and returns first clear heading that makes forward progress
-     * @param {WorldMap} worldMap - World map for collision detection
+     * @param {World} world - World instance
      * @param {number} lookAheadDistance - Distance to look ahead
      * @returns {number|null} Clear heading or null if none found
      */
-    findClearHeading(worldMap, lookAheadDistance) {
+    findClearHeading(world, lookAheadDistance) {
         for (const angle of NAVIGATION.SEARCH_ANGLES) {
             const testHeading = this.desiredHeading + angle;
 
             // Check if heading is clear
-            if (this.isHeadingClear(testHeading, lookAheadDistance, worldMap)) {
+            if (this.isHeadingClear(testHeading, lookAheadDistance, world)) {
                 // Check if still making forward progress toward target
                 const progressDot = Math.cos(testHeading - this.desiredHeading);
 
@@ -684,10 +719,18 @@ class NPCShip {
      * Returns desired position for broadside attack
      */
     computeCombatPosition(target) {
-        // Position perpendicular to target for broadside
-        const attackAngle = this.combatSide === 'PORT'
+        // Extract numeric ID for deterministic formation (npc_pirate_12 -> 12)
+        const idNum = parseInt(this.id.split('_').pop()) || 0;
+
+        // Create a spread of offsets: -0.4, 0, +0.4 radians (~23 degrees)
+        // This prevents all pirates from seeking the exact same pixel
+        const formationOffset = (idNum % 3 - 1) * 0.4;
+
+        // Position perpendicular to target for broadside + formation offset
+        const attackAngle = (this.combatSide === 'PORT'
             ? target.rotation + Math.PI / 2   // Attack from target's left
-            : target.rotation - Math.PI / 2;  // Attack from target's right
+            : target.rotation - Math.PI / 2)  // Attack from target's right
+            + formationOffset;
 
         // Compute position at combatDistance from target
         const goalX = target.x + Math.cos(attackAngle - Math.PI / 2) * this.combatDistance;

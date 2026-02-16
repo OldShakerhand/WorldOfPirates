@@ -575,6 +575,11 @@ class GameLoop {
             player.fleet = [new Ship('SLOOP')];
             player.flagshipIndex = 0;
             player.isRaft = false;
+
+            // Update FleetCargo reference to new fleet
+            // FIX: Prevent 0 capacity bug after raft recovery
+            player.fleetCargo.setFleet(player.fleet);
+
             console.log(`Player ${player.id} received a new Sloop at ${harbor.name}`);
         }
 
@@ -754,6 +759,9 @@ class GameLoop {
         const Ship = require('./entities/Ship');
         player.fleet = [new Ship(targetShipClass)];
         player.flagshipIndex = 0;
+
+        // Update FleetCargo reference to new fleet
+        player.fleetCargo.setFleet(player.fleet);
 
         console.log(`[Harbor] ${player.name}: Upgraded to ${shipClass.name} for ${shipClass.goldCost} gold (${player.gold} remaining)`);
 

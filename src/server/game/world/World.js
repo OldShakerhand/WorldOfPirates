@@ -364,7 +364,9 @@ class World {
                 smallestAxis.y = -smallestAxis.y;
             }
 
-            const correctionFactor = 0.5;
+            // Apply gentle separation (reduced from 0.5 to 0.2 for heavier feel)
+            // Ideally we want ships to stop rather than slide
+            const correctionFactor = 0.2;
             const pushX = smallestAxis.x * minOverlap * correctionFactor;
             const pushY = smallestAxis.y * minOverlap * correctionFactor;
 
@@ -376,12 +378,43 @@ class World {
                 shipA.y -= pushY * 0.5;
                 shipB.x += pushX * 0.5;
                 shipB.y += pushY * 0.5;
+
+                // Apply speed penalty (Impact friction) - DIRECTIONAL
+                // Only lose speed if you are "facing" the collision (Rammer)
+                // If you are hit from behind/side (Victim), you keep your speed
+
+                // Helper: Check if ship is facing the other ship (Front 120 degree arc)
+                const isFacing = (source, target) => {
+                    const dx = target.x - source.x;
+                    const dy = target.y - source.y;
+                    const angleToTarget = Math.atan2(dy, dx);
+                    let angleDiff = angleToTarget - source.rotation;
+
+                    // Normalize to -PI to +PI
+                    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+                    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+                    // Check if within +/- 60 degrees (1.05 radians)
+                    return Math.abs(angleDiff) < 1.05;
+                };
+
+                const aFacingB = isFacing(shipA, shipB);
+                const bFacingA = isFacing(shipB, shipA);
+
+                // Lose 5% of current speed ONLY if facing the collision
+                if (shipA.speed > 0 && aFacingB) shipA.speed *= 0.95;
+                if (shipB.speed > 0 && bFacingA) shipB.speed *= 0.95;
+
             } else if (aMovable) {
                 shipA.x -= pushX;
                 shipA.y -= pushY;
+                // Wall collision (island/docked ship) - always penalize as we hit something static
+                if (shipA.speed > 0) shipA.speed *= 0.95;
             } else if (bMovable) {
                 shipB.x += pushX;
                 shipB.y += pushY;
+                // Wall collision - always penalize
+                if (shipB.speed > 0) shipB.speed *= 0.95;
             }
         }
     }

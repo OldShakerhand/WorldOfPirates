@@ -20,6 +20,15 @@ class FleetCargo {
     }
 
     /**
+     * Update fleet reference
+     * Called when player gets a new ship/fleet (e.g. raft recovery, upgrade)
+     * @param {Array} fleet - New fleet array
+     */
+    setFleet(fleet) {
+        this.fleet = fleet;
+    }
+
+    /**
      * Get total fleet cargo capacity
      * @returns {number} Total cargo capacity (sum of all ships' cargoHold)
      */
