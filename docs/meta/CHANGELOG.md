@@ -30,6 +30,14 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.4.7] - 2026-02-17
+
+### ⚖️ Gameplay Tuning
+- **Collision Physics Refinement**:
+    - **Ramming Penalty**: Increased speed penalty for the aggressor from 5% to **95%**. Hitting another ship now stops you almost instantly, preventing "bulldozing".
+    - **Angle Detection**: Refined "Facing" logic to use a **~70° cone** (1.2 rads). This ensures that valid T-Bone collisions (90°) do not incorrectly penalize the victim ship.
+    - **Bug Fix**: Fixed a coordinate system mismatch (PI/2 offset) that caused rear-end collisions to be miscalculated.
+
 ## [0.4.6] - 2026-02-16
 
 ### ⚖️ Gameplay Tuning
