@@ -180,6 +180,20 @@ class WaypointGraph {
     }
 
     /**
+     * Get all connected neighbors for a given node ID
+     * @param {string} nodeId 
+     * @returns {Array} List of neighbor node objects {id, x, y}
+     */
+    getConnectedNodes(nodeId) {
+        if (!this.edges.has(nodeId)) return [];
+        const edges = this.edges.get(nodeId);
+        return edges.map(edge => {
+            const node = this.nodes.get(edge.to);
+            return { id: edge.to, x: node.x, y: node.y };
+        });
+    }
+
+    /**
      * Simple A* search on the waypoint graph
      * @param {number} startX World X of start point
      * @param {number} startY World Y of start point
@@ -271,7 +285,7 @@ class WaypointGraph {
 
         return pathIds.map(id => {
             const node = this.nodes.get(id);
-            return { x: node.x, y: node.y };
+            return { id: id, x: node.x, y: node.y };
         });
     }
 }

@@ -314,9 +314,64 @@ class NPCShip {
         if (!this.route) {
             const harborWorldX = targetHarbor.x;
             const harborWorldY = targetHarbor.y;
+            const approachP = NavigationUtils.getHarborApproach(targetHarbor, GAME.TILE_SIZE);
 
             // 1. Get open sea path from Waypoint Graph
             this.route = world.waypointGraph.findRoute(this.x, this.y, harborWorldX, harborWorldY);
+
+            // Phase 7: Harbor Exit Sequence
+            if (this.route.length >= 1) {
+                const goalNode = this.route[this.route.length - 1];
+                let exitPoint = null;
+                let sliceIndex = -1;
+
+                // Build candidate edges in priority order
+                const candidates = [];
+
+                // Priority 1: Route edges in reverse order (closest to harbor first)
+                for (let i = this.route.length - 2; i >= 0; i--) {
+                    candidates.push({
+                        start: this.route[i],
+                        end: this.route[i + 1],
+                        sliceIdx: i + 1 // if we exit here, we drop i+1 and beyond
+                    });
+                }
+
+                // Priority 2: Extension edges connected to goalNode
+                if (goalNode.id) {
+                    const neighbors = world.waypointGraph.getConnectedNodes(goalNode.id);
+                    // Filter out the node we just came from to avoid redundant checking
+                    const prevId = this.route.length >= 2 ? this.route[this.route.length - 2].id : null;
+                    
+                    for (const neighbor of neighbors) {
+                        if (neighbor.id !== prevId) {
+                            candidates.push({
+                                start: goalNode,
+                                end: neighbor,
+                                sliceIdx: this.route.length // if we exit here, we keep the entire native route
+                            });
+                        }
+                    }
+                }
+
+                // Evaluate candidates sequentially
+                for (const edge of candidates) {
+                    const p = NavigationUtils.getClosestPointOnSegment(approachP.x, approachP.y, edge.start, edge.end);
+                    
+                    if (NavigationUtils.isLineOfSightClear(world.worldMap, p.x, p.y, approachP.x, approachP.y)) {
+                        exitPoint = p;
+                        sliceIndex = edge.sliceIdx;
+                        break; // First valid candidate wins
+                    }
+                }
+
+                // Apply Exit Point if found
+                if (exitPoint) {
+                    this.route = this.route.slice(0, sliceIndex);
+                    this.route.push({ x: exitPoint.x, y: exitPoint.y });
+                }
+                // Fallback: If no candidate was valid, we elegantly fallback to the native nativeRoute
+            }
 
             // Phase 6: Spawn-to-Route Connection
             if (this.route.length >= 2) {
@@ -324,17 +379,17 @@ class NPCShip {
                 const nextNode = this.route[1];
                 
                 // 4 & 5. Compute Closest Point P on segment startNode -> nextNode
-                const approachP = NavigationUtils.getClosestPointOnSegment(this.x, this.y, startNode, nextNode);
+                const spawnP = NavigationUtils.getClosestPointOnSegment(this.x, this.y, startNode, nextNode);
                 
                 // 6. Validate sea access from spawn -> P
-                if (NavigationUtils.isLineOfSightClear(world.worldMap, this.x, this.y, approachP.x, approachP.y)) {
+                if (NavigationUtils.isLineOfSightClear(world.worldMap, this.x, this.y, spawnP.x, spawnP.y)) {
                     // 7. Start navigation via P
-                    this.route[0] = { x: approachP.x, y: approachP.y }; 
+                    this.route[0] = { x: spawnP.x, y: spawnP.y }; 
                 }
             }
 
             // 2. Append Harbor Approach Point
-            this.route.push(NavigationUtils.getHarborApproach(targetHarbor, GAME.TILE_SIZE));
+            this.route.push(approachP);
 
             // 3. Append Final Harbor Point
             this.route.push({ x: harborWorldX, y: harborWorldY });
