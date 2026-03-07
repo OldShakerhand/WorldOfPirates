@@ -312,8 +312,8 @@ class NPCShip {
 
         // Generate route if we don't have one
         if (!this.route) {
-            const harborWorldX = (targetHarbor.tileX + 0.5) * GAME.TILE_SIZE;
-            const harborWorldY = (targetHarbor.tileY + 0.5) * GAME.TILE_SIZE;
+            const harborWorldX = targetHarbor.x;
+            const harborWorldY = targetHarbor.y;
 
             // 1. Get open sea path from Waypoint Graph
             this.route = world.waypointGraph.findRoute(this.x, this.y, harborWorldX, harborWorldY);

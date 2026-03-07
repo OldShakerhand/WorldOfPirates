@@ -17,14 +17,10 @@ class NavigationUtils {
      * @returns {Object} {x, y} coordinates of approach point
      */
     static getHarborApproach(harbor, tileSize) {
-        // Harbor coordinates are in tile space. 
-        // We convert them to world space centered in the tile logic:
-        const harborWorldX = (harbor.tileX + 0.5) * tileSize;
-        const harborWorldY = (harbor.tileY + 0.5) * tileSize;
-
+        // Harbor position (x,y) is already in world space
         // Apply approach distance based on harbor's exit direction
-        const approachX = harborWorldX + harbor.exitDirection.x * APPROACH_DISTANCE;
-        const approachY = harborWorldY + harbor.exitDirection.y * APPROACH_DISTANCE;
+        const approachX = harbor.x + harbor.exitDirection.x * APPROACH_DISTANCE;
+        const approachY = harbor.y + harbor.exitDirection.y * APPROACH_DISTANCE;
 
         return { x: approachX, y: approachY };
     }
