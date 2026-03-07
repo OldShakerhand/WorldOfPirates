@@ -8,6 +8,7 @@ const WorldMap = require('./WorldMap');
 const HarborRegistry = require('./HarborRegistry');
 const NPCManager = require('../npc/NPCManager');
 const RewardSystem = require('../progression/RewardSystem');
+const WaypointGraph = require('../navigation/WaypointGraph');
 
 class World {
     constructor() {
@@ -42,6 +43,10 @@ class World {
         this.harbors = this.harborRegistry.getAllHarbors().map(data =>
             new Harbor(data.id, this.createIslandStub(data), data.name, this.worldMap, data.exitDirection)
         );
+
+        // Navigation Graph for NPCs
+        this.waypointGraph = new WaypointGraph();
+        this.waypointGraph.verifyEdges(this.worldMap);
 
         // NPC Manager (Phase 1: Trader NPCs)
         this.npcManager = new NPCManager(this);

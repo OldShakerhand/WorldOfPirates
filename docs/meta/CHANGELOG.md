@@ -30,6 +30,17 @@ This document tracks all notable changes to World of Pirates across versions. It
 ---
 
 
+## [0.5.0] - 2026-03-07
+
+### 🧭 Navigation & AI Overhaul
+- **Static Waypoint Graph**: Completely discarded the massive procedural 70+ node pathfinding network. Replaced it natively with a sparse, human-readable 28-node graph (48 edges) manually outlining major Caribbean sea corridors.
+- **Dijkstra-Filtered Corridors**: The new static graph actively filters out any manually drawn connection that does not yield a >15% travel distance improvement, leaving only robust sea highways.
+- **Spawn-to-Route Interception**: NPCs spawning mid-ocean no longer clumsily sail backward to find an explicit "anchored node". They orthogonally project their coordinates onto the first edge of their A* path, run a rigorous `isLineOfSightClear` check via `worldMap.isPassable(x, y)`, and dynamically merge linearly into the trade lane.
+- **Startup Protection Validation**: `WaypointGraph` now strictly samples `isPassable` every 50 world-units across all active edges inside `verifyEdges(worldMap)`. The server correctly throws a fatal boot error to halt execution if any custom node modifications collide with `LAND`.
+- **Performance**: A* distance searches on the explicit 28 nodes drop overhead computations far under `< 0.1ms`.
+
+---
+
 ## [0.4.7] - 2026-02-17
 
 ### ⚖️ Gameplay Tuning

@@ -65,10 +65,16 @@ Combat is a capability module that can be attached to any NPC.
 ## 4. Behaviors
 
 ### 4.1 Navigation
-NPCs use a predictive "look-ahead" steering system:
-1.  **Look-ahead**: Casts rays 7 tiles ahead to detect land.
-2.  **Avoidance**: If blocked, searches ±15° to ±180° for a clear path.
-3.  **Hysteresis**: Prevents jittering by smoothing heading changes (1.5 rad/s).
+NPCs use a dual-layered navigation approach:
+
+**1. Macro-Routing (`WaypointGraph.js`)**
+*   **Static Pathing**: Uses A* entirely on a fixed 28-node graph mapping primary Caribbean sea corridors, ignoring the massive tile grid.
+*   **Spawn Interception (`NavigationUtils.js`)**: NPCs dynamically compute orthogonal distance from their spawn locations to the first line segment of their route. If they hit an open-sea `isLineOfSightClear()` verify, they dynamically merge onto the open lane.
+
+**2. Micro-Avoidance (Predictive Look-Ahead)**
+*   **Detection**: Casts rays 7 tiles ahead to detect land tiles or ships.
+*   **Searching**: If blocked, scans ascending angles (±15°, ±30°...) for a clear substitute vector.
+*   **Smoothing**: Uses angular hysteresis (1.5 rad/s) interpolating slowly back to the `desiredHeading`.
 
 ### 4.2 Combat Mechanics
 *   **Broadside Positioning**: Attempts to maintain parallel engagement distance (approx 80% range).

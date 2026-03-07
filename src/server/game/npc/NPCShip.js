@@ -2,6 +2,7 @@ const Ship = require('../entities/Ship');
 const GameConfig = require('../config/GameConfig');
 const { GAME, PHYSICS, COMBAT, NAVIGATION } = GameConfig;
 const { getRole, getRandomShipClass, NPCCombatOverlay } = require('./NPCBehavior');
+const NavigationUtils = require('../navigation/NavigationUtils');
 
 /**
  * NPCShip - Non-player ship entity
@@ -14,7 +15,7 @@ const { getRole, getRandomShipClass, NPCCombatOverlay } = require('./NPCBehavior
  * 
  * Phase 1 Behavior:
  * - Spawn near player
- * - Sail to nearest harbor (straight line, no pathfinding)
+ * - Sail to nearest harbor via Waypoint Graph
  * - Stop briefly
  * - Despawn
  */
@@ -117,6 +118,11 @@ class NPCShip {
         this.speedMultiplier = 1.0;    // Speed adjustment for escort missions
         this.spawnX = x;               // Original spawn position (for mission progress)
         this.spawnY = y;               // Original spawn position (for mission progress)
+
+        // Navigation System (Phase 5: Waypoints)
+        this.route = null;
+        this.routeIndex = 0;
+        this.lastTargetHarborId = null;
     }
 
     get flagship() {
@@ -286,7 +292,7 @@ class NPCShip {
 
     /**
      * Execute TRAVEL intent (navigation behavior)
-     * Used by traders and patrols to navigate to destinations
+     * Used by traders and patrols to navigate to destinations using waypoints
      */
     executeTravel(world) {
         // Find target harbor
@@ -298,10 +304,75 @@ class NPCShip {
             return;
         }
 
-        // 1. Compute desired heading (ideal path to target)
-        const dx = targetHarbor.x - this.x;
-        const dy = targetHarbor.y - this.y;
-        this.desiredHeading = Math.atan2(dy, dx) + Math.PI / 2; // Convert to ship rotation convention
+        // Reset route if target harbor changes
+        if (this.targetHarborId !== this.lastTargetHarborId) {
+            this.route = null;
+            this.lastTargetHarborId = this.targetHarborId;
+        }
+
+        // Generate route if we don't have one
+        if (!this.route) {
+            const harborWorldX = (targetHarbor.tileX + 0.5) * GAME.TILE_SIZE;
+            const harborWorldY = (targetHarbor.tileY + 0.5) * GAME.TILE_SIZE;
+
+            // 1. Get open sea path from Waypoint Graph
+            this.route = world.waypointGraph.findRoute(this.x, this.y, harborWorldX, harborWorldY);
+
+            // Phase 6: Spawn-to-Route Connection
+            if (this.route.length >= 2) {
+                const startNode = this.route[0];
+                const nextNode = this.route[1];
+                
+                // 4 & 5. Compute Closest Point P on segment startNode -> nextNode
+                const approachP = NavigationUtils.getClosestPointOnSegment(this.x, this.y, startNode, nextNode);
+                
+                // 6. Validate sea access from spawn -> P
+                if (NavigationUtils.isLineOfSightClear(world.worldMap, this.x, this.y, approachP.x, approachP.y)) {
+                    // 7. Start navigation via P
+                    this.route[0] = { x: approachP.x, y: approachP.y }; 
+                }
+            }
+
+            // 2. Append Harbor Approach Point
+            this.route.push(NavigationUtils.getHarborApproach(targetHarbor, GAME.TILE_SIZE));
+
+            // 3. Append Final Harbor Point
+            this.route.push({ x: harborWorldX, y: harborWorldY });
+            
+            this.routeIndex = 0;
+        }
+
+        // Follow the route sequentially
+        if (this.routeIndex >= this.route.length) {
+            this.intent = 'WAIT';
+            this.state = 'STOPPED';
+            this.stateTimer = 5.0; // Stop for 5 seconds
+            console.log(`[NPC] ${this.id} arrived at ${targetHarbor.name}`);
+            return;
+        }
+
+        const currentTarget = this.route[this.routeIndex];
+        const dx = currentTarget.x - this.x;
+        const dy = currentTarget.y - this.y;
+        const distanceToTarget = Math.hypot(dx, dy);
+
+        // Advance waypoint if close enough (150px)
+        if (distanceToTarget < 150) {
+            this.routeIndex++;
+            // Note: Don't return here, continue steering toward next waypoint on same tick
+        }
+
+        // Re-compute currentTarget properly in case routeIndex advanced above
+        let steerDx = dx;
+        let steerDy = dy;
+        if (this.routeIndex < this.route.length) {
+            const actTarget = this.route[this.routeIndex];
+            steerDx = actTarget.x - this.x;
+            steerDy = actTarget.y - this.y;
+        }
+
+        // 1. Compute desired heading (ideal path to target waypoint)
+        this.desiredHeading = Math.atan2(steerDy, steerDx) + Math.PI / 2; // Convert to ship rotation convention
 
         // 2. Update navigation (check for obstacles and adjust currentHeading)
         if (this.navUpdateCounter++ >= NAVIGATION.NAV_UPDATE_INTERVAL) {
@@ -372,15 +443,6 @@ class NPCShip {
                     this.attemptCombatFire(world, target);
                 }
             }
-        }
-
-        // Check if reached harbor
-        const distance = Math.hypot(dx, dy);
-        if (distance < GAME.HARBOR_INTERACTION_RADIUS * 2) {
-            this.intent = 'WAIT';
-            this.state = 'STOPPED';
-            this.stateTimer = 5.0; // Stop for 5 seconds
-            console.log(`[NPC] ${this.id} arrived at ${targetHarbor.name}`);
         }
     }
 

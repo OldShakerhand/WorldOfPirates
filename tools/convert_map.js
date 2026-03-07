@@ -8,7 +8,7 @@ const PNG = require('pngjs').PNG;
  * - Terrain classification is deterministic (same input → same output)
  * - No anti-aliasing or alpha channel
  * - Solid colors only
- * - Red channel (or grayscale) determines terrain type
+ * - RGB channels determine terrain type
  */
 
 // Terrain types (must match server-side constants)
@@ -20,13 +20,15 @@ const TERRAIN = {
 
 /**
  * Classify pixel value to terrain type
- * @param {number} value - Pixel red channel or grayscale value (0-255)
+ * @param {number} r - Red channel (0-255)
+ * @param {number} g - Green channel (0-255)
+ * @param {number} b - Blue channel (0-255)
  * @returns {number} TERRAIN enum value
  */
-function classifyTerrain(value) {
-    if (value < 50) return TERRAIN.WATER;      // Dark = deep water
-    if (value < 200) return TERRAIN.SHALLOW;   // Medium = shallow water
-    return TERRAIN.LAND;                        // Light = land
+function classifyTerrain(r, g, b) {
+    if (r < 50 && g < 50 && b < 50) return TERRAIN.WATER;      // Black = deep water
+    if (r < 50 && g > 200 && b > 200) return TERRAIN.SHALLOW;  // Cyan = shallow water
+    return TERRAIN.LAND;                                       // White/other = land
 }
 
 /**
@@ -69,14 +71,7 @@ function convertMapToTilemap(inputPath, outputPath, tileSize = 10) {
             // Black (0,0,0) = WATER
             // Cyan (0,255,255) = SHALLOW
             // White (255,255,255) = LAND
-            let terrain;
-            if (r < 50 && g < 50 && b < 50) {
-                terrain = TERRAIN.WATER;  // Black
-            } else if (r < 50 && g > 200 && b > 200) {
-                terrain = TERRAIN.SHALLOW;  // Cyan
-            } else {
-                terrain = TERRAIN.LAND;  // White or other
-            }
+            let terrain = classifyTerrain(r, g, b);
 
             row.push(terrain);
 
@@ -123,12 +118,12 @@ if (require.main === module) {
     if (args.length < 2) {
         console.log('Usage: node convert_map.js <input.png> <output.json> [tileSize]');
         console.log('');
-        console.log('Example: node convert_map.js assets/map_mask.png assets/world_map.json 10');
+        console.log('Example: node convert_map.js src/server/assets/map_mask.png src/server/assets/world_map.json 25');
         console.log('');
-        console.log('Terrain classification (red channel):');
-        console.log('  value < 50   → WATER (0)');
-        console.log('  value < 200  → SHALLOW (1)');
-        console.log('  else         → LAND (2)');
+        console.log('Terrain classification (RGB channels):');
+        console.log('  R < 50, G < 50, B < 50      → WATER (0, Black)');
+        console.log('  R < 50, G > 200, B > 200    → SHALLOW (1, Cyan)');
+        console.log('  else                        → LAND (2, White/Other)');
         process.exit(1);
     }
 

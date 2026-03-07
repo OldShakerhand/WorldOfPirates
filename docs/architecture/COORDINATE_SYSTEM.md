@@ -458,6 +458,19 @@ const diff = normalizeAngle(angle1 - angle2);
 if (Math.abs(diff) < 0.1)
 ```
 
+### ⚠️ Pitfall: Comparing atan2 with Rotation
+`Math.atan2(dy, dx)` returns **0 for East** (Right).
+`ship.rotation` uses **0 for North** (Up).
+
+**To compare them, you MUST adjust rotation by -π/2:**
+```javascript
+const angleToTarget = Math.atan2(dy, dx);
+const forwardDirection = ship.rotation - Math.PI / 2; // Match atan2 system
+const diff = normalizeAngle(angleToTarget - forwardDirection);
+
+// Now 0 diff means target is directly in FRONT
+```
+
 ---
 
 ## Debugging Tips

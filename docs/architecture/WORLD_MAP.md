@@ -97,7 +97,7 @@ The World Map system provides a server-authoritative, tile-based terrain represe
 ### Tile Coordinates
 - **Type:** Discrete integers
 - **Usage:** Tilemap array indices
-- **Example:** `(52, 89)` for tile size 10
+- **Example:** `(52, 89)` for tile size 25
 - **Range:** `0` to `width-1`, `0` to `height-1`
 
 ### Conversion
@@ -126,31 +126,31 @@ worldY = (tileY + 0.5) * tileSize;
 - Solid colors only
 - One pixel = one tile
 
-**Color Encoding (Red Channel):**
-- `value < 50` → WATER (dark colors)
-- `value < 200` → SHALLOW (medium colors)
-- `else` → LAND (light colors)
+**Color Encoding (RGB Channels):**
+- `R < 50, G < 50, B < 50` → WATER (Black)
+- `R < 50, G > 200, B > 200` → SHALLOW (Cyan)
+- `else` → LAND (White/Other)
 
 **Recommended Tools:**
 - GIMP, Photoshop, Paint.NET
 - Use pencil/hard brush (no anti-aliasing)
-- Work in grayscale or use red channel
+- Work with solid RGB colors
 
 **Example Palette:**
 - Water: RGB(0, 0, 0) - Black
-- Shallow: RGB(128, 128, 128) - Gray
+- Shallow: RGB(0, 255, 255) - Cyan
 - Land: RGB(255, 255, 255) - White
 
 ### 2. Run Conversion Script
 
 ```bash
-node tools/convert_map.js assets/map_mask.png assets/world_map.json 10
+node tools/convert_map.js src/server/assets/map_mask.png src/server/assets/world_map.json 25
 ```
 
 **Arguments:**
 1. Input PNG path
 2. Output JSON path
-3. Tile size in pixels (default: 10)
+3. Tile size in pixels (default: 10, but production uses 25)
 
 **Output:**
 - `world_map.json` file
@@ -168,7 +168,7 @@ The server loads `world_map.json` at startup. Changes require a restart.
 
 **Constructor:**
 ```javascript
-const worldMap = new WorldMap('./assets/world_map.json');
+const worldMap = new WorldMap('./src/server/assets/world_map.json');
 ```
 
 **Coordinate Conversion:**
@@ -227,10 +227,10 @@ if (worldMap.isWater(x, y)) {
 
 ### Map Not Loading
 
-**Error:** `Cannot find module './assets/world_map.json'`
+**Error:** `Cannot find module './src/server/assets/world_map.json'`
 
 **Solution:**
-1. Verify `assets/world_map.json` exists
+1. Verify `src/server/assets/world_map.json` exists
 2. Check `GameConfig.WORLD_MAP_PATH` is correct
 3. Run conversion script if JSON is missing
 
@@ -256,7 +256,7 @@ if (worldMap.isWater(x, y)) {
 
 **Q:** Does the tilemap use too much memory?
 
-**A:** For a 1000×1000 map, tilemap is ~1MB. Negligible for modern systems.
+**A:** For a 3230×1701 map, the tilemap JSON is larger (multi-megabytes), but memory use is negligible for modern server environments.
 
 ---
 
@@ -272,7 +272,7 @@ Harbors can be placed on specific land/shallow tiles with metadata.
 Tiles can have optional `factionId` property for territorial waters.
 
 ### AI Pathfinding
-AI ships can use A* pathfinding on water tiles for navigation.
+The macro-level pathfinding does NOT calculate A* on individual water tiles due to performance. Instead, it routes cleanly across a predefined static graph of 28 nodes outlining natural maritime corridors. Local avoidance logic prevents minor tile collisions in real-time. (See `NAVIGATION.md`).
 
 ### Regional Logic
 Define mission regions as tile rectangles or polygons.
@@ -283,7 +283,7 @@ Define mission regions as tile rectangles or polygons.
 
 ```
 WorldOfPirates/
-├── assets/
+├── src/server/assets/
 │   ├── map_mask.png          (hand-drawn map image)
 │   └── world_map.json         (generated tilemap)
 ├── tools/
