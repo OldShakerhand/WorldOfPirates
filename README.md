@@ -47,6 +47,10 @@ npm run dev
 
 The game will be available at `http://localhost:3000`
 
+### Test Commands
+
+`npm test` runs the automated unit tests in `test/*.test.js`. These tests do not run automatically when you start the server with `npm start` or `npm run dev`.
+
 ## 💰 Economy System
 
 The economy is driven by a server-authoritative **Harbor Master** model. Harbors have unique trade profiles that dictate the prices of goods based on supply and demand.

@@ -29,6 +29,8 @@ const GameConfig = {
 
         // Game loop
         TICK_RATE: 60, // Updates per second
+        PERFORMANCE_LOG_INTERVAL_MS: 10000,
+        MAX_TICK_TIME_MS: 16.67,
 
         // World Map (tile-based, replaces procedural generation)
         WORLD_MAP_PATH: './src/server/assets/world_map.json',

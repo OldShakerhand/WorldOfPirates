@@ -37,6 +37,29 @@ app.use(express.static(path.join(__dirname, '../public')));
 const gameLoop = new GameLoop(io);
 gameLoop.start();
 
+let isShuttingDown = false;
+
+function shutdown(signal) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    console.log(`[Shutdown] Received ${signal}. Stopping game loop and closing server...`);
+    gameLoop.stop();
+
+    server.close(() => {
+        console.log('[Shutdown] Server closed cleanly');
+        process.exit(0);
+    });
+
+    setTimeout(() => {
+        console.error('[Shutdown] Forced exit after 5 seconds');
+        process.exit(1);
+    }, 5000).unref();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
 io.on('connection', (socket) => {
     // Get client IP address (handle reverse proxy on Render.com)
     // X-Forwarded-For header contains the real client IP when behind a proxy

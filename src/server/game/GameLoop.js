@@ -29,26 +29,30 @@ class GameLoop {
         // Map<harborId, Set<socketId>>
         this.harborOccupants = new Map();
     }
-
     start() {
+        if (this.interval || this.monitoringInterval) {
+            return;
+        }
+
+        this.lastTime = Date.now();
         this.interval = setInterval(() => {
             this.update();
         }, 1000 / this.tickRate);
 
-        // Start performance monitoring (log every 10 seconds)
-        // TODO: Make monitoring interval configurable (TECH_DEBT_001)
-        // WHY: Hardcoded 10s interval may be too frequent for production
-        // REFACTOR: Move to GameConfig.PERFORMANCE_LOG_INTERVAL
-        // WHEN: Before production deployment
         this.monitoringInterval = setInterval(() => {
             this.logPerformance();
-        }, 10000);
+        }, GAME.PERFORMANCE_LOG_INTERVAL_MS);
     }
 
     stop() {
-        clearInterval(this.interval);
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+
         if (this.monitoringInterval) {
             clearInterval(this.monitoringInterval);
+            this.monitoringInterval = null;
         }
     }
 
@@ -73,20 +77,11 @@ class GameLoop {
 
         console.log(`[Performance] Avg tick: ${avgTick.toFixed(2)}ms | Max: ${maxTick.toFixed(2)}ms | Players: ${playerCount} | NPCs: ${npcCount} | Projectiles: ${projectileCount}`);
 
-        // Warn if performance is degrading
-        // TODO: Make performance threshold configurable (TECH_DEBT_002)
-        // WHY: Hardcoded 16.67ms threshold assumes 60 FPS requirement
-        // REFACTOR: Move to GameConfig.MAX_TICK_TIME_MS with dynamic adjustment
-        // WHEN: If tick rate becomes configurable or variable
-        if (avgTick > 16.67) {
-            console.warn(`⚠️  WARNING: Average tick time (${avgTick.toFixed(2)}ms) exceeds 60 FPS target (16.67ms)`);
+        if (avgTick > GAME.MAX_TICK_TIME_MS) {
+            console.warn(`⚠️  WARNING: Average tick time (${avgTick.toFixed(2)}ms) exceeds 60 FPS target (${GAME.MAX_TICK_TIME_MS.toFixed(2)}ms)`);
         }
 
         this.tickTimes = []; // Reset for next interval
-    }
-
-    stop() {
-        clearInterval(this.interval);
     }
 
     update() {
@@ -706,8 +701,8 @@ class GameLoop {
             if (harbor && harbor.island) {
                 // Spawn player in direction harbor opens (toward water)
                 // Use stored exitDirection data directly
-                const exitX = harbor.exitDirection?.x || 0;
-                const exitY = harbor.exitDirection?.y || -1; // Default north if missing
+                const exitX = harbor.exitDirection?.x ?? 0;
+                const exitY = harbor.exitDirection?.y ?? -1; // Default north if missing
                 player.x = harbor.x + exitX * GAME.HARBOR_SPAWN_DISTANCE;
                 player.y = harbor.y + exitY * GAME.HARBOR_SPAWN_DISTANCE;
 

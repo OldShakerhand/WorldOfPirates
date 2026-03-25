@@ -29,6 +29,20 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
+## [Unreleased]
+
+### Added
+- Added a lightweight `node:test` suite for `GameLoop` lifecycle, player admission, harbor occupant sync, and harbor exit behavior.
+
+### Changed
+- Made `GameLoop.start()` idempotent so duplicate starts do not create overlapping tick or monitoring timers.
+- Documented the current test command in the README.
+
+### Fixed
+- Fixed `GameLoop.stop()` cleanup so both the tick interval and performance monitor are cleared.
+- Fixed harbor exit direction fallback so valid `0` axis values are preserved when leaving harbor.
+- Added graceful shutdown handling in `server.js` so process signals stop the game loop before the server exits.
+
 
 ## [0.5.0] - 2026-03-07
 
