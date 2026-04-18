@@ -31,6 +31,32 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-18
+
+### 🚢 Living Seas Update
+- **Living World Traffic**: Added a hybrid NPC traffic kernel so the sea now feels active without globally simulating every ship.
+- **Ships Appear Already Sailing**: Traffic near players now materializes directly on travel lanes instead of clustering at waypoints or harbor centers.
+- **Denser Nearby Activity**: Added a local traffic filler layer that keeps quiet waters from feeling empty, especially when strategic traffic is sparse.
+- **Regional Ship Variety**: Different waters now favor different ship classes, pirate frequency, and ship names.
+- **More Distinct NPC Names**: Generic labels such as "Merchant Vessel" have been replaced with region-flavored ship names.
+
+### Added
+- Added `StrategicTrafficManager`, `RoutePlanner`, and `NPCMaterializer` as the new living-world traffic kernel.
+- Added a local-only traffic illusion layer that fills player AOIs with short-lived ambient ships.
+- Added lightweight region profiles for harbor areas, including ship pools, pirate ratios, and name pools.
+- Added targeted tests covering route progress, traffic materialization, local traffic density, and region profile selection.
+
+### Changed
+- Changed route progress to accumulate across individual route segments instead of interpolating directly from route endpoints.
+- Changed near-player NPC spawning so ships can appear mid-lane and continue into the existing tactical simulation.
+- Changed local filler traffic to bias toward crossing, oncoming, and same-lane mixes rather than mirroring player movement.
+- Changed strategic traffic generation so some routes now carry pirate ships that reuse trader-style travel behavior for now.
+
+### Fixed
+- Fixed local traffic immediately despawning when using precomputed non-harbor routes.
+- Fixed local traffic cleanup so ships stay alive while near players or recently involved in combat.
+- Added debug despawn logging for local traffic to help diagnose premature removals during playtests.
+
 ### Added
 - Added a lightweight `node:test` suite for `GameLoop` lifecycle, player admission, harbor occupant sync, and harbor exit behavior.
 

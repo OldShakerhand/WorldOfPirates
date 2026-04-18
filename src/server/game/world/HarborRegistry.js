@@ -24,6 +24,7 @@
 const fs = require('fs');
 const path = require('path');
 const GameConfig = require('../config/GameConfig');
+const { getRegionProfileForHarbor } = require('../npc/RegionProfiles');
 
 class HarborRegistry {
     /**
@@ -49,12 +50,14 @@ class HarborRegistry {
 
         // Create ID → harbor map for O(1) lookups
         this.harborMap = new Map();
+        this.harborRegionMap = new Map();
         for (const harbor of this.harbors) {
             if (!harbor.id) {
                 console.warn(`[HarborRegistry] Harbor missing ID:`, harbor);
                 continue;
             }
             this.harborMap.set(harbor.id, harbor);
+            this.harborRegionMap.set(harbor.id, getRegionProfileForHarbor(harbor).id);
         }
 
         console.log(`[HarborRegistry] Loaded ${this.harbors.length} harbors`);
@@ -125,6 +128,10 @@ class HarborRegistry {
      */
     getHarborCount() {
         return this.harbors.length;
+    }
+
+    getRegionForHarborId(harborId) {
+        return this.harborRegionMap.get(harborId) || null;
     }
 
     /**

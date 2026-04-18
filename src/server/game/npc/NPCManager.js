@@ -1,6 +1,14 @@
 const NPCShip = require('./NPCShip');
 const GameConfig = require('../config/GameConfig');
 const { GAME, COMBAT } = GameConfig;
+const {
+    getRegionProfileForHarbor,
+    getRegionProfileForPosition,
+    chooseShipTypeForRegion,
+    chooseTrafficRoleForRegion,
+    generateUniqueShipName,
+    releaseShipName
+} = require('./RegionProfiles');
 
 /**
  * NPCManager - Handles NPC lifecycle and spawning
@@ -54,9 +62,16 @@ class NPCManager {
             return null;
         }
 
+        const spawnProfile = this.buildNPCProfile({
+            role: 'TRADER',
+            harborId: targetHarbor.id,
+            x: spawnX,
+            y: spawnY
+        });
+
         // Create NPC
         const npcId = `npc_trader_${this.npcIdCounter++}`;
-        const npc = new NPCShip(npcId, spawnX, spawnY, targetHarbor.id, 'TRADER');
+        const npc = new NPCShip(npcId, spawnX, spawnY, targetHarbor.id, 'TRADER', spawnProfile);
         npc.world = this.world; // Give NPC access to world for mission hooks
 
         // Register NPC
@@ -64,6 +79,72 @@ class NPCManager {
         this.world.addEntity(npc);
 
         console.log(`[NPCManager] Spawned ${npcId} at (${Math.round(spawnX)}, ${Math.round(spawnY)}) targeting ${targetHarbor.name}`);
+
+        return npc;
+    }
+
+    spawnStrategicShip({ strategicShip, x, y, routePoints }) {
+        const targetHarbor = this.world.harbors.find(h => h.id === strategicShip.destinationHarborId);
+        if (!targetHarbor) {
+            console.warn(`[NPCManager] Target harbor ${strategicShip.destinationHarborId} not found for ${strategicShip.id}`);
+            return null;
+        }
+
+        const npcId = `npc_traffic_${this.npcIdCounter++}`;
+        const npc = new NPCShip(
+            npcId,
+            x,
+            y,
+            targetHarbor.id,
+            strategicShip.type,
+            {
+                shipClassName: strategicShip.shipClassName,
+                customName: strategicShip.shipName,
+                regionId: strategicShip.regionId
+            }
+        );
+        npc.world = this.world;
+        npc.strategicShipId = strategicShip.id;
+        npc.trafficKernelControlled = true;
+        npc.intent = 'TRAVEL';
+        npc.state = 'SAILING';
+        npc.combat.deactivate();
+        npc.combat.active = false;
+        npc.combatTarget = null;
+
+        if (Array.isArray(routePoints) && routePoints.length > 0) {
+            npc.assignPrecomputedRoute(routePoints, targetHarbor.id);
+        }
+
+        this.npcs.set(npcId, npc);
+        this.world.addEntity(npc);
+
+        console.log(
+            `[NPCManager] Materialized ${npcId} for ${strategicShip.id} at (${Math.round(x)}, ${Math.round(y)})`
+        );
+
+        return npc;
+    }
+
+    spawnLocalTraffic({ x, y, routePoints, role = null, lifetimeSeconds = 45 }) {
+        const spawnProfile = this.buildNPCProfile({ role, x, y });
+        const npcId = `npc_local_${this.npcIdCounter++}`;
+        const npc = new NPCShip(npcId, x, y, null, spawnProfile.role, spawnProfile);
+        npc.world = this.world;
+        npc.trafficKernelControlled = true;
+        npc.intent = 'TRAVEL';
+        npc.state = 'SAILING';
+        npc.combat.deactivate();
+        npc.combat.active = false;
+        npc.combatTarget = null;
+        npc.assignLocalTrafficRoute(routePoints, lifetimeSeconds);
+
+        this.npcs.set(npcId, npc);
+        this.world.addEntity(npc);
+
+        console.log(
+            `[NPCManager] Spawned local traffic ${npcId} at (${Math.round(x)}, ${Math.round(y)})`
+        );
 
         return npc;
     }
@@ -178,8 +259,13 @@ class NPCManager {
         const spawnY = y;
 
         // Create pirate NPC
+        const spawnProfile = this.buildNPCProfile({
+            role: 'PIRATE',
+            x: spawnX,
+            y: spawnY
+        });
         const npcId = `npc_pirate_${this.npcIdCounter++}`;
-        const npc = new NPCShip(npcId, spawnX, spawnY, null, 'PIRATE');
+        const npc = new NPCShip(npcId, spawnX, spawnY, null, 'PIRATE', spawnProfile);
         npc.world = this.world; // Give NPC access to world for mission hooks
 
         // Set combat target
@@ -250,6 +336,7 @@ class NPCManager {
 
         // Remove from NPC registry
         this.npcs.delete(npcId);
+        releaseShipName(npc.name);
 
         console.log(`[NPCManager] Despawned ${npcId}`);
     }
@@ -279,6 +366,26 @@ class NPCManager {
      */
     getNPCIds() {
         return Array.from(this.npcs.keys());
+    }
+
+    buildNPCProfile({ role = null, harborId = null, x = null, y = null }) {
+        const harborData = harborId ? this.world.harborRegistry.getHarborById(harborId) : null;
+        const positionHarbors = this.world.harborRegistry.getAllHarbors().map(harbor => ({
+            ...harbor,
+            x: harbor.tileX * GAME.TILE_SIZE,
+            y: harbor.tileY * GAME.TILE_SIZE
+        }));
+        const regionProfile = harborData
+            ? getRegionProfileForHarbor(harborData)
+            : getRegionProfileForPosition(x, y, positionHarbors);
+        const resolvedRole = role || chooseTrafficRoleForRegion(regionProfile);
+
+        return {
+            role: resolvedRole,
+            regionId: regionProfile.id,
+            shipClassName: chooseShipTypeForRegion(regionProfile, resolvedRole),
+            customName: generateUniqueShipName(regionProfile)
+        };
     }
 }
 

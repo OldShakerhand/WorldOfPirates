@@ -188,6 +188,32 @@ const GameConfig = {
     },
 
     // ========================================
+    // TRAFFIC: Living world kernel
+    // ========================================
+    TRAFFIC: {
+        STRATEGIC_MAX_SHIPS: 40,
+        STRATEGIC_MIN_ACTIVE_ROUTES: 10,
+        STRATEGIC_MAX_ACTIVE_ROUTES: 20,
+        STRATEGIC_MIN_SHIPS: 30,
+        STRATEGIC_MAX_SHIPS_ABSOLUTE: 50,
+        MIN_ROUTE_DISTANCE: 4000,
+        MATERIALIZATION_INTERVAL: 1.5,
+        MATERIALIZATION_AOI_RADIUS: 2500,
+        PROGRESS_SYNC_ARRIVAL_THRESHOLD: 0.98,
+        LOCAL_TARGET_SHIPS_PER_PLAYER: 4,
+        LOCAL_SPAWN_DISTANCE_MIN: 1000,
+        LOCAL_SPAWN_DISTANCE_MAX: 2000,
+        LOCAL_FORWARD_ARC_DEGREES: 45,
+        LOCAL_LIFETIME_MIN: 30,
+        LOCAL_LIFETIME_MAX: 60,
+        LOCAL_DESPAWN_BUFFER: 750,
+        LOCAL_ROUTE_LENGTH: 2800,
+        LOCAL_MAX_SHIPS: 24,
+        LOCAL_COMBAT_RETENTION_SECONDS: 15,
+        LOCAL_DEBUG_DESPAWNS: true
+    },
+
+    // ========================================
     // ECONOMY: Trading and cargo system
     // ========================================
     ECONOMY: {

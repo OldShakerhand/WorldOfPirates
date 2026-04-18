@@ -9,6 +9,9 @@ const HarborRegistry = require('./HarborRegistry');
 const NPCManager = require('../npc/NPCManager');
 const RewardSystem = require('../progression/RewardSystem');
 const WaypointGraph = require('../navigation/WaypointGraph');
+const RoutePlanner = require('../traffic/RoutePlanner');
+const StrategicTrafficManager = require('../traffic/StrategicTrafficManager');
+const NPCMaterializer = require('../traffic/NPCMaterializer');
 
 class World {
     constructor() {
@@ -48,8 +51,19 @@ class World {
         this.waypointGraph = new WaypointGraph();
         this.waypointGraph.verifyEdges(this.worldMap);
 
+        // Living world kernel
+        this.routePlanner = new RoutePlanner(this.waypointGraph, this.harbors);
+        this.strategicTrafficManager = new StrategicTrafficManager(this.routePlanner, this.harborRegistry);
+
         // NPC Manager (Phase 1: Trader NPCs)
         this.npcManager = new NPCManager(this);
+        this.npcMaterializer = new NPCMaterializer(
+            this,
+            this.strategicTrafficManager,
+            this.npcManager,
+            this.routePlanner
+        );
+        this.strategicTrafficManager.initializeTraffic(Date.now() / 1000);
 
         // Reward System (Phase 2: Centralized rewards)
         this.rewardSystem = new RewardSystem(this);
@@ -92,6 +106,14 @@ class World {
     update(deltaTime) {
         // Update Wind
         this.wind.update(deltaTime);
+
+        const nowSeconds = Date.now() / 1000;
+
+        // Update abstract harbor-to-harbor traffic
+        this.strategicTrafficManager.update(nowSeconds);
+
+        // Materialize relevant ships near players
+        this.npcMaterializer.update(deltaTime, nowSeconds);
 
         // Update NPC AI (BEFORE entity movement)
         // NPCs compute inputs, then use same update() as players

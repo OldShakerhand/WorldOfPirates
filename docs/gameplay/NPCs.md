@@ -23,12 +23,32 @@ graph TD
     Capability -->|Combat| Combat[NPCCombatOverlay]
 ```
 
+### 2.2 Living World Kernel
+The world traffic layer now uses a hybrid simulation model to create ambient ship activity without globally simulating every vessel.
+
+**Strategic Layer**
+*   `StrategicTrafficManager.js` keeps a small pool of abstract ships moving between harbors.
+*   Ships advance using route progress only. There is no physics, collision, or steering off-screen.
+*   Routes come from `RoutePlanner.js`, which reuses the `WaypointGraph` and samples progress segment-by-segment.
+
+**Tactical Layer**
+*   `NPCMaterializer.js` turns relevant strategic ships into full `NPCShip` entities near players.
+*   Materialized ships spawn at interpolated positions on route edges, not directly on waypoint nodes.
+*   When ships leave player relevance, they are despawned and their approximate route progress is written back to the strategic layer.
+
+**Local Illusion Layer**
+*   `NPCMaterializer.js` also maintains lightweight local traffic so quiet seas still feel active.
+*   These ships are not part of the strategic simulation and are never persisted.
+*   They spawn mainly ahead of players, follow simple short lanes, and despawn once they are clearly stale or out of range.
+
 ### 2.1 File Structure
 *   `NPCShip.js`: The main entity class extending `Ship.js`.
 *   `NPCManager.js`: Handles spawning, pooling, and lifecycle.
-*   `NPCRole.js`: Definitions for behaviors/stats (Trader/Pirate).
-*   `NPCIntent.js`: High-level state machine constants.
-*   `NPCCombatOverlay.js`: Logic for combat targeting, firing, and defensive states.
+*   `NPCBehavior.js`: Consolidated role, intent, and combat overlay definitions.
+*   `RoutePlanner.js`: Harbor-to-harbor route planning on top of `WaypointGraph.js`.
+*   `StrategicTrafficManager.js`: Abstract off-screen traffic state.
+*   `NPCMaterializer.js`: Near-player materialization and local filler traffic.
+*   `RegionProfiles.js`: Lightweight region-based ship class, pirate ratio, and naming variation.
 
 ## 3. Core Components
 
@@ -40,6 +60,16 @@ Roles are data-driven parameter sets that define "who" an NPC is. They are not s
 | **TRADER** | Mercantile ships that follow trade routes. Defensive combat only. | 50% HP | Passive |
 | **PATROL** | Faction defenders. Defensive combat only. | 30% HP | Passive |
 | **PIRATE** | Hostile raiders. Actively pursue and engage players. | 20% HP | Active |
+
+### 3.1.1 Region Profiles
+NPC presentation is now varied by lightweight region profiles.
+
+Each region profile defines:
+*   ship class pools per role
+*   regional pirate/trader mix
+*   regional prefix/noun ship name pools
+
+Harbors derive their region from existing harbor metadata, and spawns can also infer a region from nearby position when no harbor is explicitly involved.
 
 ### 3.2 Intents (`NPCIntent.js`)
 Intents define "why" an NPC is acting at any given moment.
@@ -75,6 +105,22 @@ NPCs use a dual-layered navigation approach:
 *   **Detection**: Casts rays 7 tiles ahead to detect land tiles or ships.
 *   **Searching**: If blocked, scans ascending angles (±15°, ±30°...) for a clear substitute vector.
 *   **Smoothing**: Uses angular hysteresis (1.5 rad/s) interpolating slowly back to the `desiredHeading`.
+
+### 4.1.1 Strategic Route Progress
+Strategic traffic progress is accumulated across route segments, not by interpolating directly from origin to destination.
+
+Example:
+*   For route `[A, B, C]`, progress first advances along `A -> B`, then along `B -> C`.
+*   Materialized ships appear at the interpolated point on the active segment, which prevents ships from clustering at nodes.
+
+### 4.1.2 Local Traffic
+Local traffic is a player-proximate illusion layer, not a world simulation system.
+
+*   Maintains a minimum ambient ship presence near players.
+*   Spawns ahead of players rather than uniformly in all directions.
+*   Prefers crossing and oncoming movement, with some same-lane traffic for variety.
+*   Uses short precomputed lanes instead of full harbor pathfinding.
+*   Keeps ships alive while they are near players or recently involved in combat.
 
 ### 4.2 Combat Mechanics
 *   **Broadside Positioning**: Attempts to maintain parallel engagement distance (approx 80% range).
@@ -129,6 +175,7 @@ The server logs performance ticks every 10 seconds.
 *   Long-term fleet tracking.
 
 ## 7. Version History
+*   **v4.0 (2026-04-18)**: Living World Kernel, local traffic filler, and region-based ship variation.
 *   **v3.5 (2026-01-16)**: System Consolidation (Roles/Intents/Overlay).
 *   **v3.0 (2026-01-15)**: Combat AI (Pirates).
 *   **v2.0 (2026-01-15)**: Intelligent Navigation.

@@ -20,14 +20,14 @@ const NavigationUtils = require('../navigation/NavigationUtils');
  * - Despawn
  */
 class NPCShip {
-    constructor(id, x, y, targetHarborId, role = 'TRADER') {
+    constructor(id, x, y, targetHarborId, role = 'TRADER', options = {}) {
         // Role system (Phase 3.5)
         this.roleName = role;              // String for serialization
         this.role = getRole(role);         // Role configuration object
 
         // Identity
         this.id = id;
-        this.name = this.generateName(role);
+        this.name = options.customName || this.generateName(role);
         this.type = 'NPC';
 
         // Spatial (same as Player)
@@ -37,7 +37,7 @@ class NPCShip {
         this.speed = 0;
 
         // Ship (selected from role's ship classes)
-        const shipClass = getRandomShipClass(role);
+        const shipClass = options.shipClassName || getRandomShipClass(role);
         this.fleet = [new Ship(shipClass)];
         this.flagshipIndex = 0;
         this.isRaft = false;
@@ -123,6 +123,14 @@ class NPCShip {
         this.route = null;
         this.routeIndex = 0;
         this.lastTargetHarborId = null;
+
+        // Living world kernel
+        this.strategicShipId = null;
+        this.trafficKernelControlled = false;
+        this.localTraffic = false;
+        this.localTrafficExpiresAt = 0;
+        this.lastDamageTime = 0;
+        this.regionId = options.regionId || null;
     }
 
     get flagship() {
@@ -163,6 +171,32 @@ class NPCShip {
         };
         const nameList = names[role] || ['NPC Ship'];
         return nameList[Math.floor(Math.random() * nameList.length)];
+    }
+
+    assignPrecomputedRoute(routePoints, targetHarborId) {
+        this.targetHarborId = targetHarborId;
+        this.route = routePoints.map(point => ({ x: point.x, y: point.y }));
+        this.routeIndex = 0;
+        this.lastTargetHarborId = targetHarborId || this.lastTargetHarborId;
+        this.intent = 'TRAVEL';
+        this.state = 'SAILING';
+
+        if (this.route.length > 0) {
+            const nextPoint = this.route[0];
+            const dx = nextPoint.x - this.x;
+            const dy = nextPoint.y - this.y;
+            const heading = Math.atan2(dy, dx) + Math.PI / 2;
+
+            this.desiredHeading = heading;
+            this.currentHeading = heading;
+            this.rotation = heading;
+        }
+    }
+
+    assignLocalTrafficRoute(routePoints, lifetimeSeconds, nowSeconds = Date.now() / 1000) {
+        this.localTraffic = true;
+        this.localTrafficExpiresAt = nowSeconds + lifetimeSeconds;
+        this.assignPrecomputedRoute(routePoints, null);
     }
 
     /**
@@ -295,9 +329,27 @@ class NPCShip {
      * Used by traders and patrols to navigate to destinations using waypoints
      */
     executeTravel(world) {
+        const hasPrecomputedRoute = Array.isArray(this.route) && this.route.length > 0;
+
+        // Local traffic and other kernel-controlled NPCs may already have a route
+        // and do not need a harbor destination to keep moving.
+        if (!hasPrecomputedRoute && !this.targetHarborId) {
+            if (this.localTraffic) {
+                this.state = 'DESPAWNING';
+                return;
+            }
+
+            console.warn(`[NPC] ${this.id} has invalid target harbor: ${this.targetHarborId}`);
+            this.intent = 'DESPAWNING';
+            this.state = 'DESPAWNING';
+            return;
+        }
+
         // Find target harbor
-        const targetHarbor = world.harbors.find(h => h.id === this.targetHarborId);
-        if (!targetHarbor) {
+        const targetHarbor = this.targetHarborId
+            ? world.harbors.find(h => h.id === this.targetHarborId)
+            : null;
+        if (this.targetHarborId && !targetHarbor) {
             console.warn(`[NPC] ${this.id} has invalid target harbor: ${this.targetHarborId}`);
             this.intent = 'DESPAWNING';
             this.state = 'DESPAWNING';
@@ -305,7 +357,7 @@ class NPCShip {
         }
 
         // Reset route if target harbor changes
-        if (this.targetHarborId !== this.lastTargetHarborId) {
+        if (this.targetHarborId && this.targetHarborId !== this.lastTargetHarborId) {
             this.route = null;
             this.lastTargetHarborId = this.targetHarborId;
         }
@@ -399,6 +451,12 @@ class NPCShip {
 
         // Follow the route sequentially
         if (this.routeIndex >= this.route.length) {
+            if (this.localTraffic) {
+                this.intent = 'DESPAWNING';
+                this.state = 'DESPAWNING';
+                return;
+            }
+
             this.intent = 'WAIT';
             this.state = 'STOPPED';
             this.stateTimer = 5.0; // Stop for 5 seconds
@@ -959,6 +1017,7 @@ class NPCShip {
             this.lastAttacker = damageSource;
             this.lastAttackTime = Date.now() / 1000;
         }
+        this.lastDamageTime = Date.now() / 1000;
 
         // Check if should flee (Phase 3.5: EVADE intent)
         const healthRatio = newHealth / this.flagship.maxHealth;
@@ -1191,7 +1250,8 @@ class NPCShip {
             nearHarbor: this.nearHarbor,
             reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
             reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
-            maxReload: this.fireRate
+            maxReload: this.fireRate,
+            regionId: this.regionId
         };
     }
 }
