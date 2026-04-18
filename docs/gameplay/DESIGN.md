@@ -113,7 +113,7 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 - Cannon count varies by ship class (2-10 per side)
 - 4-second reload time per side
 - Projectiles have physics (gravity, distance-based range)
-- Velocity compensation (70% default) for arcade-style firing
+- No velocity compensation: broadsides fire at fixed perpendicular angles for the arcade combat model
 
 **Damage Model** (See: [`GameConfig.js`](file:///c:/Development/WorldOfPirates/src/server/game/config/GameConfig.js))
 - **Cannonball Hit**: 5 damage
