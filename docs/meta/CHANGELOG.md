@@ -29,6 +29,35 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
+## [0.6.1] - 2026-04-18
+
+### 🌊 Living World Scalability Refactor
+- Refactored NPC traffic system to support multiplayer scalability and reduce CPU cost.
+- The system now separates high-frequency simulation from low-frequency traffic management.
+
+### Key Changes
+- **Spatial Partitioning**: Introduced grid-based spatial partitioning (~2000 units).
+- Materialization queries only nearby ships instead of scanning all.
+- **Result**: Reduced per-player computation from O(players × ships) to near O(players + ships).
+
+### Shared NPC Materialization
+- Each StrategicShip now maps to a single active NPCShip.
+- Added ActiveNPC registry that tracks entityId and visible players.
+- NPCs are no longer duplicated per player.
+- **Result**: Stable NPC counts in multiplayer scenarios.
+
+### Decoupled Loops & Strategic Updates
+- Materialization no longer runs every frame (now fixed at ~200–500 ms).
+- StrategicShips now update at ~1 Hz with movement based on time delta.
+- **Result**: Lower CPU usage and efficient large-scale simulation with no visible impact on gameplay.
+
+### Architectural Impact
+- The system now cleanly separates Strategic, Tactical, and Materialization layers.
+- **Outcome**: Multiplayer scaling significantly improved, and NPC traffic remains visually consistent.
+- **Note**: This lays the foundation for convoy systems and pirate encounters without requiring further core changes.
+
+---
+
 ## [0.6.0] - 2026-04-18
 
 ### 🚢 Living Seas Update
@@ -55,7 +84,7 @@ This document tracks all notable changes to World of Pirates across versions. It
 - Fixed nearby local ships disappearing too aggressively while still close to players or shortly after combat.
 - Added temporary debug logging for local traffic despawns so suspicious removals are easier to diagnose during testing.
 
-## [Unreleased]
+## [0.5.1] - 2026-03-15
 
 ### Added
 - Added extra automated coverage for server loop stability, harbor synchronization, and player session flow.
