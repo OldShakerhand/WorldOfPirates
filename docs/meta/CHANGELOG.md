@@ -29,45 +29,45 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
-## [Unreleased]
-
 ## [0.6.0] - 2026-04-18
 
 ### 🚢 Living Seas Update
-- **Living World Traffic**: Added a hybrid NPC traffic kernel so the sea now feels active without globally simulating every ship.
-- **Ships Appear Already Sailing**: Traffic near players now materializes directly on travel lanes instead of clustering at waypoints or harbor centers.
-- **Denser Nearby Activity**: Added a local traffic filler layer that keeps quiet waters from feeling empty, especially when strategic traffic is sparse.
-- **Regional Ship Variety**: Different waters now favor different ship classes, pirate frequency, and ship names.
-- **More Distinct NPC Names**: Generic labels such as "Merchant Vessel" have been replaced with region-flavored ship names.
+- **Living World Traffic**: The sea now feels busier thanks to a new lightweight traffic system that keeps ships moving without burdening the server.
+- **Ships Appear Already Sailing**: NPC ships now show up naturally on travel lanes instead of popping in at harbors or clustering on waypoint nodes.
+- **Denser Nearby Activity**: Quiet waters now get extra local traffic so players are less likely to sail through empty stretches.
+- **Regional Ship Variety**: Different parts of the Caribbean now feel more distinct, with their own ship mixes, pirate presence, and ship names.
+- **More Memorable Names**: Generic labels like "Merchant Vessel" have been replaced with more flavorful region-based ship names.
 
 ### Added
-- Added `StrategicTrafficManager`, `RoutePlanner`, and `NPCMaterializer` as the new living-world traffic kernel.
-- Added a local-only traffic illusion layer that fills player AOIs with short-lived ambient ships.
-- Added lightweight region profiles for harbor areas, including ship pools, pirate ratios, and name pools.
-- Added targeted tests covering route progress, traffic materialization, local traffic density, and region profile selection.
+- Added a living world traffic layer that keeps merchant and pirate ships moving between harbors in the background.
+- Added local ambient traffic near players so the sea stays lively even when long-distance traffic is sparse.
+- Added regional ship flavor, including different ship types, pirate frequency, and naming styles depending on where you sail.
+- Added test coverage for route progress, ship materialization, local traffic density, and regional variation.
 
 ### Changed
-- Changed route progress to accumulate across individual route segments instead of interpolating directly from route endpoints.
-- Changed near-player NPC spawning so ships can appear mid-lane and continue into the existing tactical simulation.
-- Changed local filler traffic to bias toward crossing, oncoming, and same-lane mixes rather than mirroring player movement.
-- Changed strategic traffic generation so some routes now carry pirate ships that reuse trader-style travel behavior for now.
+- Changed NPC traffic spawning so ships can enter the world already underway, making encounters feel smoother and more believable.
+- Changed local traffic behavior so nearby ships are more likely to cross your path or approach from different directions instead of simply sailing away with you.
+- Changed long-range traffic generation so some sea lanes now include pirate ships as part of the world’s background activity.
+- Changed route progress handling so ships move along each route segment properly, which improves how traffic appears in motion.
 
 ### Fixed
-- Fixed local traffic immediately despawning when using precomputed non-harbor routes.
-- Fixed local traffic cleanup so ships stay alive while near players or recently involved in combat.
-- Added debug despawn logging for local traffic to help diagnose premature removals during playtests.
+- Fixed local traffic ships despawning immediately when using short precomputed routes.
+- Fixed nearby local ships disappearing too aggressively while still close to players or shortly after combat.
+- Added temporary debug logging for local traffic despawns so suspicious removals are easier to diagnose during testing.
+
+## [Unreleased]
 
 ### Added
-- Added a lightweight `node:test` suite for `GameLoop` lifecycle, player admission, harbor occupant sync, and harbor exit behavior.
+- Added extra automated coverage for server loop stability, harbor synchronization, and player session flow.
 
 ### Changed
-- Made `GameLoop.start()` idempotent so duplicate starts do not create overlapping tick or monitoring timers.
-- Documented the current test command in the README.
+- Improved server startup safety so duplicate loop starts do not create overlapping timers.
+- Clarified the current automated test command in the README.
 
 ### Fixed
-- Fixed `GameLoop.stop()` cleanup so both the tick interval and performance monitor are cleared.
-- Fixed harbor exit direction fallback so valid `0` axis values are preserved when leaving harbor.
-- Added graceful shutdown handling in `server.js` so process signals stop the game loop before the server exits.
+- Fixed game loop shutdown cleanup so background timers are fully cleared.
+- Fixed harbor exit fallback logic so valid zero-direction values are preserved.
+- Improved shutdown handling so the server stops the game loop cleanly before exit.
 
 
 ## [0.5.0] - 2026-03-07
