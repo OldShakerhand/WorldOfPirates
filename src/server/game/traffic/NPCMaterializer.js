@@ -23,7 +23,7 @@ class NPCMaterializer {
         this.localDebugDespawns = options.localDebugDespawns ?? TRAFFIC.LOCAL_DEBUG_DESPAWNS;
 
         this.accumulator = 0;
-        this.materializedByStrategicId = new Map();
+        this.activeNPCs = new Map();
         this.localTrafficIds = new Set();
     }
 
@@ -38,36 +38,18 @@ class NPCMaterializer {
         const players = this._getRelevantPlayers();
 
         this._despawnExpiredLocalTraffic(players, nowSeconds);
-
-        for (const ship of this.strategicTrafficManager.getAllShips()) {
-            let npc = this._getMaterializedNPC(ship.id);
-
-            if (npc) {
-                const syncedProgress = this.strategicTrafficManager.syncMaterializedShipProgress(ship.id, npc.x, npc.y, nowSeconds);
-                if (syncedProgress >= this.arrivalThreshold || npc.intent === 'ARRIVED' || npc.state === 'DESPAWNING') {
-                    this._despawnShip(ship.id, nowSeconds);
-                    this.strategicTrafficManager.handleArrival(ship.id, nowSeconds);
-                    npc = null;
-                    ship.progress = 0;
-                }
-            }
-
-            const position = npc
-                ? { x: npc.x, y: npc.y }
-                : this.strategicTrafficManager.getShipWorldPosition(ship.id);
-            const shouldMaterialize = position && players.length > 0 && this._isInsideAnyAOI(position, players);
-
-            if (shouldMaterialize && !npc) {
-                this._spawnShip(ship, position, nowSeconds);
-            } else if (!shouldMaterialize && npc) {
-                this._despawnShip(ship.id, nowSeconds);
-            }
+        this._syncActiveNPCRegistry(nowSeconds);
+        if (typeof this.strategicTrafficManager.refreshSpatialIndex === 'function') {
+            this.strategicTrafficManager.refreshSpatialIndex();
         }
+
+        const visibilityMap = this._collectPlayerVisibility(players);
+        this._reconcileActiveNPCs(visibilityMap, nowSeconds);
 
         this._maintainLocalTraffic(players, nowSeconds);
     }
 
-    _spawnShip(ship, position, nowSeconds) {
+    _spawnShip(ship, position, visibleToPlayers, nowSeconds) {
         const remainingRoutePoints = this.routePlanner.getRemainingRoutePoints(
             ship.originHarborId,
             ship.destinationHarborId,
@@ -86,35 +68,210 @@ class NPCMaterializer {
             return;
         }
 
-        this.materializedByStrategicId.set(ship.id, npc.id);
+        const activeNPC = {
+            strategicShipId: ship.id,
+            entityId: npc.id,
+            visibleToPlayers: new Set(visibleToPlayers),
+            convoyEscortEntityId: null
+        };
+
+        this.activeNPCs.set(ship.id, activeNPC);
         this.strategicTrafficManager.setMaterialized(ship.id, true, nowSeconds);
+
+        if (ship.encounterType === 'CONVOY') {
+            this._spawnConvoyEscort(ship, position, remainingRoutePoints, activeNPC);
+        }
     }
 
     _despawnShip(shipId, nowSeconds) {
+        const activeNPC = this.activeNPCs.get(shipId);
         const npc = this._getMaterializedNPC(shipId);
+        const escort = this._getConvoyEscort(shipId);
+
+        if (escort) {
+            this.npcManager.despawnNPC(escort.id);
+        }
+
         if (npc) {
             this.strategicTrafficManager.syncMaterializedShipProgress(shipId, npc.x, npc.y, nowSeconds);
             this.npcManager.despawnNPC(npc.id);
         }
 
-        this.materializedByStrategicId.delete(shipId);
+        if (activeNPC) {
+            this.activeNPCs.delete(shipId);
+        }
         this.strategicTrafficManager.setMaterialized(shipId, false, nowSeconds);
     }
 
     _getMaterializedNPC(shipId) {
-        const npcId = this.materializedByStrategicId.get(shipId);
-        if (!npcId) {
+        const activeNPC = this.activeNPCs.get(shipId);
+        if (!activeNPC) {
             return null;
         }
 
-        const npc = this.world.getEntity(npcId);
+        const npc = this.world.getEntity(activeNPC.entityId);
         if (!npc) {
-            this.materializedByStrategicId.delete(shipId);
+            this.activeNPCs.delete(shipId);
             this.strategicTrafficManager.setMaterialized(shipId, false);
             return null;
         }
 
         return npc;
+    }
+
+    _spawnConvoyEscort(ship, traderPosition, routePoints, activeNPC) {
+        const escortPosition = this._buildConvoyEscortPosition(ship, traderPosition);
+        if (!escortPosition) {
+            return;
+        }
+
+        const escortSpeedVariation = 0.95 + ((ship.encounterSeed ?? Math.random()) * 0.10);
+        const escort = this.npcManager.spawnStrategicEscort({
+            strategicShip: ship,
+            x: escortPosition.x,
+            y: escortPosition.y,
+            routePoints,
+            speedMultiplier: escortSpeedVariation
+        });
+
+        if (escort) {
+            activeNPC.convoyEscortEntityId = escort.id;
+        }
+    }
+
+    _buildConvoyEscortPosition(ship, traderPosition) {
+        const geometry = this.routePlanner.getRouteGeometry(
+            ship.originHarborId,
+            ship.destinationHarborId,
+            ship.routeNodes
+        );
+        if (!geometry || geometry.segments.length === 0) {
+            return null;
+        }
+
+        const sample = this.routePlanner.samplePositionOnRoute(
+            ship.originHarborId,
+            ship.destinationHarborId,
+            ship.routeNodes,
+            ship.progress
+        );
+        const segmentIndex = Math.max(0, Math.min(geometry.segments.length - 1, sample?.segmentIndex ?? 0));
+        const segment = geometry.segments[segmentIndex];
+        const dx = segment.end.x - segment.start.x;
+        const dy = segment.end.y - segment.start.y;
+        const length = Math.hypot(dx, dy);
+        if (length <= 0) {
+            return null;
+        }
+
+        const forwardX = dx / length;
+        const forwardY = dy / length;
+        const perpendicularX = -forwardY;
+        const perpendicularY = forwardX;
+        const offsetDirection = ((ship.encounterSeed ?? Math.random()) < 0.5) ? -1 : 1;
+        const sideOffset = 70;
+        const trailingOffset = 35;
+
+        return {
+            x: traderPosition.x + (perpendicularX * sideOffset * offsetDirection) - (forwardX * trailingOffset),
+            y: traderPosition.y + (perpendicularY * sideOffset * offsetDirection) - (forwardY * trailingOffset)
+        };
+    }
+
+    _getConvoyEscort(shipId) {
+        const activeNPC = this.activeNPCs.get(shipId);
+        const escortId = activeNPC?.convoyEscortEntityId;
+        if (!escortId) {
+            return null;
+        }
+
+        const escort = this.world.getEntity(escortId);
+        if (!escort) {
+            if (activeNPC) {
+                activeNPC.convoyEscortEntityId = null;
+            }
+            return null;
+        }
+
+        return escort;
+    }
+
+    _syncActiveNPCRegistry(nowSeconds) {
+        for (const [shipId, activeNPC] of Array.from(this.activeNPCs.entries())) {
+            const npc = this.world.getEntity(activeNPC.entityId);
+            const ship = this._getStrategicShip(shipId);
+
+            if (!npc || !ship) {
+                this._despawnShip(shipId, nowSeconds);
+                continue;
+            }
+
+            const syncedProgress = this.strategicTrafficManager.syncMaterializedShipProgress(shipId, npc.x, npc.y, nowSeconds);
+            if (syncedProgress >= this.arrivalThreshold || npc.intent === 'ARRIVED' || npc.state === 'DESPAWNING') {
+                this._despawnShip(shipId, nowSeconds);
+                this.strategicTrafficManager.handleArrival(shipId, nowSeconds);
+            }
+        }
+    }
+
+    _collectPlayerVisibility(players) {
+        const visibilityMap = new Map();
+
+        for (const player of players) {
+            const nearbyShips = typeof this.strategicTrafficManager.getShipsNearPosition === 'function'
+                ? this.strategicTrafficManager.getShipsNearPosition(player, this.aoiRadius)
+                : this.strategicTrafficManager.getAllShips();
+
+            for (const ship of nearbyShips) {
+                const position = this.strategicTrafficManager.getShipWorldPosition(ship.id);
+                if (!position) {
+                    continue;
+                }
+
+                const distance = Math.hypot(player.x - position.x, player.y - position.y);
+                if (distance > this.aoiRadius) {
+                    continue;
+                }
+
+                if (!visibilityMap.has(ship.id)) {
+                    visibilityMap.set(ship.id, new Set());
+                }
+
+                visibilityMap.get(ship.id).add(player.id);
+            }
+        }
+
+        return visibilityMap;
+    }
+
+    _reconcileActiveNPCs(visibilityMap, nowSeconds) {
+        for (const [shipId, visibleToPlayers] of visibilityMap.entries()) {
+            const ship = this._getStrategicShip(shipId);
+            if (!ship) {
+                continue;
+            }
+
+            const activeNPC = this.activeNPCs.get(shipId);
+            if (!activeNPC) {
+                const position = this.strategicTrafficManager.getShipWorldPosition(shipId);
+                if (position) {
+                    this._spawnShip(ship, position, visibleToPlayers, nowSeconds);
+                }
+                continue;
+            }
+
+            activeNPC.visibleToPlayers = new Set(visibleToPlayers);
+        }
+
+        for (const [shipId, activeNPC] of Array.from(this.activeNPCs.entries())) {
+            if (!visibilityMap.has(shipId)) {
+                activeNPC.visibleToPlayers.clear();
+            }
+
+            if (activeNPC.visibleToPlayers.size === 0) {
+                this._despawnShip(shipId, nowSeconds);
+            }
+        }
     }
 
     _maintainLocalTraffic(players, nowSeconds) {
@@ -400,6 +557,17 @@ class NPCMaterializer {
         }
 
         return Number.isFinite(nearestDistance) ? nearestDistance : -1;
+    }
+
+    _getStrategicShip(shipId) {
+        if (typeof this.strategicTrafficManager.getShip === 'function') {
+            return this.strategicTrafficManager.getShip(shipId);
+        }
+
+        const ships = typeof this.strategicTrafficManager.getAllShips === 'function'
+            ? this.strategicTrafficManager.getAllShips()
+            : [];
+        return ships.find(ship => ship.id === shipId) || null;
     }
 }
 

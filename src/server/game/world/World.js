@@ -110,7 +110,7 @@ class World {
         const nowSeconds = Date.now() / 1000;
 
         // Update abstract harbor-to-harbor traffic
-        this.strategicTrafficManager.update(nowSeconds);
+        this.strategicTrafficManager.update(deltaTime, nowSeconds);
 
         // Materialize relevant ships near players
         this.npcMaterializer.update(deltaTime, nowSeconds);

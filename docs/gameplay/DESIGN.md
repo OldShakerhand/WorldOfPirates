@@ -132,33 +132,53 @@ This document defines the core vision, design pillars, and gameplay mechanics fo
 ### NPC Combat System
 
 **NPC Ships** (See: [`NPCShip.js`](file:///c:/Development/WorldOfPirates/src/server/game/npc/NPCShip.js))
-- AI-controlled enemy ships spawn dynamically
+- AI-controlled ships now serve both gameplay and world-illusion purposes
 - Multiple NPC roles with distinct behaviors:
   - **Trader**: Peaceful merchants (Merchant/Fluyt ships)
-  - **Pirate**: Aggressive attackers (Sloop/Barque ships)
+  - **Pirate**: Raiders and hostile traffic variants
   - **Patrol**: Defensive guards (Frigate ships)
 
 **NPC Behavior** (See: [`NPCBehavior.js`](file:///c:/Development/WorldOfPirates/src/server/game/npc/NPCBehavior.js))
 - **Intent System**: NPCs use tactical decision-making
-  - WANDER: Explore the world
-  - PURSUE: Chase detected enemies
-  - ATTACK: Engage in broadside combat
+  - TRAVEL: Follow routes between destinations
+  - ENGAGE: Fight and maneuver for combat
   - EVADE: Flee when heavily damaged
-  - HARBOR: Seek safe zones for repairs
+  - WAIT: Pause briefly on arrival
 - **Detection Range**: NPCs detect players/enemies within configurable radius
 - **Combat Overlay**: Aggressive NPCs actively hunt players
 
-**Spawn System** (See: [`NPCManager.js`](file:///c:/Development/WorldOfPirates/src/server/game/npc/NPCManager.js))
-- Dynamic spawning based on player count
-- NPCs spawn away from players to avoid unfair encounters
-- Configurable spawn rates and maximum NPC counts
-- Debug controls: N (spawn Trader), P (spawn Pirate)
+**Living World Traffic** (See: [`StrategicTrafficManager.js`](file:///c:/Development/WorldOfPirates/src/server/game/traffic/StrategicTrafficManager.js), [`NPCMaterializer.js`](file:///c:/Development/WorldOfPirates/src/server/game/traffic/NPCMaterializer.js))
+- **Strategic Layer**: A lightweight off-screen ship pool moves between harbors using route progress only
+- **Tactical Layer**: Ships near players materialize into full `NPCShip` entities and enter the normal movement/combat simulation
+- **Local Traffic Layer**: Short-lived ambient ships keep the sea feeling active even when strategic traffic is sparse
+- **Region Profiles**: Nearby harbors influence ship class, pirate frequency, and name flavor
+- **Debug Controls**: N (spawn Trader), P (spawn Pirate)
 
 **Design Philosophy**:
 - NPCs provide PvE content for solo/learning players
 - Create dynamic world activity even with low player counts
 - Offer practice targets for combat mechanics
 - Add unpredictability to naval encounters
+- Prioritize the illusion of a busy sea over perfect global simulation accuracy
+
+### NPC Traffic Principles
+
+The living-world traffic system follows these rules:
+
+1. **Player Relevance First**
+   Ships should be fully simulated only when players can meaningfully notice or interact with them.
+
+2. **Believability Over Precision**
+   Off-screen traffic can use approximation as long as near-player behavior feels natural.
+
+3. **Density Matters**
+   A player should usually have something happening nearby, even if some of that activity is a local illusion layer.
+
+4. **No Relevance Vanish**
+   Ships should not disappear while they are clearly relevant to the player, especially during combat or close observation.
+
+5. **Regional Flavor**
+   Different waters should feel different through ship classes, pirate presence, and naming style before any deep economy systems exist.
 
 ### Harbor System
 
@@ -234,6 +254,8 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/enti
 - **Terrain**: Land, shallow water, and deep water tiles loaded from `world_map.json`
 - **Harbors**: 141 historical Caribbean harbors loaded from `harbors.json`
 - **Spawn System**: Random spawn near Nassau (Bahamas area)
+- **Sea Activity**: Hybrid living-world traffic with strategic routes, tactical materialization, and local ambient traffic
+- **Regional Waters**: Harbor regions influence ship type selection, pirate ratios, and ship names
 
 ### Future Considerations
 
@@ -337,10 +359,13 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/enti
 ### High Priority
 - [x] Player names/identification ✅
 - [x] NPC enemy ships ✅
+- [x] Living world traffic kernel ✅
 - [ ] Kill feed / combat log
 - [ ] Minimap
 - [ ] Ship acquisition system
 - [ ] Progression/economy
+- [ ] Traffic-driven encounters
+- [ ] Convoy gameplay
 
 ### Medium Priority
 - [ ] Team/clan system
@@ -348,6 +373,7 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/enti
 - [ ] Spectator mode
 - [ ] Replay system
 - [ ] Customization (flags, colors)
+- [ ] Region-specific mission chains
 
 ### Low Priority / Ideas
 - [ ] Treasure hunting
@@ -375,6 +401,45 @@ See: [`ShipClass.js`](file:///c:/Development/WorldOfPirates/src/server/game/enti
 - **Preventing** spawn camping and griefing
 - **Maintaining** 60 FPS server performance with 20 players
 - **Creating** meaningful progression without pay-to-win
+- **Turning ambient traffic into gameplay** without losing the lightweight simulation model
+- **Keeping the sea populated** without obvious fake spawning or immersion-breaking despawns
+
+## 🚧 Recommended Next Step
+
+### Traffic-Driven Encounters
+
+The best next feature is to turn living-world traffic into gameplay instead of stopping at ambience.
+
+**Why this is next**
+- The traffic kernel is now good enough to make the world feel active
+- Players need stronger reasons to care about the ships they encounter
+- This builds directly on existing systems instead of requiring a new foundation
+
+**Goal**
+Make some world traffic matter through escort, interception, and piracy-oriented encounters.
+
+### Phase 1: Interesting Traffic
+- Mark some strategic ships or local groups as notable encounters
+- Give them simple tags such as `CONVOY`, `VALUABLE_TARGET`, or `UNDER_THREAT`
+- Keep this server-side and lightweight
+
+### Phase 2: Convoy Bundles
+- Spawn small traffic groups rather than only single ships
+- Use one lead trader with 1-2 nearby escorts
+- Allow pirate traffic or mission pirates to pressure those routes
+
+### Phase 3: Traffic-Based Missions
+- Reuse live world traffic for missions instead of fully isolated scripted spawns
+- Example mission types:
+  - Escort a convoy through dangerous waters
+  - Intercept a pirate raider before it reaches a lane
+  - Hunt a high-value merchant on a known route
+
+### Design Constraint For The Next Step
+- Do not require full economy or persistence yet
+- Do not require cargo UI yet
+- Keep the reward loop simple: gold, XP, and mission success states
+- Preserve the current lightweight illusion model
 
 ---
 

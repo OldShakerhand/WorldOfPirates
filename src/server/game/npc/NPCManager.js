@@ -126,6 +126,45 @@ class NPCManager {
         return npc;
     }
 
+    spawnStrategicEscort({ strategicShip, x, y, routePoints, speedMultiplier = 1.0 }) {
+        const targetHarbor = this.world.harbors.find(h => h.id === strategicShip.destinationHarborId);
+        if (!targetHarbor) {
+            console.warn(`[NPCManager] Target harbor ${strategicShip.destinationHarborId} not found for convoy escort of ${strategicShip.id}`);
+            return null;
+        }
+
+        const npcId = `npc_convoy_${this.npcIdCounter++}`;
+        const escortProfile = this.buildNPCProfile({
+            role: 'TRADER',
+            harborId: strategicShip.destinationHarborId,
+            x,
+            y
+        });
+        const npc = new NPCShip(npcId, x, y, targetHarbor.id, 'TRADER', escortProfile);
+        npc.world = this.world;
+        npc.strategicShipId = strategicShip.id;
+        npc.trafficKernelControlled = true;
+        npc.intent = 'TRAVEL';
+        npc.state = 'SAILING';
+        npc.speedMultiplier = speedMultiplier;
+        npc.combat.deactivate();
+        npc.combat.active = false;
+        npc.combatTarget = null;
+
+        if (Array.isArray(routePoints) && routePoints.length > 0) {
+            npc.assignPrecomputedRoute(routePoints, targetHarbor.id);
+        }
+
+        this.npcs.set(npcId, npc);
+        this.world.addEntity(npc);
+
+        console.log(
+            `[NPCManager] Materialized convoy escort ${npcId} for ${strategicShip.id} at (${Math.round(x)}, ${Math.round(y)})`
+        );
+
+        return npc;
+    }
+
     spawnLocalTraffic({ x, y, routePoints, role = null, lifetimeSeconds = 45 }) {
         const spawnProfile = this.buildNPCProfile({ role, x, y });
         const npcId = `npc_local_${this.npcIdCounter++}`;

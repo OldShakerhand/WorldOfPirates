@@ -86,12 +86,44 @@ test('StrategicTrafficManager advances ships and reverses route direction on arr
     ship.speed = 40;
     ship.lastUpdateTime = 10;
 
-    manager.update(11);
+    manager.update(1, 11);
 
     assert.equal(ship.originHarborId, 'destination');
     assert.equal(ship.destinationHarborId, 'origin');
     assert.deepEqual(ship.routeNodes, ['C', 'B', 'A']);
     assert.ok(Math.abs(ship.progress - 0.05) < 1e-9);
+});
+
+test('StrategicTrafficManager returns nearby ships from spatial grid cells only', () => {
+    const routePlanner = createTestRoutePlanner();
+    const harborRegistry = {
+        getAllHarbors() {
+            return [
+                { id: 'origin', x: -100, y: 0 },
+                { id: 'destination', x: 100, y: 200 }
+            ];
+        }
+    };
+    const manager = new StrategicTrafficManager(routePlanner, harborRegistry, {
+        minActiveRoutes: 1,
+        maxActiveRoutes: 1,
+        minStrategicShips: 2,
+        maxStrategicShips: 2,
+        maxStrategicShipsAbsolute: 2,
+        minRouteDistance: 1,
+        spatialGridCellSize: 500
+    });
+
+    manager.initializeTraffic(10);
+    const ships = manager.getAllShips();
+    ships[0].currentPosition = { x: 100, y: 100 };
+    ships[1].currentPosition = { x: 5000, y: 5000 };
+    manager.refreshSpatialIndex();
+
+    const nearby = manager.getShipsNearPosition({ x: 200, y: 200 }, 600);
+
+    assert.equal(nearby.length, 1);
+    assert.equal(nearby[0].id, ships[0].id);
 });
 
 test('NPCMaterializer spawns ships at interpolated edge positions near players', () => {
@@ -284,4 +316,199 @@ test('NPCMaterializer despawns local traffic after expiry or when leaving buffer
     assert.deepEqual(despawned, ['local_1']);
     assert.equal(materializer.localTrafficIds.has('local_1'), false);
     assert.equal(materializer.localTrafficIds.has('local_2'), true);
+});
+
+test('NPCMaterializer materializes convoy escort with the tagged trader and despawns both together', () => {
+    const spawnCalls = [];
+    const despawnCalls = [];
+    const strategicShip = {
+        id: 'strategic_convoy_1',
+        originHarborId: 'origin',
+        destinationHarborId: 'destination',
+        routeNodes: ['A', 'B'],
+        progress: 0.5,
+        type: 'TRADER',
+        encounterType: 'CONVOY',
+        encounterSeed: 0.25
+    };
+
+    const world = {
+        entities: {
+            player_1: { id: 'player_1', type: 'PLAYER', x: 200, y: 0 }
+        },
+        getEntity(id) {
+            return this.entities[id];
+        }
+    };
+
+    const strategicTrafficManager = {
+        getAllShips() {
+            return [strategicShip];
+        },
+        getShipWorldPosition() {
+            return { x: 100, y: 0 };
+        },
+        syncMaterializedShipProgress() {
+            return strategicShip.progress;
+        },
+        setMaterialized() {},
+        handleArrival() {}
+    };
+
+    const routePlanner = {
+        getRemainingRoutePoints() {
+            return [{ x: 200, y: 0 }, { x: 300, y: 0 }];
+        },
+        getRouteGeometry() {
+            return {
+                segments: [
+                    { start: { x: 0, y: 0 }, end: { x: 300, y: 0 } }
+                ]
+            };
+        },
+        samplePositionOnRoute() {
+            return { x: 100, y: 0, segmentIndex: 0, progress: 0.5 };
+        }
+    };
+
+    const npcManager = {
+        spawnStrategicShip({ x, y }) {
+            spawnCalls.push({ kind: 'trader', x, y });
+            const npc = { id: 'npc_trader', type: 'NPC', x, y, intent: 'TRAVEL', state: 'SAILING' };
+            world.entities[npc.id] = npc;
+            return npc;
+        },
+        spawnStrategicEscort({ x, y }) {
+            spawnCalls.push({ kind: 'escort', x, y });
+            const npc = { id: 'npc_escort', type: 'NPC', x, y, intent: 'TRAVEL', state: 'SAILING' };
+            world.entities[npc.id] = npc;
+            return npc;
+        },
+        spawnLocalTraffic() {
+            return null;
+        },
+        despawnNPC(id) {
+            despawnCalls.push(id);
+            delete world.entities[id];
+        }
+    };
+
+    const materializer = new NPCMaterializer(
+        world,
+        strategicTrafficManager,
+        npcManager,
+        routePlanner,
+        {
+            intervalSeconds: 1,
+            aoiRadius: 300,
+            localTargetShipsPerPlayer: 0
+        }
+    );
+
+    materializer.update(1.1, 10);
+
+    assert.equal(spawnCalls.length, 2);
+    assert.equal(spawnCalls[0].kind, 'trader');
+    assert.equal(spawnCalls[1].kind, 'escort');
+    assert.notEqual(spawnCalls[0].x, spawnCalls[1].x);
+    assert.equal(materializer.activeNPCs.get('strategic_convoy_1').convoyEscortEntityId, 'npc_escort');
+
+    world.entities.player_1.x = 5000;
+    materializer.update(1.1, 12);
+
+    assert.deepEqual(despawnCalls.sort(), ['npc_escort', 'npc_trader']);
+    assert.equal(materializer.activeNPCs.has('strategic_convoy_1'), false);
+});
+
+test('NPCMaterializer shares one active NPC across multiple visible players', () => {
+    const spawnCalls = [];
+    const despawnCalls = [];
+    const strategicShip = {
+        id: 'strategic_shared_1',
+        originHarborId: 'origin',
+        destinationHarborId: 'destination',
+        routeNodes: ['A', 'B'],
+        progress: 0.5,
+        type: 'TRADER'
+    };
+
+    const world = {
+        entities: {
+            player_1: { id: 'player_1', type: 'PLAYER', x: 100, y: 0 },
+            player_2: { id: 'player_2', type: 'PLAYER', x: 150, y: 0 }
+        },
+        getEntity(id) {
+            return this.entities[id];
+        }
+    };
+
+    const strategicTrafficManager = {
+        getShip(id) {
+            return id === strategicShip.id ? strategicShip : null;
+        },
+        getShipsNearPosition() {
+            return [strategicShip];
+        },
+        getShipWorldPosition() {
+            return { x: 120, y: 0 };
+        },
+        getAllShips() {
+            return [strategicShip];
+        },
+        syncMaterializedShipProgress() {
+            return strategicShip.progress;
+        },
+        setMaterialized() {},
+        handleArrival() {},
+        refreshSpatialIndex() {}
+    };
+
+    const routePlanner = {
+        getRemainingRoutePoints() {
+            return [{ x: 200, y: 0 }];
+        }
+    };
+
+    const npcManager = {
+        spawnStrategicShip({ x, y }) {
+            spawnCalls.push({ x, y });
+            const npc = { id: 'npc_shared', type: 'NPC', x, y, intent: 'TRAVEL', state: 'SAILING' };
+            world.entities[npc.id] = npc;
+            return npc;
+        },
+        spawnLocalTraffic() {
+            return null;
+        },
+        despawnNPC(id) {
+            despawnCalls.push(id);
+            delete world.entities[id];
+        }
+    };
+
+    const materializer = new NPCMaterializer(
+        world,
+        strategicTrafficManager,
+        npcManager,
+        routePlanner,
+        {
+            intervalSeconds: 0.25,
+            aoiRadius: 300,
+            localTargetShipsPerPlayer: 0
+        }
+    );
+
+    materializer.update(0.3, 10);
+
+    assert.equal(spawnCalls.length, 1);
+    assert.equal(materializer.activeNPCs.get(strategicShip.id).visibleToPlayers.size, 2);
+
+    world.entities.player_1.x = 1000;
+    materializer.update(0.3, 11);
+    assert.equal(spawnCalls.length, 1);
+    assert.equal(materializer.activeNPCs.get(strategicShip.id).visibleToPlayers.size, 1);
+
+    world.entities.player_2.x = 1000;
+    materializer.update(0.3, 12);
+    assert.deepEqual(despawnCalls, ['npc_shared']);
+    assert.equal(materializer.activeNPCs.has(strategicShip.id), false);
 });
