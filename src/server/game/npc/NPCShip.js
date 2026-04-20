@@ -90,6 +90,7 @@ class NPCShip {
         this.desiredHeading = this.rotation; // Ideal heading toward target
         this.currentHeading = this.rotation; // Actual heading (may differ due to obstacles)
         this.navUpdateCounter = 0; // Counter for navigation update interval
+        this.navigationStuckTicks = 0; // Counter for ticks spent without a valid nav path
 
         // Combat state (Phase Combat-NPC 1A: Combat NPCs)
         this.combatTarget = null;  // Player entity ID or null
@@ -460,7 +461,7 @@ class NPCShip {
             this.intent = 'WAIT';
             this.state = 'STOPPED';
             this.stateTimer = 5.0; // Stop for 5 seconds
-            console.log(`[NPC] ${this.id} arrived at ${targetHarbor.name}`);
+            console.log(`[NPC] ${this.id} arrived at ${this.targetHarborId}`);
             return;
         }
 
@@ -638,10 +639,6 @@ class NPCShip {
      * Update Navigation - Predictive obstacle avoidance
      * Checks for obstacles ahead and adjusts currentHeading accordingly
      */
-    /**
-     * Update Navigation - Predictive obstacle avoidance
-     * Checks for obstacles ahead and adjusts currentHeading accordingly
-     */
     updateNavigation(world) {
         const lookAhead = NAVIGATION.LOOK_AHEAD_TILES * GAME.TILE_SIZE;
         const worldMap = world.worldMap;
@@ -658,6 +655,7 @@ class NPCShip {
                 this.desiredHeading,
                 NAVIGATION.NPC_TURN_SMOOTHING * (1 / 60)
             );
+            this.navigationStuckTicks = 0;
 
             if (NAVIGATION.DEBUG_NAVIGATION) {
                 console.log(`[NAV] ${this.id} | Both clear, converging to desired`);
@@ -669,6 +667,7 @@ class NPCShip {
                 this.desiredHeading,
                 NAVIGATION.NPC_TURN_SMOOTHING * (1 / 60)
             );
+            this.navigationStuckTicks = 0;
 
             if (NAVIGATION.DEBUG_NAVIGATION) {
                 console.log(`[NAV] ${this.id} | Re-acquiring direct path`);
@@ -678,6 +677,7 @@ class NPCShip {
             const alternative = this.findClearHeading(world, lookAhead);
             if (alternative !== null) {
                 this.currentHeading = alternative;
+                this.navigationStuckTicks = 0;
 
                 if (NAVIGATION.DEBUG_NAVIGATION) {
                     const altDeg = (alternative * 180 / Math.PI).toFixed(0);
@@ -686,9 +686,14 @@ class NPCShip {
             } else {
                 // No clear path found - turn perpendicular and mark as stuck
                 this.currentHeading = this.desiredHeading + Math.PI / 2;
-                this.consecutiveCollisions++;
+                this.navigationStuckTicks = (this.navigationStuckTicks || 0) + 1;
 
-                console.log(`[NPC] ${this.id} | No clear path found, turning perpendicular`);
+                if (this.navigationStuckTicks >= 150) {
+                    console.log(`[NPC] ${this.id} | Navigation permanently stuck, despawning`);
+                    this.state = 'DESPAWNING';
+                } else if (this.navigationStuckTicks % 30 === 1) {
+                    console.log(`[NPC] ${this.id} | No clear path found, turning perpendicular`);
+                }
             }
         }
         // else: current clear, desired blocked - keep currentHeading (hysteresis)
@@ -1202,7 +1207,7 @@ class NPCShip {
             }
 
             // If stuck for too long, despawn
-            if (this.consecutiveCollisions >= this.maxConsecutiveCollisions) {
+            if (this.consecutiveCollisions === this.maxConsecutiveCollisions) {
                 console.log(`[NPC] ${this.id} stuck on land (${this.consecutiveCollisions} collisions), despawning`);
                 this.state = 'DESPAWNING';
             }

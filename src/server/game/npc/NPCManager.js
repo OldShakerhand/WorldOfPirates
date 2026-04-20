@@ -90,11 +90,17 @@ class NPCManager {
             return null;
         }
 
+        const safeSpawn = this.findSafeSpawnPosition(x, y, 400);
+        if (!safeSpawn) {
+            console.warn(`[NPCManager] Could not find safe spawn for ${strategicShip.id}, aborting materialization`);
+            return null;
+        }
+
         const npcId = `npc_traffic_${this.npcIdCounter++}`;
         const npc = new NPCShip(
             npcId,
-            x,
-            y,
+            safeSpawn.x,
+            safeSpawn.y,
             targetHarbor.id,
             strategicShip.type,
             {
@@ -120,7 +126,7 @@ class NPCManager {
         this.world.addEntity(npc);
 
         console.log(
-            `[NPCManager] Materialized ${npcId} for ${strategicShip.id} at (${Math.round(x)}, ${Math.round(y)})`
+            `[NPCManager] Materialized ${npcId} for ${strategicShip.id} at (${Math.round(safeSpawn.x)}, ${Math.round(safeSpawn.y)})`
         );
 
         return npc;
@@ -133,14 +139,20 @@ class NPCManager {
             return null;
         }
 
+        const safeSpawn = this.findSafeSpawnPosition(x, y, 400);
+        if (!safeSpawn) {
+            console.warn(`[NPCManager] Could not find safe spawn for escort of ${strategicShip.id}, aborting materialization`);
+            return null;
+        }
+
         const npcId = `npc_convoy_${this.npcIdCounter++}`;
         const escortProfile = this.buildNPCProfile({
             role: 'TRADER',
             harborId: strategicShip.destinationHarborId,
-            x,
-            y
+            x: safeSpawn.x,
+            y: safeSpawn.y
         });
-        const npc = new NPCShip(npcId, x, y, targetHarbor.id, 'TRADER', escortProfile);
+        const npc = new NPCShip(npcId, safeSpawn.x, safeSpawn.y, targetHarbor.id, 'TRADER', escortProfile);
         npc.world = this.world;
         npc.strategicShipId = strategicShip.id;
         npc.trafficKernelControlled = true;
@@ -159,16 +171,22 @@ class NPCManager {
         this.world.addEntity(npc);
 
         console.log(
-            `[NPCManager] Materialized convoy escort ${npcId} for ${strategicShip.id} at (${Math.round(x)}, ${Math.round(y)})`
+            `[NPCManager] Materialized convoy escort ${npcId} for ${strategicShip.id} at (${Math.round(safeSpawn.x)}, ${Math.round(safeSpawn.y)})`
         );
 
         return npc;
     }
 
     spawnLocalTraffic({ x, y, routePoints, role = null, lifetimeSeconds = 45 }) {
-        const spawnProfile = this.buildNPCProfile({ role, x, y });
+        const safeSpawn = this.findSafeSpawnPosition(x, y, 400);
+        if (!safeSpawn) {
+            console.warn(`[NPCManager] Could not find safe spawn for local traffic near (${Math.round(x)}, ${Math.round(y)}), aborting`);
+            return null;
+        }
+
+        const spawnProfile = this.buildNPCProfile({ role, x: safeSpawn.x, y: safeSpawn.y });
         const npcId = `npc_local_${this.npcIdCounter++}`;
-        const npc = new NPCShip(npcId, x, y, null, spawnProfile.role, spawnProfile);
+        const npc = new NPCShip(npcId, safeSpawn.x, safeSpawn.y, null, spawnProfile.role, spawnProfile);
         npc.world = this.world;
         npc.trafficKernelControlled = true;
         npc.intent = 'TRAVEL';
@@ -182,7 +200,7 @@ class NPCManager {
         this.world.addEntity(npc);
 
         console.log(
-            `[NPCManager] Spawned local traffic ${npcId} at (${Math.round(x)}, ${Math.round(y)})`
+            `[NPCManager] Spawned local traffic ${npcId} at (${Math.round(safeSpawn.x)}, ${Math.round(safeSpawn.y)})`
         );
 
         return npc;
@@ -352,8 +370,12 @@ class NPCManager {
             // Update AI state machine (computes inputs)
             npc.updateAI(deltaTime, this.world);
 
-            // Check if NPC should be despawned
-            if (npc.state === 'DESPAWNING') {
+            // Traffic-kernel-controlled NPCs are despawned by NPCMaterializer,
+            // which has player-proximity checks and detailed debug logging.
+            // Exception: sunk ships should always be cleaned up immediately.
+            const isSunk = npc.flagship && npc.flagship.isSunk;
+            const isStuck = npc.consecutiveCollisions >= npc.maxConsecutiveCollisions;
+            if (npc.state === 'DESPAWNING' && (!npc.trafficKernelControlled || isSunk || isStuck)) {
                 this.despawnNPC(npcId);
             }
         }

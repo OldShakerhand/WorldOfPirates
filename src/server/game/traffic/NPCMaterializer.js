@@ -450,6 +450,9 @@ class NPCMaterializer {
         for (const npcId of Array.from(this.localTrafficIds)) {
             const npc = this.world.getEntity(npcId);
             if (!npc) {
+                if (this.localDebugDespawns) {
+                    console.log(`[LocalTraffic] Cleaned stale ID ${npcId} (entity already removed)`);
+                }
                 this.localTrafficIds.delete(npcId);
                 continue;
             }
@@ -459,10 +462,15 @@ class NPCMaterializer {
             const outsidePlayerRange = !this._isInsideAnyBufferedAOI(npc, players);
             const shouldRetainForCombat = this._shouldRetainLocalTrafficForCombat(npc, nowSeconds);
             const nearestPlayerDistance = this._getNearestPlayerDistance(npc, players);
+            const npcRequestedDespawn = npc.state === 'DESPAWNING';
 
-            // Local traffic should never disappear while it's still clearly present
-            // around players, and combat should keep it alive a bit longer.
-            if ((expired && !insideAOI && !shouldRetainForCombat) || outsidePlayerRange) {
+            // Despawn conditions:
+            // 1. Expired + outside AOI + not in combat → normal expiry
+            // 2. Outside buffered range → drifted too far from all players
+            // 3. NPC itself requested despawn (route ended, stuck, etc.) + outside AOI → clean up without pop-in
+            if ((expired && !insideAOI && !shouldRetainForCombat)
+                || outsidePlayerRange
+                || (npcRequestedDespawn && !insideAOI && !shouldRetainForCombat)) {
                 if (this.localDebugDespawns) {
                     const reasons = [];
                     if (expired && !insideAOI && !shouldRetainForCombat) {
@@ -470,6 +478,12 @@ class NPCMaterializer {
                     }
                     if (outsidePlayerRange) {
                         reasons.push('outside_buffer');
+                    }
+                    if (npcRequestedDespawn) {
+                        reasons.push('npc_self_despawn');
+                    }
+                    if (reasons.length === 0) {
+                        reasons.push('unknown');
                     }
 
                     console.log(
