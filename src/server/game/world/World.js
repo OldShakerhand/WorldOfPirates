@@ -237,7 +237,7 @@ class World {
     }
 
     createProjectile(ownerId, x, y, rotation) {
-        const id = `proj_${this.projectileIdCounter++} `;
+        const id = `proj_${this.projectileIdCounter++}`;
         const projectile = new Projectile(id, ownerId, x, y, rotation);
         this.projectiles.push(projectile);
     }
@@ -410,6 +410,13 @@ class World {
                 // Only lose speed if you are "facing" the collision (Rammer)
                 // If you are hit from behind/side (Victim), you keep your speed
 
+                // Lose 95% of current speed ONLY if facing the collision (Rammer)
+                // This stops "bulldozing" by killing the rammer's momentum
+                // RAM_ANGLE_LIMIT: must be < 1.57 (90°) so T-boned victims don't self-penalize.
+                // 1.2 rad ≈ 69° is a good balance — clear ramming intent, not side-swiped.
+                const PENALTY_FACTOR = 0.05; // Retain 5%, lose 95%
+                const RAM_ANGLE_LIMIT = 1.2;
+
                 // Helper: Check if ship is facing the other ship
                 // CRITICAL: rotation 0 is North (-PI/2 in math). Must adjust by -PI/2 to match atan2.
                 const isFacing = (source, target) => {
@@ -425,19 +432,13 @@ class World {
                     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
                     while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
-                    // Check if within +/- 90 degrees (1.6 radians)
-                    return Math.abs(angleDiff) < 1.6;
+                    // Check if within RAM_ANGLE_LIMIT (1.2 rad ≈ 69°)
+                    // Must be < PI/2 (1.57 rad) so T-boned victims don't trigger the penalty
+                    return Math.abs(angleDiff) < RAM_ANGLE_LIMIT;
                 };
 
                 const aFacingB = isFacing(shipA, shipB);
                 const bFacingA = isFacing(shipB, shipA);
-
-                // Lose 95% of current speed ONLY if facing the collision (Rammer)
-                // This stops "bulldozing" by killing the rammer's momentum
-                const PENALTY_FACTOR = 0.05; // Retain 5%, lose 95%
-                // Limit acceptance to ~70 degrees (1.2 rads).
-                // Must be < 1.57 (90 deg) to ensure T-boned victims don't self-penalize.
-                const RAM_ANGLE_LIMIT = 1.2;
 
                 if (aFacingB) {
                     if (shipA.speed > 10) console.log(`[COLLISION] ${shipA.name || shipA.id} rammed ${shipB.name || shipB.id} -> Speed reduced ${shipA.speed.toFixed(1)} -> ${(shipA.speed * PENALTY_FACTOR).toFixed(1)}`);

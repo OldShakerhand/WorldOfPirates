@@ -130,15 +130,24 @@ class Player {
         return Math.max(PHYSICS.MAX_FLEET_SPEED_PENALTY, penalty);
     }
 
-    // Progression Methods (Phase 1)
+    // Progression & Gold Methods (server-authoritative)
 
     /**
-     * Add gold (server-authoritative)
+     * Add gold. Logs the grant for debugging progression.
      * @param {number} amount - Gold to add
      */
     addGold(amount) {
         this.gold += amount;
         console.log(`[Progression] ${this.name}: +${amount} gold (total: ${this.gold})`);
+    }
+
+    /**
+     * Remove gold. Logs the deduction for debugging.
+     * @param {number} amount - Gold to remove
+     */
+    removeGold(amount) {
+        this.gold -= amount;
+        console.log(`[Progression] ${this.name}: -${amount} gold (total: ${this.gold})`);
     }
 
     /**
@@ -173,15 +182,6 @@ class Player {
         const cost = shipClass.goldCost || 0;
         const levelReq = shipClass.levelRequirement || 1;
         return this.gold >= cost && this.level >= levelReq;
-    }
-
-    // Gold methods (server-authoritative, Phase 0: Economy)
-    addGold(amount) {
-        this.gold += amount;
-    }
-
-    removeGold(amount) {
-        this.gold -= amount;
     }
 
     handleInput(data) {

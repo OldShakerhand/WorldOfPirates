@@ -107,8 +107,8 @@ class GameLoop {
             if (entity.type === 'NPC' && !entity.isRaft) {
                 const now = Date.now() / 1000;
 
-                // Handle NPC Left Broadside (Port) - Shields prevent firing
-                if (entity.inputs.shootLeft && !entity.hasShield) {
+                // Handle NPC Left Broadside (Port) - NPCs don't have shields
+                if (entity.inputs.shootLeft && !entity.hasActiveShield?.()) {
                     if (now - entity.lastShotTimeLeft >= entity.fireRate) {
                         if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing LEFT (Port) for ${id}`);
 
@@ -118,8 +118,8 @@ class GameLoop {
                     }
                 }
 
-                // Handle NPC Right Broadside (Starboard) - Shields prevent firing
-                if (entity.inputs.shootRight && !entity.hasShield) {
+                // Handle NPC Right Broadside (Starboard) - NPCs don't have shields
+                if (entity.inputs.shootRight && !entity.hasActiveShield?.()) {
                     if (now - entity.lastShotTimeRight >= entity.fireRate) {
                         if (NPCCombatOverlay.Config.DEBUG_COMBAT) console.log(`[GAMELOOP] NPC firing RIGHT (Starboard) for ${id}`);
 
@@ -158,7 +158,6 @@ class GameLoop {
 
         // Pass io and world references for kill message emission
         const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
-        player.chatLogger = this.chatLogger;
 
         // DEBUG ONLY: Track player join for early-session collision diagnosis
         // NO gameplay behavior change
@@ -482,7 +481,7 @@ class GameLoop {
         if (!player || !wreck) return;
 
         // Validation 1: Distance (must be close)
-        const dist = Math.hypot(wreck.x - player.x, player.y - wreck.y); // Corrected y-coordinate order
+        const dist = Math.hypot(wreck.x - player.x, wreck.y - player.y);
         if (dist > GAME.HARBOR_INTERACTION_RADIUS * 1.5) { // Slightly larger than harbor radius
             socket.emit('transactionResult', { success: false, message: 'Too far away to loot!' });
             return;
@@ -637,7 +636,7 @@ class GameLoop {
         }
 
         // Deduct gold and repair flagship
-        player.gold -= repairCost;
+        player.removeGold(repairCost);
         player.flagship.health = Math.min(player.flagship.health + hpToRepair, player.flagship.maxHealth);
         console.log(`Player ${playerId} repaired ${hpToRepair} HP for ${repairCost} gold`);
 
@@ -703,8 +702,38 @@ class GameLoop {
                 // Use stored exitDirection data directly
                 const exitX = harbor.exitDirection?.x ?? 0;
                 const exitY = harbor.exitDirection?.y ?? -1; // Default north if missing
-                player.x = harbor.x + exitX * GAME.HARBOR_SPAWN_DISTANCE;
-                player.y = harbor.y + exitY * GAME.HARBOR_SPAWN_DISTANCE;
+                const exitSpawnX = harbor.x + exitX * GAME.HARBOR_SPAWN_DISTANCE;
+                const exitSpawnY = harbor.y + exitY * GAME.HARBOR_SPAWN_DISTANCE;
+
+                // Validate exit position is on water before placing player
+                // (exitDirection could point into a land tile at certain harbor angles)
+                if (this.world.worldMap.isWater(exitSpawnX, exitSpawnY)) {
+                    player.x = exitSpawnX;
+                    player.y = exitSpawnY;
+                } else {
+                    // Fallback: scan nearby angles for the first clear water tile
+                    let placed = false;
+                    const probeDistance = GAME.HARBOR_SPAWN_DISTANCE;
+                    for (let step = 1; step <= 8 && !placed; step++) {
+                        for (let a = 0; a < 8 && !placed; a++) {
+                            const angle = (a / 8) * Math.PI * 2;
+                            const tryX = harbor.x + Math.cos(angle) * probeDistance * step * 0.5;
+                            const tryY = harbor.y + Math.sin(angle) * probeDistance * step * 0.5;
+                            if (this.world.worldMap.isWater(tryX, tryY)) {
+                                player.x = tryX;
+                                player.y = tryY;
+                                placed = true;
+                                console.warn(`[Harbor] Exit at ${harbor.name} was on land, using water fallback (step ${step})`);
+                            }
+                        }
+                    }
+                    if (!placed) {
+                        // Last resort: place at harbor centre (player will drift with physics)
+                        player.x = harbor.x;
+                        player.y = harbor.y;
+                        console.error(`[Harbor] No safe exit found for ${harbor.name}, placing at harbor centre`);
+                    }
+                }
 
                 // Grant 10-second shield when leaving harbor (no firing allowed)
                 player.shieldEndTime = Date.now() / 1000 + COMBAT.HARBOR_EXIT_SHIELD_DURATION;
@@ -748,7 +777,7 @@ class GameLoop {
         }
 
         // Deduct cost
-        player.gold -= shipClass.goldCost;
+        player.removeGold(shipClass.goldCost);
 
         // Replace flagship (simple swap, no resale)
         const Ship = require('./entities/Ship');

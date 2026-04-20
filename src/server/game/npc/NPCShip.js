@@ -825,28 +825,25 @@ class NPCShip {
             this.combatTarget = null;
         }
 
-        // Search for nearest valid target
+        // Search for nearest valid target (organic aggression — PLAYERs only)
+        // NOTE: Mission-assigned targets (e.g. escort trader) are pre-set via this.combatTarget
+        // and handled by the early-return validation block above. This search is for
+        // ambient aggression only and should not pull NPCs into fighting each other.
         let nearestPlayer = null;
         let nearestDist = Infinity;
 
         for (const id in world.entities) {
             const entity = world.entities[id];
-            if (entity.type === 'PLAYER' || entity.type === 'NPC') {
-                const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
+            if (entity.type !== 'PLAYER') continue; // Organic aggression: players only
 
-                // Check if within engagement range
-                if (dist < NPCCombatOverlay.Config.MAX_ENGAGEMENT_RANGE && dist < nearestDist) {
-                    // Validate target (not in harbor, not sunk)
-                    if (!entity.inHarbor && !entity.isRaft && entity.flagship && !entity.flagship.isSunk) {
-                        // Don't target self
-                        if (entity.id !== this.id) {
-                            // Don't target NPCs with the same role (prevent pirate vs pirate)
-                            if (entity.type === 'PLAYER' || entity.roleName !== this.roleName) {
-                                nearestDist = dist;
-                                nearestPlayer = entity;
-                            }
-                        }
-                    }
+            const dist = Math.hypot(entity.x - this.x, entity.y - this.y);
+
+            // Check if within engagement range
+            if (dist < NPCCombatOverlay.Config.MAX_ENGAGEMENT_RANGE && dist < nearestDist) {
+                // Validate target (not in harbor, not sunk)
+                if (!entity.inHarbor && !entity.isRaft && entity.flagship && !entity.flagship.isSunk) {
+                    nearestDist = dist;
+                    nearestPlayer = entity;
                 }
             }
         }
@@ -1053,7 +1050,6 @@ class NPCShip {
                 const killer = this.world.getEntity(damageSource);
                 if (killer && killer.type === 'PLAYER') {
                     // Map NPC role to reward key
-                    // Map NPC role to reward key
                     const rewardKey = this.roleName === 'PIRATE'
                         ? 'COMBAT.PIRATE_SUNK'
                         : 'COMBAT.TRADER_SUNK';
@@ -1087,12 +1083,16 @@ class NPCShip {
      * Called BEFORE Player.update() to compute inputs
      */
     updateAI(deltaTime, world) {
-        // Check lifetime (safety despawn)
-        const age = (Date.now() / 1000) - this.spawnTime;
-        if (age > this.maxLifetime) {
-            console.log(`[NPC] ${this.id} exceeded max lifetime, despawning`);
-            this.state = 'DESPAWNING';
-            return;
+        // Check lifetime (safety despawn for independently-spawned NPCs only)
+        // trafficKernelControlled NPCs (strategic routes, local traffic) are managed by
+        // NPCMaterializer and may legitimately be active for much longer than maxLifetime.
+        if (!this.trafficKernelControlled) {
+            const age = (Date.now() / 1000) - this.spawnTime;
+            if (age > this.maxLifetime) {
+                console.log(`[NPC] ${this.id} exceeded max lifetime, despawning`);
+                this.state = 'DESPAWNING';
+                return;
+            }
         }
 
         // Update state timer
@@ -1133,6 +1133,18 @@ class NPCShip {
 
         // Check terrain
         this.isInDeepWater = worldMap.isWater(this.x, this.y);
+
+        // Check harbor proximity
+        // Align with Player.js logic for consistent state reporting
+        this.nearHarbor = null;
+        if (this.world && this.world.harbors) {
+            for (const harbor of this.world.harbors) {
+                if (harbor.isPlayerInRange(this.x, this.y)) {
+                    this.nearHarbor = harbor.id;
+                    break;
+                }
+            }
+        }
 
         // Sail Management (same as Player)
         this.sailChangeCooldown -= deltaTime;

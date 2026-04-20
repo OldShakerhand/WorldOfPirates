@@ -214,8 +214,8 @@ class NPCManager {
      * @returns {{ x: number, y: number } | null} Safe position or null if none found
      */
     findSafeSpawnPosition(targetX, targetY, searchRadius = 200) {
-        // Check if target position is already valid
-        if (!this.world.worldMap.isLand(targetX, targetY)) {
+        // IMPROVE-01: Use isWater to ensure target position is deep water
+        if (this.world.worldMap.isWater(targetX, targetY)) {
             return { x: targetX, y: targetY };
         }
 
@@ -231,7 +231,9 @@ class NPCManager {
                 const testX = targetX + Math.cos(angle) * currentRadius;
                 const testY = targetY + Math.sin(angle) * currentRadius;
 
-                if (!this.world.worldMap.isLand(testX, testY)) {
+                // IMPROVE-01: Use isWater (Deep Water) instead of !isLand (which allows Shallow)
+                // This ensures NPCs spawn in navigable water without immediate speed penalties
+                if (this.world.worldMap.isWater(testX, testY)) {
                     console.log(`[NPCManager] Found safe spawn at (${Math.round(testX)}, ${Math.round(testY)}) - ${Math.round(currentRadius)}px from target`);
                     return { x: testX, y: testY };
                 }
@@ -429,16 +431,22 @@ class NPCManager {
         return Array.from(this.npcs.keys());
     }
 
+    _getPositionHarbors() {
+        if (!this._cachedPositionHarbors) {
+            this._cachedPositionHarbors = this.world.harborRegistry.getAllHarbors().map(harbor => ({
+                ...harbor,
+                x: harbor.tileX * GAME.TILE_SIZE,
+                y: harbor.tileY * GAME.TILE_SIZE
+            }));
+        }
+        return this._cachedPositionHarbors;
+    }
+
     buildNPCProfile({ role = null, harborId = null, x = null, y = null }) {
         const harborData = harborId ? this.world.harborRegistry.getHarborById(harborId) : null;
-        const positionHarbors = this.world.harborRegistry.getAllHarbors().map(harbor => ({
-            ...harbor,
-            x: harbor.tileX * GAME.TILE_SIZE,
-            y: harbor.tileY * GAME.TILE_SIZE
-        }));
         const regionProfile = harborData
             ? getRegionProfileForHarbor(harborData)
-            : getRegionProfileForPosition(x, y, positionHarbors);
+            : getRegionProfileForPosition(x, y, this._getPositionHarbors());
         const resolvedRole = role || chooseTrafficRoleForRegion(regionProfile);
 
         return {
