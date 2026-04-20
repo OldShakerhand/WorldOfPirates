@@ -1206,10 +1206,12 @@ class NPCShip {
                 console.log(`[NPC] ${this.id} collided with land`);
             }
 
-            // If stuck for too long, despawn
+            // If stuck for too long, despawn (unless we are stopped at our target)
             if (this.consecutiveCollisions === this.maxConsecutiveCollisions) {
-                console.log(`[NPC] ${this.id} stuck on land (${this.consecutiveCollisions} collisions), despawning`);
-                this.state = 'DESPAWNING';
+                if (this.state !== 'STOPPED') {
+                    console.log(`[NPC] ${this.id} stuck on land (${this.consecutiveCollisions} collisions), despawning`);
+                    this.state = 'DESPAWNING';
+                }
             }
         } else {
             // Reset collision counter when moving freely
@@ -1262,3 +1264,4 @@ class NPCShip {
 }
 
 module.exports = NPCShip;
+

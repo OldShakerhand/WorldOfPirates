@@ -8,7 +8,7 @@ const {
     chooseTrafficRoleForRegion,
     generateUniqueShipName,
     releaseShipName
-} = require('./RegionProfiles');
+} = require('../world/RegionProfiles');
 
 /**
  * NPCManager - Handles NPC lifecycle and spawning

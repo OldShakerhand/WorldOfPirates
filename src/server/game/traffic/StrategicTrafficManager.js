@@ -5,7 +5,7 @@ const {
     chooseShipTypeForRegion,
     chooseTrafficRoleForRegion,
     generateUniqueShipName
-} = require('../npc/RegionProfiles');
+} = require('../world/RegionProfiles');
 
 class StrategicTrafficManager {
     constructor(routePlanner, harborRegistry, options = {}) {

@@ -24,7 +24,7 @@
 const fs = require('fs');
 const path = require('path');
 const GameConfig = require('../config/GameConfig');
-const { getRegionProfileForHarbor } = require('../npc/RegionProfiles');
+const { getRegionProfileForHarbor } = require('./RegionProfiles');
 
 class HarborRegistry {
     /**
