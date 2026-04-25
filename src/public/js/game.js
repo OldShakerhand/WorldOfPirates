@@ -833,7 +833,7 @@ function drawProgressionUI(player) {
 }
 
 function drawSpeedDisplay(player) {
-    const x = canvas.width - 100;
+    const x = canvas.width - 150;
     const y = 280; // Moved below minimap (256px + 10px top padding + 10px margin + 4px border)
 
     ctx.save();
@@ -846,6 +846,11 @@ function drawSpeedDisplay(player) {
     const speedText = `${player.speedInKnots} kn`;
     ctx.strokeText(speedText, x, y);
     ctx.fillText(speedText, x, y);
+
+    const ammoLabel = player.ammoType === 'CHAIN_SHOT' ? 'CHAIN' : 'STANDARD';
+    const ammoText = `Ammo: ${ammoLabel}`;
+    ctx.strokeText(ammoText, x, y + 22);
+    ctx.fillText(ammoText, x, y + 22);
 
     // Speed indicator light
     const lightX = x + 60;
@@ -944,10 +949,15 @@ function drawShip(player, isMe) {
     ctx.restore();
 
     // SECOND: Draw UI elements (on top)
-    ctx.fillStyle = 'red';
-    ctx.fillRect(-15, -30, 30, 4);
+    ctx.fillStyle = '#4a1f1f';
+    ctx.fillRect(-15, -34, 30, 4);
     ctx.fillStyle = '#2ecc71';
-    ctx.fillRect(-15, -30, 30 * (player.health / player.maxHealth), 4);
+    ctx.fillRect(-15, -34, 30 * (player.health / player.maxHealth), 4);
+
+    ctx.fillStyle = '#1f2e4a';
+    ctx.fillRect(-15, -28, 30, 4);
+    ctx.fillStyle = '#4fc3f7';
+    ctx.fillRect(-15, -28, 30 * ((player.sailIntegrity || 0) / 100), 4);
 
     if (isMe) {
         ctx.fillStyle = 'white';
@@ -957,7 +967,7 @@ function drawShip(player, isMe) {
         if (player.sailState === 1) sailText = "HALF";
         if (player.sailState === 2) sailText = "FULL";
         const shieldIcon = player.hasShield ? ' ' : '';
-        ctx.fillText(sailText + shieldIcon, 0, -35);
+        ctx.fillText(sailText + shieldIcon, 0, -39);
 
         const leftPct = (player.reloadLeft || 0) / (player.maxReload || 1);
         ctx.fillStyle = 'yellow';

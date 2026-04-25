@@ -17,7 +17,7 @@ const { COMBAT } = GameConfig;
  */
 
 class Projectile {
-    constructor(id, ownerId, x, y, rotation, speed) {
+    constructor(id, ownerId, x, y, rotation, speed, ammoType = COMBAT.AMMO_TYPES.CANNON_SHOT) {
         this.id = id;
         this.ownerId = ownerId;
         this.x = x;
@@ -29,6 +29,8 @@ class Projectile {
         this.speed = speed || COMBAT.PROJECTILE_SPEED;
         this.radius = COMBAT.PROJECTILE_BALL_RADIUS * COMBAT.PROJECTILE_COLLISION_MULTIPLIER;
         this.damage = COMBAT.PROJECTILE_DAMAGE;
+        this.ammoType = ammoType;
+        this.damageProfile = COMBAT.DAMAGE_PROFILES[ammoType] || COMBAT.DAMAGE_PROFILES[COMBAT.AMMO_TYPES.CANNON_SHOT];
         this.maxDistance = COMBAT.PROJECTILE_MAX_DISTANCE;
         this.toRemove = false;
 
@@ -109,7 +111,8 @@ class Projectile {
             id: this.id,
             x: this.x,
             y: this.y,
-            z: this.z
+            z: this.z,
+            ammoType: this.ammoType
         };
     }
 }

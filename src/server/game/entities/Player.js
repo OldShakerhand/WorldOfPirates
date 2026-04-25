@@ -71,6 +71,7 @@ class Player {
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
         this.fireRate = COMBAT.CANNON_FIRE_RATE;
+        this.selectedAmmoType = COMBAT.AMMO_TYPES.CANNON_SHOT;
 
         // Speed tracking
         this.speedInKnots = 0;
@@ -122,6 +123,21 @@ class Player {
     get cannonsPerSide() {
         if (this.isRaft) return 0;
         return this.flagship.shipClass.cannonsPerSide;
+    }
+
+    get sailIntegrity() {
+        if (this.isRaft) return 100;
+        return this.flagship.sailIntegrity;
+    }
+
+    get crewCount() {
+        if (this.isRaft) return 0;
+        return this.flagship.crewCount;
+    }
+
+    get ammoType() {
+        if (this.isRaft) return COMBAT.AMMO_TYPES.CANNON_SHOT;
+        return this.selectedAmmoType || COMBAT.AMMO_TYPES.CANNON_SHOT;
     }
 
     getFleetSpeedPenalty() {
@@ -185,21 +201,57 @@ class Player {
     }
 
     handleInput(data) {
-        this.inputs = data;
+        if (data.toggleAmmo) {
+            this.selectedAmmoType = this.selectedAmmoType === COMBAT.AMMO_TYPES.CHAIN_SHOT
+                ? COMBAT.AMMO_TYPES.CANNON_SHOT
+                : COMBAT.AMMO_TYPES.CHAIN_SHOT;
+
+            const now = Date.now() / 1000;
+            this.lastShotTimeLeft = now;
+            this.lastShotTimeRight = now;
+        }
+
+        this.inputs = {
+            left: !!data.left,
+            right: !!data.right,
+            sailUp: !!data.sailUp,
+            sailDown: !!data.sailDown,
+            shootLeft: !!data.shootLeft,
+            shootRight: !!data.shootRight
+        };
     }
 
-    takeDamage(amount, damageSource = null) {
+    normalizeDamageSource(damageSource) {
+        if (!damageSource) {
+            return null;
+        }
+
+        if (typeof damageSource === 'string') {
+            return {
+                type: 'player',
+                playerId: damageSource,
+                timestamp: Date.now()
+            };
+        }
+
+        return damageSource;
+    }
+
+    getKillerId() {
+        return this.lastDamageSource?.playerId || null;
+    }
+
+    takeDamage(amount, damageSource = null, damageProfile = null) {
         if (this.isRaft || this.hasActiveShield()) {
             return; // Invulnerable
         }
 
         // Track damage source for kill attribution
         if (damageSource) {
-            this.lastDamageSource = damageSource;
+            this.lastDamageSource = this.normalizeDamageSource(damageSource);
         }
 
-        const oldHealth = this.flagship.health;
-        this.flagship.takeDamage(amount);
+        this.flagship.takeSplitDamage(amount, damageProfile);
         const newHealth = this.flagship.health;
 
         // Log damage only at significant thresholds to reduce spam
@@ -256,7 +308,7 @@ class Player {
             victimId: this.id,
             victimName: this.name,
             shipClass: sunkShipClass,
-            killerId: this.lastDamageSource?.playerId || null,
+            killerId: this.getKillerId(),
             killerName: null // Will be populated if killer exists
         };
 
@@ -279,8 +331,10 @@ class Player {
             console.log(`[Chat] ${killMessage.text}`);
         }
 
-        // Clear damage source after processing
-        this.lastDamageSource = null;
+        // Create Wreck for every sunk flagship before fleet state changes
+        if (this.world) {
+            this.world.createWreck(this.x, this.y, shipSunkEvent.killerId, this.fleetCargo.serialize());
+        }
 
         // Remove sunk ship from fleet
         this.fleet.splice(this.flagshipIndex, 1);
@@ -338,14 +392,11 @@ class Player {
                 console.log(`[Chat] ${raftedMessage.text}`);
             }
 
-            // Create Wreck (Visual & Loot)
-            if (this.world) {
-                // Pass cargo for loot generation (Phase 1: Partial cargo salvage)
-                this.world.createWreck(this.x, this.y, shipSunkEvent.killerId, this.fleetCargo.serialize());
-            }
-
             console.log(`Player ${this.id} rafted (all ships lost, recoverable)`);
         }
+
+        // Clear damage source after processing
+        this.lastDamageSource = null;
     }
 
 
@@ -397,10 +448,10 @@ class Player {
                 const windStrength = wind.getStrengthModifier();
                 // TODO: Consider renaming getAngleModifier to getWindEfficiencyModifier for clarity
                 windAngleModifier = wind.getAngleModifier(this.rotation, this.sailState);
-                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier;
+                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier * this.flagship.getSailSpeedMultiplier();
             } else {
                 // Shallow water: speed reduction based on config
-                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER;
+                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER * this.flagship.getSailSpeedMultiplier();
             }
         }
 
@@ -412,7 +463,9 @@ class Player {
         // WHY: Hardcoded 0.5 accel and 1.5 decel in shallow water are magic numbers
         // REFACTOR: Move to PHYSICS.SHALLOW_WATER_ACCEL_MULTIPLIER
         // WHEN: When adding different water depth levels or ship draft mechanics
-        const accel = this.isInDeepWater ? PHYSICS.ACCELERATION : PHYSICS.ACCELERATION * 0.5;
+        const sailSpeedMultiplier = this.flagship.getSailSpeedMultiplier();
+        const accelBase = this.isInDeepWater ? PHYSICS.ACCELERATION : PHYSICS.ACCELERATION * 0.5;
+        const accel = accelBase * sailSpeedMultiplier;
         const decel = this.isInDeepWater ? PHYSICS.DECELERATION : PHYSICS.DECELERATION * 1.5;
 
         if (this.speed < targetSpeed) {
@@ -488,6 +541,9 @@ class Player {
             rotation: this.rotation,
             health: this.health,
             maxHealth: this.maxHealth,
+            hullHP: this.health,
+            sailIntegrity: this.sailIntegrity,
+            crewCount: this.crewCount,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
             maxSpeedInKnots: Math.round(this.maxSpeed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER),
@@ -503,6 +559,7 @@ class Player {
             reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
             reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
             maxReload: this.fireRate,
+            ammoType: this.ammoType,
             // Progression (Phase 1)
             gold: this.gold,
             xp: this.xp,

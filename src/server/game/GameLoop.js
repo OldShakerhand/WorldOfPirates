@@ -470,7 +470,7 @@ class GameLoop {
 
 
             // Fire projectile straight out from cannon (perpendicular to ship)
-            this.world.createProjectile(player.id, cannonX, cannonY, baseAngle);
+            this.world.createProjectile(player.id, cannonX, cannonY, baseAngle, player.ammoType);
         }
     }
 

@@ -166,7 +166,7 @@ class World {
                     // Test rotated rectangle collision
                     if (this.testRotatedRectCollision(entity, proj)) {
                         // Pass owner ID as damage source for retaliation tracking
-                        entity.takeDamage(proj.damage, proj.ownerId);
+                        entity.takeDamage(proj.damage, proj.ownerId, proj.damageProfile);
                         proj.toRemove = true;
                         break;
                     }
@@ -236,9 +236,9 @@ class World {
         return Math.abs(localX) <= halfWidth && Math.abs(localY) <= halfHeight;
     }
 
-    createProjectile(ownerId, x, y, rotation) {
+    createProjectile(ownerId, x, y, rotation, ammoType) {
         const id = `proj_${this.projectileIdCounter++}`;
-        const projectile = new Projectile(id, ownerId, x, y, rotation);
+        const projectile = new Projectile(id, ownerId, x, y, rotation, undefined, ammoType);
         this.projectiles.push(projectile);
     }
 

@@ -437,6 +437,25 @@ const keys = {
 let lastSentInput = {};
 let lastMobileF = false;
 
+function getCurrentInputState() {
+    let mobileState = { up: false, down: false, left: false, right: false, q: false, e: false, f: false };
+    if (window.MobileControls) {
+        mobileState = window.MobileControls.getInputState();
+    }
+
+    return {
+        mobileState,
+        currentInput: {
+            left: keys.turnLeft || mobileState.left,
+            right: keys.turnRight || mobileState.right,
+            sailUp: keys.sailUp || mobileState.up,
+            sailDown: keys.sailDown || mobileState.down,
+            shootLeft: keys.shootLeft || mobileState.q,
+            shootRight: keys.shootRight || mobileState.e
+        }
+    };
+}
+
 document.addEventListener('keydown', (e) => {
     // Disable game controls while chat is active
     if (chatInputActive) return;
@@ -492,6 +511,14 @@ document.addEventListener('keydown', (e) => {
             const muted = soundManager.toggleMute();
             console.log('[Sound] Muted:', muted);
             break;
+        case 'r': {
+            const { currentInput } = getCurrentInputState();
+            socket.emit('input', {
+                ...currentInput,
+                toggleAmmo: true
+            });
+            break;
+        }
     }
 
     // Handle continuous state keys
@@ -522,21 +549,8 @@ document.addEventListener('keyup', (e) => {
 function processInput() {
     if (!socket) return;
 
-    // 1. Get Mobile State
-    let mobileState = { up: false, down: false, left: false, right: false, q: false, e: false, f: false };
-    if (window.MobileControls) {
-        mobileState = window.MobileControls.getInputState();
-    }
-
-    // 2. Combine Inputs (OR logic)
-    const currentInput = {
-        left: keys.turnLeft || mobileState.left,
-        right: keys.turnRight || mobileState.right,
-        sailUp: keys.sailUp || mobileState.up,
-        sailDown: keys.sailDown || mobileState.down,
-        shootLeft: keys.shootLeft || mobileState.q,
-        shootRight: keys.shootRight || mobileState.e
-    };
+    // 1. Get Mobile State and combine inputs
+    const { mobileState, currentInput } = getCurrentInputState();
 
     // 3. Handle Mobile "F" (Interact) Edge Detection
     // Trigger only when going from false -> true
@@ -916,8 +930,11 @@ function updateSoundSystem(state) {
             // Detect Left Cannon Fire
             const prevReloadLeft = prevState.reloadLeft || 0;
             const currentReloadLeft = ship.reloadLeft || 0;
+            const prevAmmoType = prevState.ammoType || 'CANNON_SHOT';
+            const currentAmmoType = ship.ammoType || 'CANNON_SHOT';
+            const ammoChanged = currentAmmoType !== prevAmmoType;
             // Timer jumped up -> Fired
-            if (currentReloadLeft > prevReloadLeft && currentReloadLeft > 3) {
+            if (!ammoChanged && currentReloadLeft > prevReloadLeft && currentReloadLeft > 3) {
                 const panX = isMe ? 0.3 : screenX; // My left cannon is to the left
                 soundManager.playCannonFire('left', panX, volume);
             }
@@ -925,7 +942,7 @@ function updateSoundSystem(state) {
             // Detect Right Cannon Fire
             const prevReloadRight = prevState.reloadRight || 0;
             const currentReloadRight = ship.reloadRight || 0;
-            if (currentReloadRight > prevReloadRight && currentReloadRight > 3) {
+            if (!ammoChanged && currentReloadRight > prevReloadRight && currentReloadRight > 3) {
                 const panX = isMe ? 0.7 : screenX; // My right cannon is to the right
                 soundManager.playCannonFire('right', panX, volume);
             }
@@ -941,7 +958,8 @@ function updateSoundSystem(state) {
     previousPlayerState = {
         sailState: myShip.sailState,
         reloadLeft: myShip.reloadLeft,
-        reloadRight: myShip.reloadRight
+        reloadRight: myShip.reloadRight,
+        ammoType: myShip.ammoType
     };
 
     // Store NPC states
@@ -952,7 +970,8 @@ function updateSoundSystem(state) {
         const ship = state.players[id];
         newNPCStates[id] = {
             reloadLeft: ship.reloadLeft,
-            reloadRight: ship.reloadRight
+            reloadRight: ship.reloadRight,
+            ammoType: ship.ammoType
         };
     });
     previousNPCStates = newNPCStates;

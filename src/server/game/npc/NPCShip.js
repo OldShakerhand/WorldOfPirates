@@ -164,6 +164,20 @@ class NPCShip {
         return this.flagship.shipClass.cannonsPerSide;
     }
 
+    get sailIntegrity() {
+        if (this.isRaft) return 100;
+        return this.flagship.sailIntegrity;
+    }
+
+    get crewCount() {
+        if (this.isRaft) return 0;
+        return this.flagship.crewCount;
+    }
+
+    get ammoType() {
+        return COMBAT.AMMO_TYPES.CANNON_SHOT;
+    }
+
     generateName(role) {
         const names = {
             TRADER: ['Merchant Vessel', 'Trading Ship', 'Cargo Runner', 'Supply Ship'],
@@ -996,11 +1010,10 @@ class NPCShip {
      * Take damage from projectiles
      * Simplified version of Player.takeDamage (no shields, no rafts, no kill messages)
      */
-    takeDamage(amount, damageSource = null) {
+    takeDamage(amount, damageSource = null, damageProfile = null) {
         if (this.isRaft) return; // Safety check (NPCs don't become rafts in Phase 1)
 
-        const oldHealth = this.flagship.health;
-        this.flagship.takeDamage(amount);
+        this.flagship.takeSplitDamage(amount, damageProfile);
         const newHealth = this.flagship.health;
 
         // Log damage only at significant thresholds to reduce spam
@@ -1170,16 +1183,18 @@ class NPCShip {
             if (this.isInDeepWater) {
                 const windStrength = wind.getStrengthModifier();
                 windAngleModifier = wind.getAngleModifier(this.rotation, this.sailState);
-                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier * this.speedMultiplier;
+                targetSpeed = this.maxSpeed * sailModifier * windStrength * windAngleModifier * this.speedMultiplier * this.flagship.getSailSpeedMultiplier();
             } else {
-                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER * this.speedMultiplier;
+                targetSpeed = this.maxSpeed * sailModifier * PHYSICS.SHALLOW_WATER_SPEED_MULTIPLIER * this.speedMultiplier * this.flagship.getSailSpeedMultiplier();
             }
         }
 
         this.windEfficiency = windAngleModifier;
 
         // Accelerate/Decelerate (same as Player)
-        const accel = this.isInDeepWater ? PHYSICS.ACCELERATION : PHYSICS.ACCELERATION * 0.5;
+        const sailSpeedMultiplier = this.flagship.getSailSpeedMultiplier();
+        const accelBase = this.isInDeepWater ? PHYSICS.ACCELERATION : PHYSICS.ACCELERATION * 0.5;
+        const accel = accelBase * sailSpeedMultiplier;
         const decel = this.isInDeepWater ? PHYSICS.DECELERATION : PHYSICS.DECELERATION * 1.5;
 
         if (this.speed < targetSpeed) {
@@ -1256,6 +1271,9 @@ class NPCShip {
             rotation: this.rotation,
             health: this.health,
             maxHealth: this.maxHealth,
+            hullHP: this.health,
+            sailIntegrity: this.sailIntegrity,
+            crewCount: this.crewCount,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
             maxSpeedInKnots: Math.round(this.maxSpeed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER),
@@ -1267,6 +1285,7 @@ class NPCShip {
             fleetSize: this.fleet.length,
             navigationSkill: 1,
             nearHarbor: this.nearHarbor,
+            ammoType: this.ammoType,
             reloadLeft: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeLeft)),
             reloadRight: Math.max(0, this.fireRate - ((Date.now() / 1000) - this.lastShotTimeRight)),
             maxReload: this.fireRate,

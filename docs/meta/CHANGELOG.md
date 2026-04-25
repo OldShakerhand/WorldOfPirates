@@ -29,6 +29,27 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
+## [0.6.2] - 2026-04-25
+
+### ⚔️ Tactical Naval Combat Update
+- Naval fights now have more tactical depth: you can damage sails to slow enemies, switch ammunition types mid-battle, and better judge when a ship is vulnerable to pursuit or boarding.
+
+### Added
+- Added sail integrity and crew loss as ship damage layers on top of hull damage.
+- Added ammo switching between standard shot and chain shot with a reload penalty when changing ammunition.
+- Added new HUD feedback for current ammo and visible sail damage on ships in combat.
+
+### Changed
+- Damaged sails now reduce a ship's speed and acceleration, making crippled ships easier to chase down.
+- Chain shot now focuses on disabling enemy sails without being quite as overwhelming as before.
+- Enemy and player ships now show separate hull and sail status bars for faster combat reads.
+
+### Fixed
+- Fixed ammo switching incorrectly playing cannon fire sounds without an actual shot.
+- Fixed cases where a sunk player flagship could fail to leave behind a wreck when another ship remained in the fleet.
+
+---
+
 ## [0.6.1] - 2026-04-18
 
 ### 🌊 Living World Scalability Refactor

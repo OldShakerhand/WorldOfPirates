@@ -113,6 +113,22 @@ const GameConfig = {
 
         // Damage
         PROJECTILE_DAMAGE: 10,
+        AMMO_TYPES: {
+            CANNON_SHOT: 'CANNON_SHOT',
+            CHAIN_SHOT: 'CHAIN_SHOT'
+        },
+        DAMAGE_PROFILES: {
+            CANNON_SHOT: {
+                hull: 0.7,
+                sail: 0.2,
+                crew: 0.1
+            },
+            CHAIN_SHOT: {
+                hull: 0.2,
+                sail: 0.525,
+                crew: 0.1
+            }
+        },
         COLLISION_DAMAGE_THRESHOLD: 20,    // Speed threshold for collision damage
         COLLISION_DAMAGE_MULTIPLIER: 0.2,  // Damage = (speed - threshold) * multiplier
 

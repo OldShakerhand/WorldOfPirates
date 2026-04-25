@@ -33,6 +33,7 @@ const SHIP_CLASSES = {
         // Hitbox (small raft, body only)
         hitboxWidthFactor: 0.13,
         hitboxHeightFactor: 0.24,
+        defaultCrew: 1,
         // Cargo (Phase 0: Economy)
         cargoHold: 0  // Rafts cannot carry cargo
     },
@@ -59,6 +60,7 @@ const SHIP_CLASSES = {
         // Hitbox (narrow hull, excluding sails)
         hitboxWidthFactor: 0.24,
         hitboxHeightFactor: 0.68,
+        defaultCrew: 20,
         // Cargo (Phase 0: Economy)
         cargoHold: 20
     },
@@ -86,6 +88,7 @@ const SHIP_CLASSES = {
         // Hitbox (narrow hull, excluding sails)
         hitboxWidthFactor: 0.25,
         hitboxHeightFactor: 0.84,
+        defaultCrew: 35,
         // Cargo (Phase 0: Economy)
         cargoHold: 40
     },
@@ -112,6 +115,7 @@ const SHIP_CLASSES = {
         // Hitbox (wider hull, excluding sails)
         hitboxWidthFactor: 0.38,
         hitboxHeightFactor: 0.85,
+        defaultCrew: 45,
         // Cargo (Phase 0: Economy)
         cargoHold: 80  // Merchant vessel, high capacity
     },
@@ -138,6 +142,7 @@ const SHIP_CLASSES = {
         // Hitbox (medium hull, excluding sails)
         hitboxWidthFactor: 0.33,
         hitboxHeightFactor: 0.74,
+        defaultCrew: 55,
         // Cargo (Phase 0: Economy)
         cargoHold: 120  // Dedicated cargo ship
     },
@@ -164,6 +169,7 @@ const SHIP_CLASSES = {
         // Hitbox (wide hull, excluding sails)
         hitboxWidthFactor: 0.41,
         hitboxHeightFactor: 0.89,
+        defaultCrew: 75,
         // Cargo (Phase 0: Economy)
         cargoHold: 60  // Combat-focused, less cargo
     },
@@ -191,6 +197,7 @@ const SHIP_CLASSES = {
         // Hitbox (narrow hull, excluding sails)
         hitboxWidthFactor: 0.32,
         hitboxHeightFactor: 0.98,
+        defaultCrew: 110,
         // Cargo (Phase 0: Economy)
         cargoHold: 100
     },
@@ -217,6 +224,7 @@ const SHIP_CLASSES = {
         // Hitbox (wide ship, excluding outlier pixels)
         hitboxWidthFactor: 0.45,
         hitboxHeightFactor: 0.96,
+        defaultCrew: 150,
         // Cargo (Phase 0: Economy)
         cargoHold: 80  // War vessel, moderate cargo
     }
