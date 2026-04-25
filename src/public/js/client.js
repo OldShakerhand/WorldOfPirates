@@ -598,6 +598,10 @@ function repairShip() {
     socket.emit('repairShip');
 }
 
+function hireCrew() {
+    socket.emit('hireCrew');
+}
+
 // Function to switch Harbor Views (Redesign)
 function showHarborView(viewName) {
     // Hide all views
@@ -729,6 +733,7 @@ function sellGood(goodId, quantityOverride) {
 
 // Make functions global for HTML onclick
 window.repairShip = repairShip;
+window.hireCrew = hireCrew;
 window.closeHarbor = closeHarbor;
 window.switchFlagship = switchFlagship;
 window.upgradeShip = upgradeShip;

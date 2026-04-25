@@ -78,8 +78,7 @@
                                 Market</button>
                             <button class="harbor-btn shipyard" onclick="showHarborView('shipyard')">⚓ Shipyard &
                                 Docks</button>
-                            <!-- Future: Tavern -->
-                            <button class="harbor-btn tavern" disabled title="Coming Soon">🍻 Tavern (Rumors)</button>
+                            <button class="harbor-btn tavern" onclick="showHarborView('tavern')">🍻 Tavern</button>
                         </div>
 
                         <!-- Right: Occupants -->
@@ -148,6 +147,20 @@
                     <div id="governorSection">
                         <h3>Available Missions</h3>
                         <div id="missionList"></div>
+                    </div>
+                </div>
+
+                <!-- VIEW: Tavern -->
+                <div id="harbor-view-tavern" class="harbor-view hidden">
+                    <div class="view-header">
+                        <button class="back-btn" onclick="showHarborView('main')">⬅ Back to Harbor</button>
+                        <h3>🍻 Tavern</h3>
+                    </div>
+
+                    <div class="tavern-card">
+                        <h4>Fresh Hands for the Fleet</h4>
+                        <p id="tavernCrewStatus">Top off your crew before heading back into combat.</p>
+                        <button id="hireCrewBtn" onclick="hireCrew()">Hire Crew</button>
                     </div>
                 </div>
 

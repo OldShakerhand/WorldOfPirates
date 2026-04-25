@@ -72,7 +72,7 @@ class NPCShip {
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
         // fireRate set by role (pirates get combat rate, traders get defensive rate)
-        this.fireRate = this.role.combatCapable ? COMBAT.CANNON_FIRE_RATE : 999999;
+        this.baseFireRate = this.role.combatCapable ? COMBAT.CANNON_FIRE_RATE : 999999;
 
         // Harbor state
         this.inHarbor = false;
@@ -114,6 +114,7 @@ class NPCShip {
         this.lastAttacker = null;      // ID of entity that last damaged this NPC
         this.lastAttackTime = 0;       // Timestamp of last attack
         this.lastLoggedHealth = null;  // Last health value we logged (for reducing spam)
+        this._crewCount = this.getFleetMaxCrew(this.fleet);
 
         // Escort mission support (Phase 4: Escort improvements)
         this.speedMultiplier = 1.0;    // Speed adjustment for escort missions
@@ -159,6 +160,11 @@ class NPCShip {
         return this.flagship.maxHealth;
     }
 
+    get maxCrew() {
+        if (this.isRaft) return 0;
+        return this.getFleetMaxCrew(this.fleet);
+    }
+
     get cannonsPerSide() {
         if (this.isRaft) return 0;
         return this.flagship.shipClass.cannonsPerSide;
@@ -171,11 +177,39 @@ class NPCShip {
 
     get crewCount() {
         if (this.isRaft) return 0;
-        return this.flagship.crewCount;
+        return this._crewCount;
     }
 
     get ammoType() {
         return COMBAT.AMMO_TYPES.CANNON_SHOT;
+    }
+
+    get fireRate() {
+        if (this.isRaft) return this.baseFireRate;
+        return this.baseFireRate / this.getReloadSpeedMultiplier();
+    }
+
+    set fireRate(value) {
+        this.baseFireRate = value;
+    }
+
+    getFleetMaxCrew(fleet = this.fleet) {
+        return fleet.reduce((total, ship) => total + (ship?.shipClass?.defaultCrew || 0), 0);
+    }
+
+    clampCrewCount() {
+        this._crewCount = Math.max(0, Math.min(this._crewCount, this.maxCrew));
+    }
+
+    getReloadSpeedMultiplier() {
+        if (this.maxCrew <= 0) return 0.5;
+
+        const crewRatio = this.crewCount / this.maxCrew;
+        return 0.5 + crewRatio * 0.5;
+    }
+
+    takeCrewDamage(amount) {
+        this._crewCount = Math.max(0, this._crewCount - Math.round(amount));
     }
 
     generateName(role) {
@@ -1013,7 +1047,8 @@ class NPCShip {
     takeDamage(amount, damageSource = null, damageProfile = null) {
         if (this.isRaft) return; // Safety check (NPCs don't become rafts in Phase 1)
 
-        this.flagship.takeSplitDamage(amount, damageProfile);
+        const damageResult = this.flagship.takeSplitDamage(amount, damageProfile, { applyCrewDamage: false });
+        this.takeCrewDamage(damageResult.crewDamage);
         const newHealth = this.flagship.health;
 
         // Log damage only at significant thresholds to reduce spam
@@ -1263,6 +1298,8 @@ class NPCShip {
      * IDENTICAL format to Player for zero client changes
      */
     serialize() {
+        this.clampCrewCount();
+
         return {
             id: this.id,
             name: this.name,
@@ -1274,6 +1311,7 @@ class NPCShip {
             hullHP: this.health,
             sailIntegrity: this.sailIntegrity,
             crewCount: this.crewCount,
+            maxCrew: this.maxCrew,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
             maxSpeedInKnots: Math.round(this.maxSpeed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER),

@@ -148,6 +148,10 @@ io.on('connection', (socket) => {
         gameLoop.handleRepairShip(socket.id);
     });
 
+    socket.on('hireCrew', () => {
+        gameLoop.handleHireCrew(socket.id);
+    });
+
     socket.on('closeHarbor', () => {
         gameLoop.handleCloseHarbor(socket.id);
     });

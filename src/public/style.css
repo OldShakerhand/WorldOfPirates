@@ -869,10 +869,12 @@ canvas {
 }
 
 .harbor-btn.tavern {
-    opacity: 0.6;
-    cursor: not-allowed;
-    filter: grayscale(1);
-    background: #2c1e1a;
+    background: #4a2f1b;
+    border-color: #c68a2e;
+}
+
+.harbor-btn.tavern:hover {
+    background: #6a4121;
 }
 
 .view-header {
@@ -923,6 +925,47 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.tavern-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(198, 138, 46, 0.45);
+    border-radius: 5px;
+    padding: 16px;
+}
+
+.tavern-card h4 {
+    margin: 0 0 8px 0;
+    color: #FFD700;
+    font-size: 16px;
+}
+
+.tavern-card p {
+    margin: 0 0 14px 0;
+    color: #d8d8d8;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.tavern-card button {
+    width: 100%;
+    padding: 10px;
+    background-color: #27ae60;
+    border: 1px solid #229954;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tavern-card button:hover:not(:disabled) {
+    background-color: #229954;
+}
+
+.tavern-card button:disabled {
+    background-color: #7f8c8d;
+    border-color: #5a6c7d;
+    cursor: default;
 }
 
 .harbor-occupants-panel {

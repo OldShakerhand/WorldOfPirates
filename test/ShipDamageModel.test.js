@@ -68,6 +68,17 @@ test('Ship applies chain shot profile with heavier sail damage', () => {
     assert.equal(ship.crewCount, 19);
 });
 
+test('Player crew capacity is aggregated across the fleet and crew is clamped to max', () => {
+    const player = new Player('p1', 'Tester', 'SLOOP', null, createWorld());
+
+    player.fleet.push(new Ship('BARQUE'));
+    player._crewCount = 999;
+    player.clampCrewCount();
+
+    assert.equal(player.maxCrew, 55);
+    assert.equal(player.crewCount, 55);
+});
+
 test('Sail damage reduces player acceleration via the mobility multiplier', () => {
     const player = new Player('p1', 'Tester', 'SLOOP', null, createWorld());
     const deltaTime = 1;
@@ -104,6 +115,15 @@ test('Player handleInput toggles ammo type between standard and chain', () => {
     assert.equal(player.ammoType, COMBAT.AMMO_TYPES.CANNON_SHOT);
 });
 
+test('Crew loss slows reload speed based on fleet crew ratio', () => {
+    const player = new Player('p1', 'Tester', 'SLOOP', null, createWorld());
+
+    assert.equal(player.fireRate, COMBAT.CANNON_FIRE_RATE);
+
+    player._crewCount = 10;
+    assert.equal(player.fireRate, COMBAT.CANNON_FIRE_RATE / 0.75);
+});
+
 test('Player ammo toggle forces a reload on both broadsides', () => {
     const player = new Player('p1', 'Tester', 'SLOOP', null, createWorld());
 
@@ -132,4 +152,13 @@ test('Player creates a wreck when a flagship sinks even if another ship remains'
     assert.equal(world.wrecks[0].ownerId, 'attacker_1');
     assert.equal(player.fleet.length, 1);
     assert.equal(player.isRaft, false);
+});
+
+test('Player damage reduces fleet-level crew instead of ship-local crew only', () => {
+    const player = new Player('p1', 'Tester', 'SLOOP', null, createWorld());
+
+    player.takeDamage(10, 'attacker_1', COMBAT.DAMAGE_PROFILES[COMBAT.AMMO_TYPES.CANNON_SHOT]);
+
+    assert.equal(player.crewCount, 19);
+    assert.equal(player.flagship.crewCount, 20);
 });

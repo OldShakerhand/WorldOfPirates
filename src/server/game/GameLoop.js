@@ -573,6 +573,7 @@ class GameLoop {
             // Update FleetCargo reference to new fleet
             // FIX: Prevent 0 capacity bug after raft recovery
             player.fleetCargo.setFleet(player.fleet);
+            player.clampCrewCount();
 
             console.log(`Player ${player.id} received a new Sloop at ${harbor.name}`);
         }
@@ -591,11 +592,17 @@ class GameLoop {
         if (!player || !harbor) return;
 
         const economy = this.world.harborRegistry.getHarborEconomy(harbor.id);
+        const crewCount = player.crewCount || 0;
+        const maxCrew = player.maxCrew || 0;
+        const hireCrewCost = Math.max(0, maxCrew - crewCount);
 
         const harborData = {
             harborId: harbor.id,
             harborName: harbor.name,
             fleet: player.fleet.map(ship => ship.serialize()),
+            crewCount,
+            maxCrew,
+            hireCrewCost,
             economy: economy,
             cargo: player.fleetCargo.serialize(),
             availableMissions: this.world.missionManager.generateAvailableMissions(socketId, harbor.id),
@@ -669,6 +676,7 @@ class GameLoop {
         // Replace flagship (index 0) with new ship
         player.fleet[0] = newShip;
         player.flagshipIndex = 0;
+        player.clampCrewCount();
 
         console.log(`Player ${playerId} switched flagship to ${shipClass}`);
 
@@ -783,6 +791,7 @@ class GameLoop {
         const Ship = require('./entities/Ship');
         player.fleet = [new Ship(targetShipClass)];
         player.flagshipIndex = 0;
+        player.clampCrewCount();
 
         // Update FleetCargo reference to new fleet
         player.fleetCargo.setFleet(player.fleet);
@@ -793,6 +802,43 @@ class GameLoop {
         const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
         if (harbor) {
             this.sendHarborData(socketId, player, harbor);
+        }
+    }
+
+    handleHireCrew(playerId) {
+        const player = this.world.getEntity(playerId);
+        if (!player || !player.inHarbor) return;
+
+        const crewNeeded = Math.max(0, player.maxCrew - player.crewCount);
+        const hireCost = crewNeeded;
+
+        if (crewNeeded === 0) {
+            this.io.to(playerId).emit('transactionResult', {
+                success: false,
+                message: 'Crew is already at full strength.'
+            });
+            return;
+        }
+
+        if (player.gold < hireCost) {
+            this.io.to(playerId).emit('transactionResult', {
+                success: false,
+                message: `Not enough gold! Need ${hireCost}g to hire ${crewNeeded} crew.`
+            });
+            return;
+        }
+
+        player.removeGold(hireCost);
+        player.refillCrew();
+
+        this.io.to(playerId).emit('transactionResult', {
+            success: true,
+            message: `Hired ${crewNeeded} crew for ${hireCost} gold.`
+        });
+
+        const harbor = this.world.harbors.find(h => h.id === player.nearHarbor);
+        if (harbor) {
+            this.sendHarborData(playerId, player, harbor);
         }
     }
 

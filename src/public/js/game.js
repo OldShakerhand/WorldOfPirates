@@ -852,6 +852,10 @@ function drawSpeedDisplay(player) {
     ctx.strokeText(ammoText, x, y + 22);
     ctx.fillText(ammoText, x, y + 22);
 
+    const crewText = `Crew: ${player.crewCount || 0} / ${player.maxCrew || 0}`;
+    ctx.strokeText(crewText, x, y + 44);
+    ctx.fillText(crewText, x, y + 44);
+
     // Speed indicator light
     const lightX = x + 60;
     const lightY = y - 6;
@@ -1072,7 +1076,7 @@ function showHarborUI(harborData) {
     const playerResourcesEl = document.getElementById('playerResources');
     const player = window.gameState.players[socket.id];
     if (player && playerResourcesEl) {
-        playerResourcesEl.textContent = `Gold: ${player.gold || 0} | Level: ${player.level || 1}`;
+        playerResourcesEl.textContent = `Gold: ${player.gold || 0} | Level: ${player.level || 1} | Crew: ${harborData.crewCount || 0}/${harborData.maxCrew || 0}`;
     }
 
     // Show/hide repair button based on damage
@@ -1083,6 +1087,29 @@ function showHarborUI(harborData) {
         repairBtn.textContent = `Repair Flagship (${repairCost} HP)`;
     } else {
         repairBtn.style.display = 'none';
+    }
+
+    const hireCrewBtn = document.getElementById('hireCrewBtn');
+    const tavernCrewStatus = document.getElementById('tavernCrewStatus');
+    if (hireCrewBtn) {
+        const crewNeeded = Math.max(0, (harborData.maxCrew || 0) - (harborData.crewCount || 0));
+        if (tavernCrewStatus) {
+            if (crewNeeded > 0) {
+                tavernCrewStatus.textContent = `Crew available: ${harborData.crewCount || 0}/${harborData.maxCrew || 0}. The tavern can fill the missing ${crewNeeded} hands for ${harborData.hireCrewCost || crewNeeded} gold.`;
+            } else {
+                tavernCrewStatus.textContent = `Crew available: ${harborData.crewCount || 0}/${harborData.maxCrew || 0}. Your fleet is fully staffed and ready to sail.`;
+            }
+        }
+
+        if (crewNeeded > 0) {
+            hireCrewBtn.style.display = 'block';
+            hireCrewBtn.textContent = `Hire Crew (${crewNeeded} for ${harborData.hireCrewCost || crewNeeded}g)`;
+            hireCrewBtn.disabled = false;
+        } else {
+            hireCrewBtn.style.display = 'block';
+            hireCrewBtn.textContent = 'Crew Full';
+            hireCrewBtn.disabled = true;
+        }
     }
 
     // Display economy/trade section (Phase 0: Economy)

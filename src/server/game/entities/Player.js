@@ -56,6 +56,7 @@ class Player {
 
         // Fleet cargo (Phase 0: Economy)
         this.fleetCargo = new FleetCargo(this.fleet);
+        this._crewCount = this.getFleetMaxCrew(this.fleet);
 
         // FUTURE: Skills/talents
         // this.skills = { navigation: 0, combat: 0, trading: 0 };
@@ -70,7 +71,7 @@ class Player {
         // Combat stats from flagship
         this.lastShotTimeLeft = 0;
         this.lastShotTimeRight = 0;
-        this.fireRate = COMBAT.CANNON_FIRE_RATE;
+        this.baseFireRate = COMBAT.CANNON_FIRE_RATE;
         this.selectedAmmoType = COMBAT.AMMO_TYPES.CANNON_SHOT;
 
         // Speed tracking
@@ -120,6 +121,11 @@ class Player {
         return this.flagship.maxHealth;
     }
 
+    get maxCrew() {
+        if (this.isRaft) return 0;
+        return this.getFleetMaxCrew(this.fleet);
+    }
+
     get cannonsPerSide() {
         if (this.isRaft) return 0;
         return this.flagship.shipClass.cannonsPerSide;
@@ -132,7 +138,7 @@ class Player {
 
     get crewCount() {
         if (this.isRaft) return 0;
-        return this.flagship.crewCount;
+        return this._crewCount;
     }
 
     get ammoType() {
@@ -140,10 +146,42 @@ class Player {
         return this.selectedAmmoType || COMBAT.AMMO_TYPES.CANNON_SHOT;
     }
 
+    get fireRate() {
+        if (this.isRaft) return this.baseFireRate;
+        return this.baseFireRate / this.getReloadSpeedMultiplier();
+    }
+
+    set fireRate(value) {
+        this.baseFireRate = value;
+    }
+
     getFleetSpeedPenalty() {
         // More ships = slower (simple version)
         const penalty = 1.0 - ((this.fleet.length - 1) * PHYSICS.FLEET_SPEED_PENALTY_PER_SHIP);
         return Math.max(PHYSICS.MAX_FLEET_SPEED_PENALTY, penalty);
+    }
+
+    getFleetMaxCrew(fleet = this.fleet) {
+        return fleet.reduce((total, ship) => total + (ship?.shipClass?.defaultCrew || 0), 0);
+    }
+
+    clampCrewCount() {
+        this._crewCount = Math.max(0, Math.min(this._crewCount, this.maxCrew));
+    }
+
+    getReloadSpeedMultiplier() {
+        if (this.maxCrew <= 0) return 0.5;
+
+        const crewRatio = this.crewCount / this.maxCrew;
+        return 0.5 + crewRatio * 0.5;
+    }
+
+    takeCrewDamage(amount) {
+        this._crewCount = Math.max(0, this._crewCount - Math.round(amount));
+    }
+
+    refillCrew() {
+        this._crewCount = this.maxCrew;
     }
 
     // Progression & Gold Methods (server-authoritative)
@@ -251,7 +289,8 @@ class Player {
             this.lastDamageSource = this.normalizeDamageSource(damageSource);
         }
 
-        this.flagship.takeSplitDamage(amount, damageProfile);
+        const damageResult = this.flagship.takeSplitDamage(amount, damageProfile, { applyCrewDamage: false });
+        this.takeCrewDamage(damageResult.crewDamage);
         const newHealth = this.flagship.health;
 
         // Log damage only at significant thresholds to reduce spam
@@ -338,6 +377,7 @@ class Player {
 
         // Remove sunk ship from fleet
         this.fleet.splice(this.flagshipIndex, 1);
+        this.clampCrewCount();
 
         if (this.fleet.length > 0) {
             // SHIP SWITCHING: Player has other ships available
@@ -372,6 +412,7 @@ class Player {
             // Transition to rafted state
             this.isRaft = true;
             this.speed = 0;
+            this._crewCount = 0;
 
             // Derive ChatMessage from player_rafted event
             if (this.io) {
@@ -533,6 +574,8 @@ class Player {
     }
 
     serialize() {
+        this.clampCrewCount();
+
         return {
             id: this.id,
             name: this.name,
@@ -544,6 +587,7 @@ class Player {
             hullHP: this.health,
             sailIntegrity: this.sailIntegrity,
             crewCount: this.crewCount,
+            maxCrew: this.maxCrew,
             sailState: this.sailState,
             speedInKnots: this.speedInKnots,
             maxSpeedInKnots: Math.round(this.maxSpeed * PHYSICS.SPEED_TO_KNOTS_MULTIPLIER),

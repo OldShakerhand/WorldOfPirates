@@ -29,6 +29,25 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
+## [0.6.3] - 2026-04-26
+
+### 🍻 Crew & Harbor Update
+- Fleets now manage crew as a shared resource, so battles can wear down your reload efficiency and harbors matter more between fights.
+
+### Added
+- Added fleet-wide crew capacity based on the ships in your fleet.
+- Added crew loss affecting reload speed, making prolonged combat more dangerous even before a ship sinks.
+- Added Tavern crew refills so you can quickly hire sailors back to full strength while docked.
+- Added crew readouts to the HUD and harbor interface for clearer status tracking.
+
+### Changed
+- Changed harbor Tavern presentation so it now matches the rest of the harbor destinations and reads more clearly as an active service.
+
+### Fixed
+- Fixed the harbor exit test harness to include the current world map dependency used by safe harbor spawns.
+
+---
+
 ## [0.6.2] - 2026-04-25
 
 ### ⚔️ Tactical Naval Combat Update

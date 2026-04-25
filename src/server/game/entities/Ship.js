@@ -41,7 +41,9 @@ class Ship {
         }
     }
 
-    takeSplitDamage(amount, damageProfile) {
+    takeSplitDamage(amount, damageProfile, options = {}) {
+        const { applyCrewDamage = true } = options;
+
         if (!damageProfile) {
             this.takeDamage(amount);
             return {
@@ -57,7 +59,9 @@ class Ship {
 
         this.takeDamage(hullDamage);
         this.sailIntegrity = Math.max(0, this.sailIntegrity - sailDamage);
-        this.crew = Math.max(0, this.crew - crewDamage);
+        if (applyCrewDamage) {
+            this.crew = Math.max(0, this.crew - crewDamage);
+        }
 
         return {
             hullDamage,

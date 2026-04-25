@@ -26,6 +26,14 @@ function loadGameLoopWithMocks() {
             this.projectiles = [];
             this.harborRegistry = {};
             this.harbors = [];
+            this.worldMap = {
+                isWater() {
+                    return true;
+                },
+                isLand() {
+                    return false;
+                }
+            };
         }
 
         update() {}
