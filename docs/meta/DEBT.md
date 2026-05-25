@@ -38,13 +38,14 @@ Track magic numbers, hardcoded heuristics, and scaling issues that should be add
 **When**: Before public release.  
 **Impact**: HIGH - Identity theft, impossible to ban users effectively.
 
-### TECH_DEBT_011: Nested Loop Projectile Collision
-**File**: `World.js:131` (approx)  
+### ~~TECH_DEBT_011: Nested Loop Projectile Collision~~ ✅ Resolved
+**File**: `World.js`  
 **Type**: Scaling Issue  
-**Why**: O(projectiles * players) complexity every tick.  
-**Refactor**: Use spatial hash grid or broad-phase/narrow-phase collision.  
-**When**: >100 active projectiles or >30 players cause lag.  
-**Impact**: HIGH - Combat-heavy scenarios will cause server lag.
+**Resolution**: Replaced both O(n²) loops (projectile×entities and ship×ship) with a shared
+spatial hash grid built once per tick. Cell size is derived from `PROJECTILE_MAX_DISTANCE *
+SPATIAL_HASH_CELL_MULTIPLIER` so it automatically adapts to range rebalancing. Worst-case
+checks reduced from ~60,000/tick to ~800/tick at 100 players under heavy combat.
+See commit `1e5f174`.
 
 ---
 

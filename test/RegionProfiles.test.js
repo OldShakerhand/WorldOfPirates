@@ -7,7 +7,7 @@ const {
     chooseTrafficRoleForRegion,
     generateUniqueShipName,
     releaseShipName
-} = require('../src/server/game/npc/RegionProfiles');
+} = require('../src/server/game/world/RegionProfiles');
 
 test('Region profile resolves from harbor nation', () => {
     const profile = getRegionProfileForHarbor({ id: 'nassau', nation: 'pirates' });
