@@ -38,7 +38,7 @@ class DatabaseService {
             const playerDoc = await PlayerModel.findOneAndUpdate(
                 { token },
                 { $set: { name } }, // Ensure latest name is saved
-                { new: true }
+                { returnDocument: 'after' }
             );
             
             if (playerDoc) {
@@ -67,7 +67,7 @@ class DatabaseService {
             await PlayerModel.findOneAndUpdate(
                 { token: playerData.token },
                 { $set: playerData },
-                { upsert: true, new: true }
+                { upsert: true, returnDocument: 'after' }
             );
             return true;
         } catch (error) {
