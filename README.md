@@ -4,7 +4,7 @@ A multiplayer naval combat game built with Node.js and Socket.IO. Command your f
 
 ## 🎮 Features
 
-- **Real-time Multiplayer** - Currently supporting up to 20 simultaneous players
+- **Real-time Multiplayer** - Highly optimized networking scaling up to 100 simultaneous players
 - **Dynamic Wind System** - Tactical sailing with realistic wind mechanics
 - **Fleet Management** - Command multiple ships, from nimble Sloops to massive War Galleons
 - **Naval Combat** - Broadside cannon battles with physics-based projectiles
@@ -145,6 +145,7 @@ This is currently a personal project. Documentation and contribution guidelines 
 - ✅ Economy System (Trading, supply/demand, harbor markets)
 - ✅ NPC System (AI traders and pirates)
 - ✅ Player Identity (Names, stats, persistence)
+- ✅ Network & Physics Scaling (Delta Compression, Spatial Hash Grid)
 - 🚧 Next Steps:
     - Advanced Skill Leveling
     - Extended Crew & Fleet Management
