@@ -121,6 +121,7 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Mission UI** - On-screen mission tracker with objectives
 - [x] **Mission Rewards** - Gold and XP based on completion
 - [x] **Debug Mission Spawning** - Keyboard shortcuts to test missions
+- [x] **Governor's Mansion Mission Board** - Harbor UI shows 3 generated missions per dock (Sail to Harbor, Escort, Pirate Hunt) with narrative descriptions and accept flow fully wired server→client
 
 ### NPC Ships
 - [x] **NPC Spawning** - Spawn merchant and pirate NPCs
@@ -148,10 +149,9 @@ This document tracks the implementation status of all features in World of Pirat
 
 ---
 
-## 🚧 In Progress (Phase 2 Focus)
+## 🚧 In Progress
 
-- [ ] **Mission Integration into Harbors** - Populate Governor's Mansion with actual missions
-- [ ] **Escort Mission Polish** - Finalize escort mechanics and UI
+*No active Phase 2 items. Phase 2 is considered complete. Escort missions are functional; deeper mission design and pathfinding polish are deferred to a future pass.*
 
 ---
 
@@ -173,28 +173,31 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] Progression (XP/Levels/Gold)
 - [x] Ship Purchasing
 
-### Phase 2 – Gameplay Polish (Current Focus)
+### Phase 2 – Gameplay Polish (✅ Completed)
 **Goal:** Refine the experience, ensure mobile compatibility, and squash bugs.
 - [x] **Mobile Support** (Touch controls, Viewport, Fullscreen)
 - [x] **Harbor UI Restructuring** (Governor/Shipyard views)
 - [x] **Visual/Sound Improvements** (Wakes, Splashes, Shadows)
-- [ ] **Mission Integration** (Governor offering missions)
-- [ ] **Escort Mission Redesign** (Better AI/UI)
-- [ ] **Chat System Finalization** (already mostly done)
+- [x] **Mission Integration** (Governor's Mansion offers missions — generation, delivery, and accept flow fully implemented)
+- [x] **Escort Missions** (Functional end-to-end; deeper mission design and pathfinding polish deferred)
+- [x] **Chat System** (Global chat, moderation, spam protection)
 
-### Phase 3 – Interest Management & NPC Lifecycle
+### Phase 3 – Interest Management & NPC Lifecycle (✅ Completed — v0.6.1)
 **Goal:** Optimize performance and create a living world illusion.
-- [ ] **Spatial Partitioning** (Grid/Quadtree)
-- [ ] **Area of Interest (AOI)** (Only send nearby entity updates)
-- [ ] **NPC Lifecycle** (Spawn/Despawn based on player proximity)
-- [ ] **Delta Compression** (Optimize network bandwidth)
+- [x] **Spatial Partitioning** — Grid-based spatial index (~2000 unit cells) in `StrategicTrafficManager`; materialization queries only nearby ships instead of scanning all
+- [x] **Area of Interest (AOI)** — `NPCMaterializer` materializes NPCs only when within `aoiRadius` of a player; despawns when they leave the buffered AOI
+- [x] **NPC Lifecycle** — `StrategicTrafficManager` + `NPCMaterializer` cleanly separate Strategic (1 Hz), Tactical (full sim), and Materialization (~200–500 ms) layers; each StrategicShip maps to at most one active NPCShip
+- [ ] **Delta Compression** (Optimize network bandwidth — not yet implemented)
 
-### Phase 4 – Living World
+### Phase 4 – Living World (✅ Partially Completed — v0.6.0)
 **Goal:** Populate the sea with believable traffic.
-- [ ] **NPC Traffic Logic** (Trade routes between harbors)
-- [ ] **Faction Patrols** (Nation-specific ships)
-- [ ] **Dynamic Encounters** (Shipwrecks, distress signals)
-- [ ] **Weather Effects** (Storms affecting visibility/handling)
+- [x] **NPC Traffic Logic** — `StrategicTrafficManager` runs trade routes between harbors; ships spawn already underway on routes and loop indefinitely
+- [x] **Local Ambient Traffic** — `NPCMaterializer._maintainLocalTraffic()` fills quiet waters around each player with nearby NPC ships using lane-aware headings
+- [x] **Regional Ship Variety** — `RegionProfiles` drives different ship classes, pirate frequency, and naming styles per Caribbean region (partial faction flavour)
+- [x] **Convoy System** — Strategic ships can spawn with a pirate or escort ship alongside (CONVOY encounter type)
+- [ ] **True Faction Patrols** (Nation-specific patrol routes — not yet implemented)
+- [ ] **Dynamic Encounters** (Shipwrecks, distress signals — not yet implemented)
+- [ ] **Weather Effects** (Storms affecting visibility/handling — not yet implemented)
 
 ### Phase 5 – Pirate Core
 **Goal:** Deepen the pirate fantasy.
