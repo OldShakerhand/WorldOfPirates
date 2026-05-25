@@ -167,7 +167,7 @@ function setupGameListeners() {
     if (!socket) return;
 
     // Game State handling
-    socket.on('gamestate_update', (state) => {
+    socket.on('gamestate_snapshot', (state) => {
         // Store state globally for debug tools
         window.gameState = state;
         window.myPlayerId = socket.id;
@@ -188,6 +188,39 @@ function setupGameListeners() {
             // Update Mission UI
             if (window.updateMissionUI) {
                 window.updateMissionUI(state.players[socket.id]);
+            }
+        }
+    });
+
+    socket.on('gamestate_delta', (delta) => {
+        if (!window.gameState) return; // Wait for first snapshot
+        
+        // Patch players/NPCs
+        if (delta.players) {
+            for (const id in delta.players) {
+                if (window.gameState.players[id]) {
+                    Object.assign(window.gameState.players[id], delta.players[id]);
+                }
+            }
+        }
+        
+        // Replace fast-moving arrays
+        if (delta.projectiles) window.gameState.projectiles = delta.projectiles;
+        if (delta.wrecks) window.gameState.wrecks = delta.wrecks;
+        
+        // Render as usual
+        if (mapData) {
+            renderGame(window.gameState, mapData, socket.id);
+            
+            if (typeof updateMinimap !== 'undefined' && worldTilemap) {
+                const myShip = window.gameState.players[socket.id];
+                updateMinimap(worldTilemap, mapData, myShip);
+            }
+            
+            updateSoundSystem(window.gameState);
+            
+            if (window.updateMissionUI) {
+                window.updateMissionUI(window.gameState.players[socket.id]);
             }
         }
     });

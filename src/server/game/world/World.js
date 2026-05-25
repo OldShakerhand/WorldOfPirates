@@ -262,7 +262,7 @@ class World {
         }
     }
 
-    getState() {
+    getSnapshot() {
         const state = {
             players: {},
             projectiles: this.projectiles.map(p => p.serialize()),
@@ -279,6 +279,29 @@ class World {
                 if (this.entities[id].type === 'PLAYER') {
                     state.players[id].mission = this.missionManager.serializeForPlayer(id);
                 }
+            }
+        }
+        return state;
+    }
+
+    getDelta() {
+        const state = {
+            players: {},
+            projectiles: this.projectiles.map(p => p.serialize()),
+            wrecks: this.wrecks.map(w => w.serialize())
+        };
+        for (const id in this.entities) {
+            const e = this.entities[id];
+            if (e.type === 'PLAYER' || e.type === 'NPC') {
+                // Minimal payload for movement and combat
+                state.players[id] = {
+                    id: e.id,
+                    x: e.x,
+                    y: e.y,
+                    rotation: e.rotation,
+                    health: e.health,
+                    sailState: e.sailState
+                };
             }
         }
         return state;

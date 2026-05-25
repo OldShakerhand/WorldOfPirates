@@ -12,6 +12,7 @@ class GameLoop {
         this.lastTime = Date.now();
         this.tickRate = GAME.TICK_RATE;
         this.interval = null;
+        this.tickCount = 0;
 
         // Performance monitoring
         this.tickTimes = [];
@@ -132,7 +133,12 @@ class GameLoop {
         }
 
         // Send game state to all connected clients
-        this.io.emit('gamestate_update', this.world.getState());
+        this.tickCount++;
+        if (this.tickCount % 10 === 0) {
+            this.io.emit('gamestate_snapshot', this.world.getSnapshot());
+        } else {
+            this.io.emit('gamestate_delta', this.world.getDelta());
+        }
 
         // Track tick performance
         const tickDuration = Date.now() - tickStart;
