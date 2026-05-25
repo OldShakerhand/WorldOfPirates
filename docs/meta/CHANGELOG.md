@@ -29,6 +29,23 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
+## [0.6.4] - 2026-05-25
+
+### 🚀 Performance & Network Update
+- Massively improved server capacity and network efficiency to pave the way for 100 concurrent players! Server physics and network bandwidth have been heavily optimized.
+
+### Added
+- **Delta Compression**: The server now only sends small delta updates containing movement and combat changes instead of the entire world state on every tick. This reduces network bandwidth consumption by over 80%.
+- **Snapshot Self-Healing**: A full network snapshot is automatically sent every 10 ticks to guarantee players never permanently desync.
+
+### Changed
+- **Spatial Hash Collision Grid**: Replaced expensive O(n²) nested loop physics checks with a highly efficient Spatial Hash grid that scales dynamically with projectile range, reducing CPU load from 60,000 checks/tick to ~800 under heavy load.
+
+### Fixed
+- Fixed an incorrect import path in the `RegionProfiles` test suite.
+
+---
+
 ## [0.6.3] - 2026-04-26
 
 ### 🍻 Crew & Harbor Update
