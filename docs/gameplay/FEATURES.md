@@ -187,7 +187,7 @@ This document tracks the implementation status of all features in World of Pirat
 - [x] **Spatial Partitioning** — Grid-based spatial index (~2000 unit cells) in `StrategicTrafficManager`; materialization queries only nearby ships instead of scanning all
 - [x] **Area of Interest (AOI)** — `NPCMaterializer` materializes NPCs only when within `aoiRadius` of a player; despawns when they leave the buffered AOI
 - [x] **NPC Lifecycle** — `StrategicTrafficManager` + `NPCMaterializer` cleanly separate Strategic (1 Hz), Tactical (full sim), and Materialization (~200–500 ms) layers; each StrategicShip maps to at most one active NPCShip
-- [ ] **Delta Compression** (Optimize network bandwidth — not yet implemented)
+- [x] **Delta Compression** — Implemented Snapshot + Delta hybrid architecture (v0.6.4) sending full state every 10 ticks and tiny deltas otherwise, saving 80% bandwidth.
 
 ### Phase 4 – Living World (✅ Partially Completed — v0.6.0)
 **Goal:** Populate the sea with believable traffic.

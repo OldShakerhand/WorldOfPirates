@@ -202,12 +202,9 @@ socket.emit('input', {
 > - **Bandwidth Savings**: 18-30 KB/second per client
 > - **Scalability**: Better support for larger maps
 > 
-> **Remaining Bottleneck**: Full dynamic state broadcast
-> - **Bandwidth**: O(N²) where N = player count
-> - 5 players: 25 state updates/second
-> - 20 players: 400 state updates/second
-> 
-> **Future Optimization**: Delta updates (only send changes)
+> **Performance Optimization**: Full dynamic state broadcast (O(N²)) was a major bottleneck.
+> - **Solution**: Implemented Snapshot + Delta hybrid architecture (v0.6.4).
+> - **Result**: Server sends a full snapshot every 10 ticks, and tiny deltas on the other 9 ticks, reducing bandwidth consumption by over 80%.
 
 ### Event Types
 
@@ -284,15 +281,14 @@ socket.emit('input', {
 
 ### Scalability Analysis
 
-**Current Bottlenecks:**
-1. **Network**: Full state broadcast (O(N²) bandwidth)
-2. **Collision Detection**: Naive O(N×M) projectile checks
-3. **No Spatial Partitioning**: All entities checked every tick
+**Resolved Bottlenecks (v0.6.4):**
+1. **Network**: Full state broadcast replaced with Snapshot+Delta hybrid (80% bandwidth savings).
+2. **Collision Detection**: Naive O(N×M) projectile checks replaced with Spatial Hash Grid (CPU time reduced from ~60,000 checks/tick to ~800).
 
-**Estimated Capacity:**
-- **10-15 players**: Smooth performance
-- **15-20 players**: Good performance, monitor tick times
-- **20+ players**: Performance degradation likely
+**Estimated Capacity (Post-v0.6.4 Optimizations):**
+- **10-50 players**: Smooth performance expected
+- **50-100 players**: Target scaling threshold (Testing required)
+- **100+ players**: Performance degradation likely without cluster sharding
 
 **When to Optimize:**
 - Average tick time consistently >10ms
@@ -553,8 +549,8 @@ if (island.x < wrapThreshold) {
 ## 🔮 Future Technical Improvements
 
 ### High Priority
-- [ ] **Delta Updates** - Only send changed data to clients
-- [ ] **Spatial Partitioning** - Grid-based collision detection
+- [x] **Delta Updates** - Only send changed data to clients (Implemented v0.6.4)
+- [x] **Spatial Partitioning** - Grid-based collision detection (Implemented v0.6.4)
 - [ ] **Client Interpolation** - Smooth movement between server updates
 - [ ] **Input Validation** - Sanitize and validate all client inputs
 
