@@ -29,6 +29,23 @@ This document tracks all notable changes to World of Pirates across versions. It
 
 ---
 
+## [0.7.0] - 2026-05-25
+
+### 💾 Persistent World Update
+- Your pirate legacy is now permanent! The game state is fully saved to a MongoDB database in the cloud.
+
+### Added
+- **Database Persistence**: Gold, Ship Fleet, Hull Health, Sail Integrity, Cargo, Crew Count, Player Level, and XP are securely preserved across server reboots.
+- **Zero-Friction Authentication**: No passwords required. A secure background token handles your login automatically.
+- **Harbor Autosave**: Your game state automatically saves every time you dock at a harbor.
+- **Dirty Autosave**: If you make transactions (buying, selling, upgrading ships) or take damage, the server will periodically save your progress automatically in the background.
+
+### Fixed
+- **UI Bug**: The "Repair Flagship" button inside the harbor UI now correctly appears if your *sails* are damaged, even if your hull is at 100% health.
+- **Sail Repair Logic**: Repairing your ship's hull at the harbor now automatically restores your sails to 100% integrity as well (even if you can only afford a partial hull repair).
+
+---
+
 ## [0.6.4] - 2026-05-25
 
 ### 🚀 Performance & Network Update
