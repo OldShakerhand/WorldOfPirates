@@ -4,6 +4,8 @@ const GameConfig = require('./config/GameConfig');
 const { GAME, COMBAT } = GameConfig;
 const { NPCCombatOverlay } = require('./npc/NPCBehavior');
 const EconomySystem = require('./economy/EconomySystem');
+const DatabaseService = require('../database/DatabaseService');
+const Ship = require('./entities/Ship'); // Added to reconstruct fleet
 
 class GameLoop {
     constructor(io) {
@@ -22,6 +24,9 @@ class GameLoop {
         // NO gameplay behavior change
         this.firstTickLogged = false;
         this.firstProjectileLogged = false;
+
+        // DB Autosave loop (60s)
+        this.autosaveInterval = setInterval(() => this.dirtyAutosave(), 60000);
 
         // Economy system (Phase 0: Harbor Master)
         this.economySystem = new EconomySystem(this.world.harborRegistry);
@@ -145,7 +150,7 @@ class GameLoop {
         this.tickTimes.push(tickDuration);
     }
 
-    addPlayer(socket, playerName = 'Anonymous', customSpawn = null) {
+    async addPlayer(socket, playerName = 'Anonymous', playerToken = null, customSpawn = null) {
         // Validate player name
         if (!this.isValidPlayerName(playerName)) {
             console.log(`Rejected invalid name from ${socket.id}: "${playerName}"`);
@@ -164,25 +169,67 @@ class GameLoop {
 
         // Pass io and world references for kill message emission
         const player = new Player(socket.id, playerName, 'FLUYT', this.io, this.world);
+        
+        // Attach DB token
+        player.token = playerToken;
 
-        // DEBUG ONLY: Track player join for early-session collision diagnosis
-        // NO gameplay behavior change
-        if (COMBAT.DEBUG_INITIALIZATION) {
-            const entityCount = Object.keys(this.world.entities).length;
-            console.log(`[INIT] Player joined | ID: ${socket.id} | Name: ${playerName} | Entities in world: ${entityCount}`);
-        }
+        // Load existing player from database
+        const savedData = await DatabaseService.loadPlayer(playerToken, playerName);
 
-        // Use custom spawn if provided (for testing), otherwise find safe position
-        let spawnPosition;
-        if (customSpawn && customSpawn.x !== undefined && customSpawn.y !== undefined) {
-            spawnPosition = customSpawn;
-            console.log(`[DEBUG] Custom spawn for ${playerName}: (${customSpawn.x}, ${customSpawn.y})`);
+        if (savedData) {
+            console.log(`[DB] Restoring player state for ${playerName}`);
+            player.gold = savedData.gold || 0;
+            player.xp = savedData.xp || 0;
+            player.level = savedData.level || 1;
+            player._crewCount = savedData.crewCount !== undefined ? savedData.crewCount : player.getFleetMaxCrew(player.fleet);
+            
+            // Reconstruct fleet
+            if (savedData.fleet && savedData.fleet.length > 0) {
+                const { SHIP_CLASSES } = require('./entities/ShipClass');
+                player.fleet = savedData.fleet.map(s => {
+                    let className = 'FLUYT';
+                    for (const key in SHIP_CLASSES) {
+                        if (SHIP_CLASSES[key].id === s.classId) {
+                            className = key;
+                            break;
+                        }
+                    }
+                    const ship = new Ship(className);
+                    ship.health = s.hullHP !== undefined ? s.hullHP : ship.maxHealth;
+                    ship.sailIntegrity = s.sailIntegrity !== undefined ? s.sailIntegrity : 100;
+                    return ship;
+                });
+                player.fleetCargo.setFleet(player.fleet);
+                if (savedData.fleet[0].cargo) {
+                    player.fleetCargo.goods = savedData.fleet[0].cargo;
+                }
+                player.clampCrewCount();
+            }
+
+            // Restore position (fallback logic will be handled if spawn is invalid)
+            player.x = savedData.x;
+            player.y = savedData.y;
+            
+            // If they spawned in a harbor, snap them to the harbor's exact coordinate as safety
+            if (savedData.spawnMode === 'HARBOR' && savedData.lastHarborId) {
+                const harbor = this.world.harborRegistry.getHarborById(savedData.lastHarborId);
+                if (harbor) {
+                    player.x = harbor.tileX * GAME.TILE_SIZE;
+                    player.y = harbor.tileY * GAME.TILE_SIZE;
+                }
+            }
         } else {
-            spawnPosition = this.findSafeSpawnPosition();
+            // New player spawn logic
+            let spawnPosition;
+            if (customSpawn && customSpawn.x !== undefined && customSpawn.y !== undefined) {
+                spawnPosition = customSpawn;
+                console.log(`[DEBUG] Custom spawn for ${playerName}: (${customSpawn.x}, ${customSpawn.y})`);
+            } else {
+                spawnPosition = this.findSafeSpawnPosition();
+            }
+            player.x = spawnPosition.x;
+            player.y = spawnPosition.y;
         }
-
-        player.x = spawnPosition.x;
-        player.y = spawnPosition.y;
 
         this.world.addEntity(player);
 
@@ -299,8 +346,34 @@ class GameLoop {
 
     removePlayer(id) {
         const player = this.world.getEntity(id);
-        if (player && player.dockedHarborId) {
-            this.removePlayerFromHarbor(id, player.dockedHarborId);
+        if (player) {
+            if (player.dockedHarborId) {
+                this.removePlayerFromHarbor(id, player.dockedHarborId);
+            }
+            
+            // Disconnect Save (Best Effort)
+            if (player.token && !player.isRaft) {
+                const playerData = {
+                    token: player.token,
+                    name: player.name,
+                    x: player.x,
+                    y: player.y,
+                    lastHarborId: player.dockedHarborId || player.lastHarborId || null,
+                    spawnMode: player.inHarbor ? 'HARBOR' : 'AT_SEA',
+                    gold: player.gold,
+                    xp: player.xp,
+                    level: player.level,
+                    crewCount: player.crewCount,
+                    fleet: player.fleet.map((ship, index) => ({
+                        id: ship.id,
+                        classId: ship.shipClass.id,
+                        hullHP: ship.health,
+                        sailIntegrity: ship.sailIntegrity,
+                        cargo: index === 0 ? player.fleetCargo.goods : {}
+                    }))
+                };
+                DatabaseService.savePlayer(playerData);
+            }
         }
         this.world.removeEntity(id);
     }
@@ -589,6 +662,30 @@ class GameLoop {
 
         // Send harbor data to client
         this.sendHarborData(socket.id, player, harbor);
+
+        // DB Harbor Save
+        if (player.token) {
+            const playerData = {
+                token: player.token,
+                name: player.name,
+                x: player.x, // Saved at harbor entrance
+                y: player.y,
+                lastHarborId: harbor.id,
+                spawnMode: 'HARBOR',
+                gold: player.gold,
+                xp: player.xp,
+                level: player.level,
+                crewCount: player.crewCount,
+                fleet: player.fleet.map((ship, index) => ({
+                    id: ship.id,
+                    classId: ship.shipClass.id,
+                    hullHP: ship.health,
+                    sailIntegrity: ship.sailIntegrity,
+                    cargo: index === 0 ? player.fleetCargo.goods : {}
+                }))
+            };
+            DatabaseService.savePlayer(playerData);
+        }
     }
 
     /**
@@ -651,6 +748,11 @@ class GameLoop {
         // Deduct gold and repair flagship
         player.removeGold(repairCost);
         player.flagship.health = Math.min(player.flagship.health + hpToRepair, player.flagship.maxHealth);
+        
+        // Always fully repair sails when repairing hull
+        player.flagship.sailIntegrity = 100;
+
+        player.needsSave = true;
         console.log(`Player ${playerId} repaired ${hpToRepair} HP for ${repairCost} gold`);
 
         // Send success notification
@@ -683,6 +785,7 @@ class GameLoop {
         player.fleet[0] = newShip;
         player.flagshipIndex = 0;
         player.clampCrewCount();
+        player.needsSave = true;
 
         console.log(`Player ${playerId} switched flagship to ${shipClass}`);
 
@@ -751,6 +854,7 @@ class GameLoop {
 
                 // Grant 10-second shield when leaving harbor (no firing allowed)
                 player.shieldEndTime = Date.now() / 1000 + COMBAT.HARBOR_EXIT_SHIELD_DURATION;
+                player.needsSave = true;
 
                 console.log(`Player ${playerId} left ${harbor.name} with 10s shield (no firing)`);
             }
@@ -801,6 +905,7 @@ class GameLoop {
 
         // Update FleetCargo reference to new fleet
         player.fleetCargo.setFleet(player.fleet);
+        player.needsSave = true;
 
         console.log(`[Harbor] ${player.name}: Upgraded to ${shipClass.name} for ${shipClass.goldCost} gold (${player.gold} remaining)`);
 
@@ -836,6 +941,7 @@ class GameLoop {
 
         player.removeGold(hireCost);
         player.refillCrew();
+        player.needsSave = true;
 
         this.io.to(playerId).emit('transactionResult', {
             success: true,
@@ -866,6 +972,7 @@ class GameLoop {
 
         // If successful, emit updated player state
         if (result.success) {
+            player.needsSave = true;
             this.io.to(socketId).emit('playerStateUpdate', {
                 gold: player.gold,
                 cargo: player.fleetCargo.serialize()
@@ -891,6 +998,7 @@ class GameLoop {
 
         // If successful, emit updated player state
         if (result.success) {
+            player.needsSave = true;
             this.io.to(socketId).emit('playerStateUpdate', {
                 gold: player.gold,
                 cargo: player.fleetCargo.serialize()
@@ -947,6 +1055,42 @@ class GameLoop {
 
         // Broadcast to room
         this.io.to(roomName).emit('updateHarborOccupants', occupantsList);
+    }
+
+    dirtyAutosave() {
+        if (!DatabaseService.isConnected) return;
+        let savedCount = 0;
+        
+        for (const id in this.world.entities) {
+            const player = this.world.entities[id];
+            if (player.type === 'PLAYER' && player.token && player.needsSave && !player.isRaft) {
+                const playerData = {
+                    token: player.token,
+                    name: player.name,
+                    x: player.x,
+                    y: player.y,
+                    lastHarborId: player.dockedHarborId || player.lastHarborId || null,
+                    spawnMode: player.inHarbor ? 'HARBOR' : 'AT_SEA',
+                    gold: player.gold,
+                    xp: player.xp,
+                    level: player.level,
+                    crewCount: player.crewCount,
+                    fleet: player.fleet.map((ship, index) => ({
+                        id: ship.id,
+                        classId: ship.shipClass.id,
+                        hullHP: ship.health,
+                        sailIntegrity: ship.sailIntegrity,
+                        cargo: index === 0 ? player.fleetCargo.goods : {}
+                    }))
+                };
+                DatabaseService.savePlayer(playerData);
+                player.needsSave = false;
+                savedCount++;
+            }
+        }
+        if (savedCount > 0) {
+            console.log(`[DB] Dirty Autosave: Saved ${savedCount} players`);
+        }
     }
 }
 

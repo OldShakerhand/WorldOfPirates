@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const path = require('path');
 const GameLoop = require('./game/GameLoop');
 const ChangelogParser = require('./utils/ChangelogParser');
+const DatabaseService = require('./database/DatabaseService');
 
 const app = express();
 const server = http.createServer(app);
@@ -84,7 +85,7 @@ io.on('connection', (socket) => {
     }
 
     // Wait for player to set their name before adding to game
-    socket.on('setPlayerName', (data) => {
+    socket.on('setPlayerName', async (data) => {
         // Check if server is full
         if (playerCount >= MAX_PLAYERS) {
             console.log(`Server full (${MAX_PLAYERS}/${MAX_PLAYERS}). Rejecting ${socket.id}`);
@@ -97,10 +98,11 @@ io.on('connection', (socket) => {
         }
 
         const playerName = data.name || 'Anonymous';
+        const playerToken = data.token || null;
         const customSpawn = data.spawn || null;  // Optional {x, y} for testing
 
         // Try to add player (includes validation)
-        const success = gameLoop.addPlayer(socket, playerName, customSpawn);
+        const success = await gameLoop.addPlayer(socket, playerName, playerToken, customSpawn);
 
         if (success) {
             playerCount++;
@@ -499,6 +501,13 @@ function findNearbyArea(player) {
     };
 }
 
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+async function startServer() {
+    // Attempt database connection before accepting players
+    await DatabaseService.connect();
+    
+    server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+startServer();

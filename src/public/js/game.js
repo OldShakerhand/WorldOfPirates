@@ -1081,10 +1081,14 @@ function showHarborUI(harborData) {
 
     // Show/hide repair button based on damage
     const repairBtn = document.getElementById('repairBtn');
-    if (harborData.fleet[0].health < harborData.fleet[0].maxHealth) {
+    if (harborData.fleet[0].health < harborData.fleet[0].maxHealth || (harborData.fleet[0].sailIntegrity !== undefined && harborData.fleet[0].sailIntegrity < 100)) {
         repairBtn.style.display = 'block';
         const repairCost = Math.round(harborData.fleet[0].maxHealth - harborData.fleet[0].health);
-        repairBtn.textContent = `Repair Flagship (${repairCost} HP)`;
+        if (repairCost > 0) {
+            repairBtn.textContent = `Repair Flagship (${repairCost} HP)`;
+        } else {
+            repairBtn.textContent = `Repair Flagship Sails`;
+        }
     } else {
         repairBtn.style.display = 'none';
     }

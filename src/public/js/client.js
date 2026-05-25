@@ -102,9 +102,23 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('[DEBUG] Custom spawn requested:', customSpawn);
         }
 
+        // Fetch or create persistent player token
+        let playerToken = localStorage.getItem('pirate_token');
+        if (!playerToken) {
+            // Generate a simple UUID-like string if crypto.randomUUID is unavailable
+            playerToken = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+                ? crypto.randomUUID() 
+                : 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, () => (Math.random() * 16 | 0).toString(16));
+            localStorage.setItem('pirate_token', playerToken);
+            console.log('[Auth] Generated new player token:', playerToken);
+        } else {
+            console.log('[Auth] Loaded existing player token:', playerToken);
+        }
+
         // Send player name to server (with optional spawn)
         socket.emit('setPlayerName', {
             name: playerName,
+            token: playerToken,
             spawn: customSpawn
         });
 
