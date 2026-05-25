@@ -127,8 +127,13 @@ class World {
             this.entities[id].update(deltaTime, this.wind, this.worldMap);
         }
 
+        // Build spatial hash once per tick — shared by projectile and ship collision loops.
+        // Cell size is derived from PROJECTILE_MAX_DISTANCE so it automatically stays correct
+        // when range is rebalanced in config. See TECH_DEBT_011.
+        const { spatialHash, cellSize } = this._buildSpatialHash();
+
         // Resolve Ship-to-Ship Collisions (SAT-based separation)
-        this.resolveShipCollisions();
+        this.resolveShipCollisions(spatialHash, cellSize);
 
         // Update Projectiles
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
@@ -136,45 +141,30 @@ class World {
             proj.update(deltaTime);
 
             // Collision Detection with Rotated Rectangles
-            for (const id in this.entities) {
-                const entity = this.entities[id];
-                // Check both PLAYER and NPC entities (same combat mechanics)
-                const isShipEntity = (entity.type === 'PLAYER' || entity.type === 'NPC');
-                const isNotOwner = entity.id !== proj.ownerId;
+            // Use spatial hash to limit candidates to cells near the projectile.
+            // The bounding-circle sqrt precheck is removed: the hash already restricts
+            // candidates to the same neighbourhood more cheaply.
+            const candidates = this._getNearbyCells(proj.x, proj.y, cellSize, spatialHash);
+            for (const entity of candidates) {
+                // Skip owner (can't shoot yourself) and rafts (invulnerable)
+                if (entity.id === proj.ownerId) continue;
+                if (entity.isRaft) continue;
 
-                if (isShipEntity && isNotOwner) {
-                    // Skip rafts (invulnerable)
-                    if (entity.isRaft) continue;
-
-                    // DEBUG ONLY: Bounding circle precheck for proximity detection
-                    // Used to detect near-misses and log hitbox dimensions
-                    // NO gameplay behavior change - this is observation only
+                // DEBUG ONLY: Log hitbox dimensions when collision is tested
+                if (COMBAT.DEBUG_COLLISION) {
                     const dx = proj.x - entity.x;
                     const dy = proj.y - entity.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
+                    const hitbox = entity.flagship.getHitbox();
+                    console.log(`[DEBUG] Testing: dist=${distance.toFixed(2)}px | Hitbox: ${hitbox.width.toFixed(1)}x${hitbox.height.toFixed(1)} | Rotation=${entity.rotation.toFixed(2)} | Ship pos=(${entity.x.toFixed(1)}, ${entity.y.toFixed(1)}) | Proj=(${proj.x.toFixed(1)}, ${proj.y.toFixed(1)})`);
+                }
 
-                    // Rough bounding circle (conservative estimate)
-                    const boundingRadius = Math.max(entity.flagship.shipClass.spriteWidth, entity.flagship.shipClass.spriteHeight);
-                    const isNearShip = distance < boundingRadius;
-
-                    // DEBUG ONLY: Log hitbox dimensions when projectile is near
-                    if (COMBAT.DEBUG_COLLISION && isNearShip) {
-                        const hitbox = entity.flagship.getHitbox();
-                        console.log(`[DEBUG] Near ship: dist=${distance.toFixed(2)}px | Hitbox: ${hitbox.width.toFixed(1)}x${hitbox.height.toFixed(1)} | Rotation=${entity.rotation.toFixed(2)} | Ship pos=(${entity.x.toFixed(1)}, ${entity.y.toFixed(1)}) | Proj prev=(${proj.prevX.toFixed(1)}, ${proj.prevY.toFixed(1)}) curr=(${proj.x.toFixed(1)}, ${proj.y.toFixed(1)})`);
-                    }
-
-                    // Test rotated rectangle collision
-                    if (this.testRotatedRectCollision(entity, proj)) {
-                        // Pass owner ID as damage source for retaliation tracking
-                        entity.takeDamage(proj.damage, proj.ownerId, proj.damageProfile);
-                        proj.toRemove = true;
-                        break;
-                    }
-
-                    // DEBUG ONLY: Log near-miss if projectile passed through bounding area
-                    if (COMBAT.DEBUG_COLLISION && isNearShip) {
-                        console.log(`[DEBUG] Near-miss: projectile crossed ship bounding area but no hit registered`);
-                    }
+                // Test rotated rectangle collision
+                if (this.testRotatedRectCollision(entity, proj)) {
+                    // Pass owner ID as damage source for retaliation tracking
+                    entity.takeDamage(proj.damage, proj.ownerId, proj.damageProfile);
+                    proj.toRemove = true;
+                    break;
                 }
             }
 
@@ -304,42 +294,86 @@ class World {
     }
 
     /**
-     * Resolve collisions between ships using Separating Axis Theorem (SAT)
-     * Pushes overlapping ships apart gently without physics simulation
+     * Build a spatial hash of all living, non-raft ship entities for the current tick.
+     * Cell size is derived from PROJECTILE_MAX_DISTANCE * SPATIAL_HASH_CELL_MULTIPLIER
+     * so it automatically adapts when cannon range is rebalanced in config.
+     *
+     * Returns { spatialHash: Map<cellKey, Entity[]>, cellSize: number }
      */
-    resolveShipCollisions() {
-        const entityIds = Object.keys(this.entities);
-        const ships = [];
+    _buildSpatialHash() {
+        const cellSize = COMBAT.PROJECTILE_MAX_DISTANCE * COMBAT.SPATIAL_HASH_CELL_MULTIPLIER;
+        const spatialHash = new Map();
 
-        // Filter valid ships (Player or NPC)
-        for (const id of entityIds) {
+        for (const id in this.entities) {
             const ent = this.entities[id];
-            // Check type and ensure flagship exists and is alive
-            if ((ent.type === 'PLAYER' || ent.type === 'NPC') &&
-                !ent.isSunk && ent.flagship && ent.flagship.health > 0) {
-                ships.push(ent);
+            if ((ent.type !== 'PLAYER' && ent.type !== 'NPC') || ent.isRaft || ent.isSunk) continue;
+            if (!ent.flagship || ent.flagship.health <= 0) continue;
+
+            const cellX = Math.floor(ent.x / cellSize);
+            const cellY = Math.floor(ent.y / cellSize);
+            const key = `${cellX},${cellY}`;
+
+            if (!spatialHash.has(key)) spatialHash.set(key, []);
+            spatialHash.get(key).push(ent);
+        }
+
+        return { spatialHash, cellSize };
+    }
+
+    /**
+     * Return all entities from the cell containing (x, y) and its 8 neighbours.
+     * Handles negative coordinates correctly (Math.floor works for negatives).
+     */
+    _getNearbyCells(x, y, cellSize, spatialHash) {
+        const cellX = Math.floor(x / cellSize);
+        const cellY = Math.floor(y / cellSize);
+        const result = [];
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const bucket = spatialHash.get(`${cellX + dx},${cellY + dy}`);
+                if (bucket) {
+                    for (const ent of bucket) result.push(ent);
+                }
             }
         }
 
-        // Check every unique pair
-        for (let i = 0; i < ships.length; i++) {
-            for (let j = i + 1; j < ships.length; j++) {
-                const shipA = ships[i];
-                const shipB = ships[j];
+        return result;
+    }
 
-                // Skip if either is a Raft (rafts don't collide with ships)
-                if (shipA.isRaft || shipB.isRaft) continue;
+    /**
+     * Resolve collisions between ships using Separating Axis Theorem (SAT).
+     * Uses the pre-built spatial hash to avoid O(ships²) pair checks.
+     * The bounding-circle check is kept as a cheap guard before the expensive SAT.
+     */
+    resolveShipCollisions(spatialHash, cellSize) {
+        const checkedPairs = new Set();
 
-                // Broad Phase: Circle check
+        for (const id in this.entities) {
+            const shipA = this.entities[id];
+            if ((shipA.type !== 'PLAYER' && shipA.type !== 'NPC') || shipA.isRaft || shipA.isSunk) continue;
+            if (!shipA.flagship || shipA.flagship.health <= 0) continue;
+
+            const candidates = this._getNearbyCells(shipA.x, shipA.y, cellSize, spatialHash);
+
+            for (const shipB of candidates) {
+                if (shipB === shipA || shipB.isRaft) continue;
+
+                // Deduplicate pairs — each A/B pair must only be checked once
+                const pairKey = shipA.id < shipB.id
+                    ? `${shipA.id}|${shipB.id}`
+                    : `${shipB.id}|${shipA.id}`;
+                if (checkedPairs.has(pairKey)) continue;
+                checkedPairs.add(pairKey);
+
+                // Broad Phase: Circle check (cheap guard before SAT)
                 const dimA = Math.max(shipA.flagship.shipClass.spriteWidth, shipA.flagship.shipClass.spriteHeight);
                 const dimB = Math.max(shipB.flagship.shipClass.spriteWidth, shipB.flagship.shipClass.spriteHeight);
-                const radiussum = (dimA + dimB) * 0.6;
-
+                const radiusSum = (dimA + dimB) * 0.6;
                 const dx = shipB.x - shipA.x;
                 const dy = shipB.y - shipA.y;
-                const distSq = dx * dx + dy * dy;
 
-                if (distSq < radiussum * radiussum) {
+                if (dx * dx + dy * dy < radiusSum * radiusSum) {
                     // Narrow Phase: SAT
                     this.solveSAT(shipA, shipB);
                 }

@@ -144,6 +144,13 @@ const GameConfig = {
         // NOTE: Gravity is calculated dynamically in Projectile.js to ensure
         // projectile reaches water exactly at PROJECTILE_MAX_DISTANCE
 
+        // Spatial hash for collision detection (TECH_DEBT_011)
+        // Cell size = PROJECTILE_MAX_DISTANCE * SPATIAL_HASH_CELL_MULTIPLIER
+        // Must stay >= PROJECTILE_MAX_DISTANCE so a projectile can never skip a cell in one tick.
+        // Multiplier of 1.5 gives comfortable margin. Adjust only if you want a coarser/finer
+        // grid independently of projectile range (e.g. when adding very fast projectile types).
+        SPATIAL_HASH_CELL_MULTIPLIER: 1.5,
+
         // Visual
         PROJECTILE_BALL_RADIUS: 2,           // Visual size of the cannonball
         PROJECTILE_SHADOW_RADIUS: 1,         // Visual size of the shadow
